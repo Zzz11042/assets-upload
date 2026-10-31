@@ -598,6 +598,92 @@ const API = {
       try { return fs.readdirSync(dir, { withFileTypes: true }).map(f => f.name).slice(0, 40); } catch { return []; }
     }
   },
+  // 一键本地扫描：递归整理指定根目录下的所有项目与资产，标出可分析项供创作者选择
+  // 规则：识别项目（package.json/pyproject/project.json/state.json/index.html/server.mjs）、
+  //       资产（png/jpg/webp/gl 计数）、文档；analyzable = 有可读入口或资产文件 >=10
+  "/api/local-scan": (q) => {
+    const rootsParam = (q.get("roots") || "").split(",").map(s => s.trim()).filter(Boolean);
+    const roots = rootsParam.length ? rootsParam.map(r => path.resolve(r)) : [WS, FORGE, TOMATO];
+    const depth = Math.min(Number(q.get("depth") || 3), 4);
+    const SKIP = new Set(["node_modules", ".git", "__pycache__", ".cache", "dist", "build", "profiles", "logs", "vault"]);
+    const IMG = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".glb", ".fbx"];
+    const DOC = [".md", ".txt", ".json", ".csv", ".html", ".py", ".mjs", ".js", ".ts"];
+    const projMarkers = [
+      ["package.json", "npm 项目"],
+      ["pyproject.toml", "Python 包"],
+      ["project.json", "短剧项目"],
+      ["state.json", "连载/状态"],
+      ["server.mjs", "本地服务"],
+      ["index.html", "H5/页面"],
+    ];
+    // 扫描一个根：收集目录条目（不递归进 SKIP；深度限制）
+    const results = [];
+    const dirMap = new Map(); // relPath -> 资产统计
+    const walk = (abs, rel, d) => {
+      if (d > depth) return;
+      let names = [];
+      try { names = fs.readdirSync(abs, { withFileTypes: true }); } catch { return; }
+      // 本目录统计
+      const rec = { name: path.basename(abs) || abs, path: rel || path.basename(abs), type: "unknown", files: 0, assets: 0, docs: 0, sizeMB: 0, tags: [], analyzable: false, analyze_hint: "" };
+      for (const e of names) {
+        if (e.name.startsWith(".") || SKIP.has(e.name)) continue;
+        const full = path.join(abs, e.name);
+        let st;
+        try { st = fs.statSync(full); } catch { continue; }
+        if (st.isDirectory()) {
+          walk(full, rel ? rel + "/" + e.name : e.name, d + 1);
+        } else {
+          const ext = path.extname(e.name).toLowerCase();
+          rec.files++;
+          rec.sizeMB += st.size / 1048576;
+          if (IMG.includes(ext)) rec.assets++;
+          else if (DOC.includes(ext)) rec.docs++;
+        }
+      }
+      // 项目标记识别
+      for (const [marker, tag] of projMarkers) {
+        if (names.some(e => e.isFile() && e.name === marker)) {
+          rec.type = "project";
+          rec.tags.push(tag);
+          rec.analyzable = true;
+          rec.analyze_hint = "含 " + marker + "，可读取入口分析";
+        }
+      }
+      if (rec.assets >= 10) { rec.type = rec.type === "unknown" ? "assets" : "mixed"; if (!rec.analyzable) { rec.analyzable = true; rec.analyze_hint = "含 " + rec.assets + " 个资产文件，可提取分析"; } }
+      else if (rec.docs >= 5) { if (rec.type === "unknown") rec.type = "docs"; if (!rec.analyzable && rec.docs >= 15) { rec.analyzable = true; rec.analyze_hint = "含 " + rec.docs + " 个文档，可归纳总结"; } }
+      else if (rec.type === "unknown") rec.type = "other";
+      if (rec.files > 0) { rec.sizeMB = Math.round(rec.sizeMB * 10) / 10; dirMap.set(rec.path, rec); results.push(rec); }
+    };
+    for (const root of roots) {
+      const base = path.basename(root) || root;
+      walk(root, base, 0);
+    }
+    // 去重：按「规范化绝对路径前缀」过滤——某根包含另一根时，子根的重复条目丢弃
+    const seenAbs = new Set();
+    const dedup = results.filter(r => {
+      // 找该条目的绝对路径（roots[i] + 去掉 base 前缀的相对部分）
+      const idx = roots.findIndex(rt => path.basename(rt) === (r.path.split("/")[0] || ""));
+      const rt = idx >= 0 ? roots[idx] : roots[0];
+      const abs = r.path === path.basename(rt) ? rt : path.join(rt, r.path.slice((path.basename(rt) + "/").length));
+      const norm = path.resolve(abs);
+      // 若已被某祖先覆盖，跳过
+      for (const p of seenAbs) if (norm.startsWith(p + path.sep)) return false;
+      seenAbs.add(norm);
+      return true;
+    });
+    // 按 analyzable 优先 + 类型排序
+    dedup.sort((a, b) => (b.analyzable ? 1 : 0) - (a.analyzable ? 1 : 0) || a.path.localeCompare(b.path));
+    const out = {
+      roots: roots.map(r => path.basename(r)),
+      scanned_at: new Date().toISOString(),
+      total: dedup.length,
+      analyzable: dedup.filter(r => r.analyzable).length,
+      byType: dedup.reduce((m, r) => (m[r.type] = (m[r.type] || 0) + 1, m), {}),
+      items: dedup,
+    };
+    return out;
+  },
+
   // 导出给 agent（DSH / Codex）的实现包：markdown + 精简 JSON（按领域切指令模板）
   "/api/export": async (q, req, res) => {
     if (req.method !== "POST") return null;
