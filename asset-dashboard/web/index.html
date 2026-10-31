@@ -283,7 +283,7 @@ function show(v){
   if(v==="local-scan")loadLocalScan();
 }
 
-async function api(p){const r=await fetch(p);return r.json();}
+async function api(p){const r=await fetch(p);if(!r.ok)throw new Error("HTTP "+r.status);let j;try{j=await r.json();}catch(e){throw new Error("响应非 JSON（HTTP "+r.status+"）");}return j;}
 
 function tableEl(id,rows,cols){
   const t=$(id);t.innerHTML="";
@@ -464,33 +464,36 @@ async function runLocalScan(){
   $("#ls-go").disabled=false;
 }
 function renderLocalScan(r){
+  const byType=r.byType||{};
+  const opts=r.options||{};
+  const items=r.items||[];
   const tiles=$("#ls-tiles");
   tiles.innerHTML=
-    "<div class='tile'><div class='num'>"+r.total+"</div><div class='lbl'>目录数</div></div>"+
-    "<div class='tile'><div class='num'>"+r.analyzable+"</div><div class='lbl'>可分析</div></div>"+
-    "<div class='tile'><div class='num'>"+(r.byType.project||0)+"</div><div class='lbl'>项目</div></div>"+
-    "<div class='tile'><div class='num'>"+(r.byType.assets||0)+"</div><div class='lbl'>资产目录</div></div>";
+    "<div class='tile'><div class='num'>"+(r.total||0)+"</div><div class='lbl'>目录数</div></div>"+
+    "<div class='tile'><div class='num'>"+(r.analyzable||0)+"</div><div class='lbl'>可分析</div></div>"+
+    "<div class='tile'><div class='num'>"+(byType.project||0)+"</div><div class='lbl'>项目</div></div>"+
+    "<div class='tile'><div class='num'>"+(byType.assets||0)+"</div><div class='lbl'>资产目录</div></div>";
   // 分组展示可分析项
   const g=$("#ls-grouped");
   g.innerHTML="";
   const groups=r.grouped||{};
-  for(const [root,items] of Object.entries(groups)){
-    const an=items.filter(x=>x.analyzable);
+  for(const [root,its] of Object.entries(groups)){
+    const an=(its||[]).filter(x=>x.analyzable);
     if(!an.length)continue;
     const div=document.createElement("div");
     div.style.marginBottom="10px";
-    div.innerHTML="<div class='sub' style='color:var(--dim);font-size:12px;margin-bottom:4px'>▸ "+esc(root)+"（可分析 "+an.length+" / 共 "+items.length+"）</div>"+
+    div.innerHTML="<div class='sub' style='color:var(--dim);font-size:12px;margin-bottom:4px'>▸ "+esc(root)+"（可分析 "+an.length+" / 共 "+(its.length||0)+"）</div>"+
       "<table style='margin-bottom:4px'><tr><th>选</th><th>名称</th><th>路径</th><th>类型</th><th>标签</th><th>MB</th><th>分析提示</th></tr></table>";
     const t=div.querySelector("table");
     t.innerHTML+=an.map(x=>"<tr><td><input type='checkbox' class='ls-cb' data-p='"+esc(x.path)+"' data-root='"+esc(root)+"'></td><td>"+esc(x.name)+"</td><td class='dim'>"+esc(x.path)+"</td><td>"+esc(x.type)+"</td><td class='dim'>"+esc((x.tags||[]).join(" · "))+"</td><td>"+x.sizeMB+"</td><td class='dim'>"+esc(x.analyze_hint||"-")+"</td></tr>").join("");
     g.appendChild(div);
   }
-  const aRows=r.items.filter(x=>x.analyzable).map(x=>({...x,_tags:(x.tags||[]).join(" · ")}));
+  const aRows=items.filter(x=>x.analyzable).map(x=>({...x,_tags:(x.tags||[]).join(" · ")}));
   fillTable("#ls-analyzable",aRows,[{label:"名称",key:"name"},{label:"路径",key:"path"},{label:"类型",key:"type"},{label:"标签",key:"_tags"},{label:"MB",key:"sizeMB"},{label:"分析提示",key:"analyze_hint"}]);
   const allCols=[{label:"名称",key:"name"},{label:"类型",key:"type"},{label:"文件",key:"files"},{label:"资产",key:"assets"},{label:"MB",key:"sizeMB"},{label:"可分析",key:"_an"}];
-  const allRows=r.items.map(x=>({...x,_an:x.analyzable?"✓":""}));
+  const allRows=items.map(x=>({...x,_an:x.analyzable?"✓":""}));
   fillTable("#ls-all",allRows,allCols);
-  $("#ls-msg").textContent="扫描完成（预设："+(r.options.preset)+"，深度 "+r.options.depth+"）：共 "+r.total+" 个目录，其中 "+r.analyzable+" 个可分析。勾选后可点「导出勾选给 agent」。";
+  $("#ls-msg").textContent="扫描完成（预设："+(opts.preset||"-")+"，深度 "+(opts.depth||"-")+"）：共 "+(r.total||0)+" 个目录，其中 "+(r.analyzable||0)+" 个可分析。勾选后可点「导出勾选给 agent」。";
 }
 // 导出勾选给 agent
 document.addEventListener("click",async e=>{

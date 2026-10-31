@@ -707,15 +707,22 @@ const API = {
     }
     const out = {
       preset,
-      roots: roots.map(r => path.basename(r) || r),
+      roots: (roots || []).map(r => path.basename(r) || r),
       scanned_at: new Date().toISOString(),
       total: dedup.length,
       analyzable: dedup.filter(r => r.analyzable).length,
       byType: dedup.reduce((m, r) => (m[r.type] = (m[r.type] || 0) + 1, m), {}),
       items: dedup,
       grouped,
-      options: { depth, includeHidden, preset, roots },
+      options: { depth, includeHidden, preset, roots: (roots || []).map(r => path.basename(r) || r) },
     };
+    // 字段完整性兜底：任何情况下都保证前端所需字段存在
+    out.total = out.total || 0;
+    out.analyzable = out.analyzable || 0;
+    out.byType = out.byType || {};
+    out.items = out.items || [];
+    out.grouped = out.grouped || {};
+    out.options = out.options || { depth, includeHidden, preset };
     return out;
   },
 
