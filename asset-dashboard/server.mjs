@@ -601,10 +601,37 @@ const API = {
   // 一键本地扫描：递归整理指定根目录下的所有项目与资产，标出可分析项供创作者选择
   // 规则：识别项目（package.json/pyproject/project.json/state.json/index.html/server.mjs）、
   //       资产（png/jpg/webp/gl 计数）、文档；analyzable = 有可读入口或资产文件 >=10
+  // 预设：preset=workspace（默认）/ home / all（全电脑）；可配 includeHidden、maxDepth
   "/api/local-scan": (q) => {
+    const preset = q.get("preset") || "workspace";
+    const depth = Math.min(Number(q.get("depth") || (preset === "all" ? 4 : 3)), 8);
+    const includeHidden = q.get("includeHidden") === "1";
     const rootsParam = (q.get("roots") || "").split(",").map(s => s.trim()).filter(Boolean);
-    const roots = rootsParam.length ? rootsParam.map(r => path.resolve(r)) : [WS, FORGE, TOMATO];
-    const depth = Math.min(Number(q.get("depth") || 3), 4);
+    let roots;
+    if (rootsParam.length) roots = rootsParam.map(r => path.resolve(r));
+    else if (preset === "home") {
+      const home = process.env.HOME || process.env.USERPROFILE || path.resolve(".");
+      roots = [home];
+    } else if (preset === "all") {
+      // 全电脑：按 OS 给默认根
+      const home = process.env.HOME || process.env.USERPROFILE || "";
+      if (process.platform === "win32") {
+        roots = [];
+        if (home) roots.push(home);
+        for (const drv of ["C", "D", "E", "F"]) {
+          try { fs.accessSync(drv + ":\\" ); roots.push(drv + ":\\" ); } catch {}
+        }
+        if (!roots.length) roots = ["C:\\"];
+      } else {
+        roots = ["/home", "/opt", "/srv", "/data"].filter(p => {
+          try { fs.accessSync(p); return true; } catch { return false; }
+        });
+        if (home && !roots.some(r => home.startsWith(r))) roots.push(home);
+        if (!roots.length) roots = [WS, FORGE, TOMATO];
+      }
+    } else {
+      roots = [WS, FORGE, TOMATO];
+    }
     const SKIP = new Set(["node_modules", ".git", "__pycache__", ".cache", "dist", "build", "profiles", "logs", "vault"]);
     const IMG = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".glb", ".fbx"];
     const DOC = [".md", ".txt", ".json", ".csv", ".html", ".py", ".mjs", ".js", ".ts"];
@@ -616,7 +643,7 @@ const API = {
       ["server.mjs", "本地服务"],
       ["index.html", "H5/页面"],
     ];
-    // 扫描一个根：收集目录条目（不递归进 SKIP；深度限制）
+    // 扫描一个根：收集目录条目（不递归进 SKIP；深度限制；可选含隐藏目录）
     const results = [];
     const dirMap = new Map(); // relPath -> 资产统计
     const walk = (abs, rel, d) => {
@@ -624,9 +651,10 @@ const API = {
       let names = [];
       try { names = fs.readdirSync(abs, { withFileTypes: true }); } catch { return; }
       // 本目录统计
-      const rec = { name: path.basename(abs) || abs, path: rel || path.basename(abs), type: "unknown", files: 0, assets: 0, docs: 0, sizeMB: 0, tags: [], analyzable: false, analyze_hint: "" };
+      const rec = { name: path.basename(abs) || abs, path: rel || path.basename(abs), type: "unknown", files: 0, assets: 0, docs: 0, sizeMB: 0, tags: [], analyzable: false, analyze_hint: "", root: path.basename(roots.find(r => abs === r || abs.startsWith(r + path.sep)) || abs) };
       for (const e of names) {
-        if (e.name.startsWith(".") || SKIP.has(e.name)) continue;
+        if (!includeHidden && e.name.startsWith(".")) continue;
+        if (SKIP.has(e.name)) continue;
         const full = path.join(abs, e.name);
         let st;
         try { st = fs.statSync(full); } catch { continue; }
@@ -661,25 +689,32 @@ const API = {
     // 去重：按「规范化绝对路径前缀」过滤——某根包含另一根时，子根的重复条目丢弃
     const seenAbs = new Set();
     const dedup = results.filter(r => {
-      // 找该条目的绝对路径（roots[i] + 去掉 base 前缀的相对部分）
       const idx = roots.findIndex(rt => path.basename(rt) === (r.path.split("/")[0] || ""));
       const rt = idx >= 0 ? roots[idx] : roots[0];
       const abs = r.path === path.basename(rt) ? rt : path.join(rt, r.path.slice((path.basename(rt) + "/").length));
       const norm = path.resolve(abs);
-      // 若已被某祖先覆盖，跳过
       for (const p of seenAbs) if (norm.startsWith(p + path.sep)) return false;
       seenAbs.add(norm);
       return true;
     });
     // 按 analyzable 优先 + 类型排序
     dedup.sort((a, b) => (b.analyzable ? 1 : 0) - (a.analyzable ? 1 : 0) || a.path.localeCompare(b.path));
+    // 按根分组
+    const grouped = {};
+    for (const r of dedup) {
+      const g = r.root || "other";
+      (grouped[g] = grouped[g] || []).push(r);
+    }
     const out = {
-      roots: roots.map(r => path.basename(r)),
+      preset,
+      roots: roots.map(r => path.basename(r) || r),
       scanned_at: new Date().toISOString(),
       total: dedup.length,
       analyzable: dedup.filter(r => r.analyzable).length,
       byType: dedup.reduce((m, r) => (m[r.type] = (m[r.type] || 0) + 1, m), {}),
       items: dedup,
+      grouped,
+      options: { depth, includeHidden, preset, roots },
     };
     return out;
   },
