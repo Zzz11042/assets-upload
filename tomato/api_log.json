@@ -1,0 +1,302 @@
+[
+ {
+  "t": 1792933201274,
+  "url": "https://fanqienovel.com/api/author/verify/check_user_status/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_first_pass_status\":1},\"log_id\":\"2026102521000175AA839E6D618232D559\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933201608,
+  "url": "https://fanqienovel.com/api/author/book/book_list/v0/?aid=2503&app_name=muye_novel&page_count=10&page_index=0&image_fmt_list=270x480",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"total_count\":6,\"is_cp\":0,\"book_list\":[{\"book_name\":\"末世第三十天，我还在上班\",\"book_id\":\"7700571660746755134\",\"status\":1,\"verify_status\":4,\"thumb_uri\":\"novel-pic/p2o46c0371de11bce7819fe386eddfbafa1\",\"category\":\"\",\"create_time\":\"1792929056\",\"author\":\"\",\"abstract\":\"丧尸爆发第三十天，全世界都疯了，只有写字楼还在正常上班。老板变异了，把整层楼三百号人全留用了。我，底层HR，被委派了一项创新业务：给丧尸做绩效考核。它们不会说谎，不会摸鱼，不会在群里发收到——它们只会按你排的班表，准时出现在工位。而我，靠着一本考勤表，把丧尸劳动力做成了末世第一产业链。当军方、军阀、和那个给全洲军火代理供货的雇佣兵团都盯上这栋楼的时候，我才发现：末世里最值钱的，不是枪，是编制。\",\"genre\":0,\"price\":0,\"word_count\":2740,\"sale_type\":0,\"read_count\":0,\"authorize_type\":0,\"sign_progress\":0,\"creation_status\":1,\"can_recommend\":0,\"origin_level\":\"C\",\"origin_app_level\":0,\"book_flight_alias_name\":\"\",\"free_status\":0,\"last_chapter_time\":\"1792929281\",\"last_chapter_title\":\"第1章 铁腕帮上门\",\"last_chapter_id\":\"7700572201447064126\",\"chapter_number\":1,\"total_impression_count\":0,\"add_bookshelf_count\":0,\"attend_day_count\":0,\"attend_word_count\":0,\"attend_need_word_count\":0,\"is_cp\":0,\"source\":\"用户12385182\",\"set_top\":-2,\"has_hide\":-2,\"has_activity\":0,\"activity_id\":0,\"activity_name\":\"\",\"can_join_activity\":false,\"can_join_activity_id\":\"\",\"can_join_activity_name\":\"\",\"can_join_activity_url\":\"\",\"sign_level_status\":{\"sign_level\":1,\"expect_word_number\":297260},\"security_auditor_status\":0,\"security_status\":1,\"thumb_url_list\":[{\"size\":\"270x480\",\"main_url\":\"https://p0-reading-private.fanqienovel.com/novel-pic/p2o46c0371de11bce7819fe386eddfbafa1~tplv-resize:270:480.image?lk3s=8c91f0b0&policy=eyJ2bSI6MywidWlkIjoiMTIzODUxODIzMDk1MjY2NiJ9&x-orig-authkey=9789e59a7aff57c4619b24f373478561&x-orig-expires=1795525201&x-orig-sign=dsyzGIUvuyIeBxM%2BbTZb6b4W0Bk%3D\",\"backup_url\":\"https://p0-reading-private.fanqienovel.com/novel-pic/p2o46c0371de11bce7819fe386eddfbafa1~tplv-resize:270:480.image?lk3s=8c91f0b0&policy=eyJ2bSI6MywidWlkIjoiMTIzODUxODIzMDk1MjY2NiJ9&x-orig-authkey=9789e59a7aff57c4619b24f373478561&x-orig-expires=1795525201&x-orig-sign=dsyzGIUvuyIeBxM%2BbTZb6b4W0Bk%3D\"}],\"book_intro\":{\"status\":\"\",\"tag\":\"\",\"message\":\"\"},\"book_intro_v2\":{\"intro_items\":[{\"item_key\":\"create_book\",\"item_name\":\"创建作品\"},{\"item_key\":\"publish_article\",\"item_name\":\"作品更新\",\"status\":\"cm_insufficient_sign_word_number\"},{\"item_key\":\"sign_book\",\"item_name\":\"作品签约\"},{\"item_key\":\"recommend_book\",\"item_name\":\"作品推荐\"}],\"active_item\":{\"item_key\":\"publish_article\",\"item_name\":\"作品更新\",\"status\":\"cm_insufficient_sign_word_number\",\"tag\":\"加油码字\",\"message\":\"你的作品未达到平台签约要求，作品还差29.7万字就可申请签约，请努力码字，签约后可获得收益和多重福利。<a href=\\\"/main/writer/book-info/7700571660746755134?experienceInfo=&experienceLevel=0&isNewSign=1&type=2\\\">点此了解</a>\"}},\"sign_pattern\":1,\"referral_traffic_permission\":0,\"referral_traffic_running_state\":0,\"in_attend_activity\":0,\"default_thumb_url\":true,\"write_extra_permission\":0,\"content_word_number\":2740,\"extra_word_number\":0,\"attend_brave_wind_task\":0,\"weak_ending\":0},{\"book_name\":\"我在第八十二空降师当店小二\",\"book_id\":\"7675577063591398462\",\"status\":1,\"verify_status\":4,\"thumb_uri\":\"novel-pic/p2o80a08e5f2c80915027af74fca5f15b64\",\"category\":\"\",\"create_time\":\"1787109548\","
+ },
+ {
+  "t": 1792933201922,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=7700571660746755134",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"20261025210001E4AD2F5944FED9DCD6C0\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933201976,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=7474675408646982681",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"2026102521000133BD37B36A0238DCD0A7\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933202016,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=7675577063591398462",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"202610252100010435369E367DA9A3528B\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933202029,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=7469335264570133529",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"20261025210001F0D5F9403491DA04F5A8\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933219312,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"20261025210019DCC8DD3439177014006F\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933219681,
+  "url": "https://fanqienovel.com/api/user/info/v2",
+  "status": 200,
+  "body": "{\"data\":{\"avatar\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"name\":\"用户12385182\",\"id\":\"1238518230952666\",\"desc\":\"一个人，两个人，三个人\",\"mediaId\":\"1808693377561609\",\"isCp\":0,\"hasSerialPermission\":1,\"firstBookGender\":1,\"hasAuthentication\":0,\"mpHighlightAuto\":1,\"isAuth\":0,\"isGuardianAuth\":0,\"type\":\"2\",\"isVip\":false,\"playletStatus\":0,\"goldTask\":false,\"aiImageEntryVisible\":false},\"code\":0,\"message\":\"success\",\"log_id\":\"20261025210019E3F6E2AF031EC5D2C766\",\"now\":1792933219270}"
+ },
+ {
+  "t": 1792933219686,
+  "url": "https://fanqienovel.com/api/author/account/info/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_name\":\"用户12385182\",\"description\":\"一个人，两个人，三个人\",\"avatar_url\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"phone_number\":\"198******34\",\"qq\":\"\",\"authorize_type\":0,\"verify_status\":1,\"is_cp\":0,\"is_auth\":0,\"mp_name\":\"番茄1238518230952666\",\"mp_is_auditing\":false,\"identity_code_mask\":null,\"identity_name_mask\":null,\"point\":0,\"point_detail\":[{\"key\":\"task_point\",\"name\":\"成长分\",\"point\":0},{\"key\":\"income_point\",\"name\":\"稿费分\",\"point\":0},{\"key\":\"other_point\",\"name\":\"附加分\",\"point\":0}],\"point_update_time\":\"1792635637\",\"author_level_id\":100,\"is_ban\":false,\"ai_picture_watermark\":0,\"auth_type\":0,\"enterprise_name\":null,\"enterprise_reg_no\":null,\"enterprise_legal_person_name\":null,\"bank_card_no\":null,\"bank_address\":null,\"pre_audit_switch_close\":0,\"can_create_serial_book\":false},\"log_id\":\"20261025210019E0AB97F6AE9BB37FB65B\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933220127,
+  "url": "https://fanqienovel.com/api/author/hot_word/word_list/v0?aid=2503&app_name=muye_novel&set_read_time=false&gender=1&type=1",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"last_read_time\":0,\"update_date\":202404,\"update_time\":1715592686,\"word_list\":[{\"child_list\":[],\"id\":\"202404_1_1_10\",\"name\":\"游戏\",\"pre_rank\":3,\"rank\":1},{\"child_list\":[],\"id\":\"202404_1_1_3\",\"name\":\"单女主\",\"pre_rank\":-1,\"rank\":2},{\"child_list\":[],\"id\":\"202404_1_1_4\",\"name\":\"末世\",\"pre_rank\":1,\"rank\":3},{\"child_list\":[],\"id\":\"202404_1_1_6\",\"name\":\"搞笑\",\"pre_rank\":4,\"rank\":4},{\"child_list\":[],\"id\":\"202404_1_1_5\",\"name\":\"异能\",\"pre_rank\":-1,\"rank\":5},{\"child_list\":[],\"id\":\"202404_1_1_9\",\"name\":\"同人\",\"pre_rank\":-1,\"rank\":6},{\"child_list\":[],\"id\":\"202404_1_1_8\",\"name\":\"直播\",\"pre_rank\":5,\"rank\":7},{\"child_list\":[],\"id\":\"202404_1_1_2\",\"name\":\"诡异\",\"pre_rank\":8,\"rank\":8},{\"child_list\":[],\"id\":\"202404_1_1_7\",\"name\":\"无限\",\"pre_rank\":9,\"rank\":9},{\"child_list\":[],\"id\":\"202404_1_1_1\",\"name\":\"扮演\",\"pre_rank\":6,\"rank\":10}]},\"log_id\":\"20261025210019329CEB059B0AC7E9CC8D\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933220296,
+  "url": "https://fanqienovel.com/api/author/activity/activity_list/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"activity_list\":[{\"activity_id\":301,\"deadline\":\"1798732799\",\"description\":\"\",\"detail_url\":\"https://fanqienovel.com/writer/zone/article/7694193795520282686\",\"group_categorys\":[\"1_8\",\"0_8\",\"1_261\",\"0_750\"],\"icon_uri\":\"novel-static/023ee4c73880dec35d119fb7f3ac90ce\",\"is_default_choose\":0,\"start_time\":\"1791820800\",\"status\":1,\"title\":\"番见京华 文映万千\"}],\"total_count\":1},\"log_id\":\"202610252100208E63D4349D07AC9E8498\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933220444,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"202610252100207A2B23205A91ABBD5B81\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933270900,
+  "url": "https://fanqienovel.com/api/user/info/v2",
+  "status": 200,
+  "body": "{\"data\":{\"avatar\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"name\":\"用户12385182\",\"id\":\"1238518230952666\",\"desc\":\"一个人，两个人，三个人\",\"mediaId\":\"1808693377561609\",\"isCp\":0,\"hasSerialPermission\":1,\"firstBookGender\":1,\"hasAuthentication\":0,\"mpHighlightAuto\":1,\"isAuth\":0,\"isGuardianAuth\":0,\"type\":\"2\",\"isVip\":false,\"playletStatus\":0,\"goldTask\":false,\"aiImageEntryVisible\":false},\"code\":0,\"message\":\"success\",\"log_id\":\"20261025210110E16A9AD9F54F0625DF69\",\"now\":1792933270468}"
+ },
+ {
+  "t": 1792933270912,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"2026102521011009B3D69F30B6BCD403AC\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933271012,
+  "url": "https://fanqienovel.com/api/author/account/info/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_name\":\"用户12385182\",\"description\":\"一个人，两个人，三个人\",\"avatar_url\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"phone_number\":\"198******34\",\"qq\":\"\",\"authorize_type\":0,\"verify_status\":1,\"is_cp\":0,\"is_auth\":0,\"mp_name\":\"番茄1238518230952666\",\"mp_is_auditing\":false,\"identity_code_mask\":null,\"identity_name_mask\":null,\"point\":0,\"point_detail\":[{\"key\":\"task_point\",\"name\":\"成长分\",\"point\":0},{\"key\":\"income_point\",\"name\":\"稿费分\",\"point\":0},{\"key\":\"other_point\",\"name\":\"附加分\",\"point\":0}],\"point_update_time\":\"1792635637\",\"author_level_id\":100,\"is_ban\":false,\"ai_picture_watermark\":0,\"auth_type\":0,\"enterprise_name\":null,\"enterprise_reg_no\":null,\"enterprise_legal_person_name\":null,\"bank_card_no\":null,\"bank_address\":null,\"pre_audit_switch_close\":0,\"can_create_serial_book\":false},\"log_id\":\"20261025210110CDB9B00D4A2572D05472\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933271256,
+  "url": "https://fanqienovel.com/api/author/hot_word/word_list/v0?aid=2503&app_name=muye_novel&set_read_time=false&gender=1&type=1",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"last_read_time\":0,\"update_date\":202404,\"update_time\":1715592686,\"word_list\":[{\"child_list\":[],\"id\":\"202404_1_1_10\",\"name\":\"游戏\",\"pre_rank\":3,\"rank\":1},{\"child_list\":[],\"id\":\"202404_1_1_3\",\"name\":\"单女主\",\"pre_rank\":-1,\"rank\":2},{\"child_list\":[],\"id\":\"202404_1_1_4\",\"name\":\"末世\",\"pre_rank\":1,\"rank\":3},{\"child_list\":[],\"id\":\"202404_1_1_6\",\"name\":\"搞笑\",\"pre_rank\":4,\"rank\":4},{\"child_list\":[],\"id\":\"202404_1_1_5\",\"name\":\"异能\",\"pre_rank\":-1,\"rank\":5},{\"child_list\":[],\"id\":\"202404_1_1_9\",\"name\":\"同人\",\"pre_rank\":-1,\"rank\":6},{\"child_list\":[],\"id\":\"202404_1_1_8\",\"name\":\"直播\",\"pre_rank\":5,\"rank\":7},{\"child_list\":[],\"id\":\"202404_1_1_2\",\"name\":\"诡异\",\"pre_rank\":8,\"rank\":8},{\"child_list\":[],\"id\":\"202404_1_1_7\",\"name\":\"无限\",\"pre_rank\":9,\"rank\":9},{\"child_list\":[],\"id\":\"202404_1_1_1\",\"name\":\"扮演\",\"pre_rank\":6,\"rank\":10}]},\"log_id\":\"202610252101107DBFB532F5721715383C\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933271530,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"20261025210111011A4AF91DFE2264431F\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933271588,
+  "url": "https://fanqienovel.com/api/author/activity/activity_list/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"activity_list\":[{\"activity_id\":301,\"deadline\":\"1798732799\",\"description\":\"\",\"detail_url\":\"https://fanqienovel.com/writer/zone/article/7694193795520282686\",\"group_categorys\":[\"1_8\",\"0_8\",\"1_261\",\"0_750\"],\"icon_uri\":\"novel-static/023ee4c73880dec35d119fb7f3ac90ce\",\"is_default_choose\":0,\"start_time\":\"1791820800\",\"status\":1,\"title\":\"番见京华 文映万千\"}],\"total_count\":1},\"log_id\":\"202610252101113F0AEAA4F412E1B610F8\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933305549,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"20261025210145CBCAAAD21081E16BB7B2\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933305607,
+  "url": "https://fanqienovel.com/api/author/account/info/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_name\":\"用户12385182\",\"description\":\"一个人，两个人，三个人\",\"avatar_url\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"phone_number\":\"198******34\",\"qq\":\"\",\"authorize_type\":0,\"verify_status\":1,\"is_cp\":0,\"is_auth\":0,\"mp_name\":\"番茄1238518230952666\",\"mp_is_auditing\":false,\"identity_code_mask\":null,\"identity_name_mask\":null,\"point\":0,\"point_detail\":[{\"key\":\"task_point\",\"name\":\"成长分\",\"point\":0},{\"key\":\"income_point\",\"name\":\"稿费分\",\"point\":0},{\"key\":\"other_point\",\"name\":\"附加分\",\"point\":0}],\"point_update_time\":\"1792635637\",\"author_level_id\":100,\"is_ban\":false,\"ai_picture_watermark\":0,\"auth_type\":0,\"enterprise_name\":null,\"enterprise_reg_no\":null,\"enterprise_legal_person_name\":null,\"bank_card_no\":null,\"bank_address\":null,\"pre_audit_switch_close\":0,\"can_create_serial_book\":false},\"log_id\":\"20261025210145D58CEE79E8CC01563538\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933306139,
+  "url": "https://fanqienovel.com/api/user/info/v2",
+  "status": 200,
+  "body": "{\"data\":{\"avatar\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"name\":\"用户12385182\",\"id\":\"1238518230952666\",\"desc\":\"一个人，两个人，三个人\",\"mediaId\":\"1808693377561609\",\"isCp\":0,\"hasSerialPermission\":1,\"firstBookGender\":1,\"hasAuthentication\":0,\"mpHighlightAuto\":1,\"isAuth\":0,\"isGuardianAuth\":0,\"type\":\"2\",\"isVip\":false,\"playletStatus\":0,\"goldTask\":false,\"aiImageEntryVisible\":false},\"code\":0,\"message\":\"success\",\"log_id\":\"2026102521014503B892898795FF139349\",\"now\":1792933305486}"
+ },
+ {
+  "t": 1792933306312,
+  "url": "https://fanqienovel.com/api/author/hot_word/word_list/v0?aid=2503&app_name=muye_novel&set_read_time=false&gender=1&type=1",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"last_read_time\":0,\"update_date\":202404,\"update_time\":1715592686,\"word_list\":[{\"child_list\":[],\"id\":\"202404_1_1_10\",\"name\":\"游戏\",\"pre_rank\":3,\"rank\":1},{\"child_list\":[],\"id\":\"202404_1_1_3\",\"name\":\"单女主\",\"pre_rank\":-1,\"rank\":2},{\"child_list\":[],\"id\":\"202404_1_1_4\",\"name\":\"末世\",\"pre_rank\":1,\"rank\":3},{\"child_list\":[],\"id\":\"202404_1_1_6\",\"name\":\"搞笑\",\"pre_rank\":4,\"rank\":4},{\"child_list\":[],\"id\":\"202404_1_1_5\",\"name\":\"异能\",\"pre_rank\":-1,\"rank\":5},{\"child_list\":[],\"id\":\"202404_1_1_9\",\"name\":\"同人\",\"pre_rank\":-1,\"rank\":6},{\"child_list\":[],\"id\":\"202404_1_1_8\",\"name\":\"直播\",\"pre_rank\":5,\"rank\":7},{\"child_list\":[],\"id\":\"202404_1_1_2\",\"name\":\"诡异\",\"pre_rank\":8,\"rank\":8},{\"child_list\":[],\"id\":\"202404_1_1_7\",\"name\":\"无限\",\"pre_rank\":9,\"rank\":9},{\"child_list\":[],\"id\":\"202404_1_1_1\",\"name\":\"扮演\",\"pre_rank\":6,\"rank\":10}]},\"log_id\":\"20261025210145B6E2094CD4D1DBB689EF\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933306458,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"2026102521014603B892898795FF13940B\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933306519,
+  "url": "https://fanqienovel.com/api/author/activity/activity_list/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"activity_list\":[{\"activity_id\":301,\"deadline\":\"1798732799\",\"description\":\"\",\"detail_url\":\"https://fanqienovel.com/writer/zone/article/7694193795520282686\",\"group_categorys\":[\"1_8\",\"0_8\",\"1_261\",\"0_750\"],\"icon_uri\":\"novel-static/023ee4c73880dec35d119fb7f3ac90ce\",\"is_default_choose\":0,\"start_time\":\"1791820800\",\"status\":1,\"title\":\"番见京华 文映万千\"}],\"total_count\":1},\"log_id\":\"202610252101460B0A6583FD957F3BC652\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933358524,
+  "url": "https://fanqienovel.com/api/user/info/v2",
+  "status": 200,
+  "body": "{\"data\":{\"avatar\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"name\":\"用户12385182\",\"id\":\"1238518230952666\",\"desc\":\"一个人，两个人，三个人\",\"mediaId\":\"1808693377561609\",\"isCp\":0,\"hasSerialPermission\":1,\"firstBookGender\":1,\"hasAuthentication\":0,\"mpHighlightAuto\":1,\"isAuth\":0,\"isGuardianAuth\":0,\"type\":\"2\",\"isVip\":false,\"playletStatus\":0,\"goldTask\":false,\"aiImageEntryVisible\":false},\"code\":0,\"message\":\"success\",\"log_id\":\"202610252102384F41E5744722EDA81F8D\",\"now\":1792933358129}"
+ },
+ {
+  "t": 1792933358772,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"202610252102380BF325D75B50DBEBA81E\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933358773,
+  "url": "https://fanqienovel.com/api/author/account/info/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_name\":\"用户12385182\",\"description\":\"一个人，两个人，三个人\",\"avatar_url\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"phone_number\":\"198******34\",\"qq\":\"\",\"authorize_type\":0,\"verify_status\":1,\"is_cp\":0,\"is_auth\":0,\"mp_name\":\"番茄1238518230952666\",\"mp_is_auditing\":false,\"identity_code_mask\":null,\"identity_name_mask\":null,\"point\":0,\"point_detail\":[{\"key\":\"task_point\",\"name\":\"成长分\",\"point\":0},{\"key\":\"income_point\",\"name\":\"稿费分\",\"point\":0},{\"key\":\"other_point\",\"name\":\"附加分\",\"point\":0}],\"point_update_time\":\"1792635637\",\"author_level_id\":100,\"is_ban\":false,\"ai_picture_watermark\":0,\"auth_type\":0,\"enterprise_name\":null,\"enterprise_reg_no\":null,\"enterprise_legal_person_name\":null,\"bank_card_no\":null,\"bank_address\":null,\"pre_audit_switch_close\":0,\"can_create_serial_book\":false},\"log_id\":\"2026102521023892A11BA9A391AFEB101C\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933358982,
+  "url": "https://fanqienovel.com/api/author/hot_word/word_list/v0?aid=2503&app_name=muye_novel&set_read_time=false&gender=1&type=1",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"last_read_time\":0,\"update_date\":202404,\"update_time\":1715592686,\"word_list\":[{\"child_list\":[],\"id\":\"202404_1_1_10\",\"name\":\"游戏\",\"pre_rank\":3,\"rank\":1},{\"child_list\":[],\"id\":\"202404_1_1_3\",\"name\":\"单女主\",\"pre_rank\":-1,\"rank\":2},{\"child_list\":[],\"id\":\"202404_1_1_4\",\"name\":\"末世\",\"pre_rank\":1,\"rank\":3},{\"child_list\":[],\"id\":\"202404_1_1_6\",\"name\":\"搞笑\",\"pre_rank\":4,\"rank\":4},{\"child_list\":[],\"id\":\"202404_1_1_5\",\"name\":\"异能\",\"pre_rank\":-1,\"rank\":5},{\"child_list\":[],\"id\":\"202404_1_1_9\",\"name\":\"同人\",\"pre_rank\":-1,\"rank\":6},{\"child_list\":[],\"id\":\"202404_1_1_8\",\"name\":\"直播\",\"pre_rank\":5,\"rank\":7},{\"child_list\":[],\"id\":\"202404_1_1_2\",\"name\":\"诡异\",\"pre_rank\":8,\"rank\":8},{\"child_list\":[],\"id\":\"202404_1_1_7\",\"name\":\"无限\",\"pre_rank\":9,\"rank\":9},{\"child_list\":[],\"id\":\"202404_1_1_1\",\"name\":\"扮演\",\"pre_rank\":6,\"rank\":10}]},\"log_id\":\"20261025210238DCC507F97A3389C56AFE\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933359106,
+  "url": "https://fanqienovel.com/api/author/activity/activity_list/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"activity_list\":[{\"activity_id\":301,\"deadline\":\"1798732799\",\"description\":\"\",\"detail_url\":\"https://fanqienovel.com/writer/zone/article/7694193795520282686\",\"group_categorys\":[\"1_8\",\"0_8\",\"1_261\",\"0_750\"],\"icon_uri\":\"novel-static/023ee4c73880dec35d119fb7f3ac90ce\",\"is_default_choose\":0,\"start_time\":\"1791820800\",\"status\":1,\"title\":\"番见京华 文映万千\"}],\"total_count\":1},\"log_id\":\"20261025210238B1CF04CB65AC71F7E072\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933359236,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"202610252102380E767B5FF8635628D454\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933415977,
+  "url": "https://fanqienovel.com/api/user/info/v2",
+  "status": 200,
+  "body": "{\"data\":{\"avatar\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"name\":\"用户12385182\",\"id\":\"1238518230952666\",\"desc\":\"一个人，两个人，三个人\",\"mediaId\":\"1808693377561609\",\"isCp\":0,\"hasSerialPermission\":1,\"firstBookGender\":1,\"hasAuthentication\":0,\"mpHighlightAuto\":1,\"isAuth\":0,\"isGuardianAuth\":0,\"type\":\"2\",\"isVip\":false,\"playletStatus\":0,\"goldTask\":false,\"aiImageEntryVisible\":false},\"code\":0,\"message\":\"success\",\"log_id\":\"20261025210335F214FE522346AB3675B1\",\"now\":1792933415440}"
+ },
+ {
+  "t": 1792933415985,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"20261025210335B4E58F67DCD21B0EBBB8\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933416091,
+  "url": "https://fanqienovel.com/api/author/account/info/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_name\":\"用户12385182\",\"description\":\"一个人，两个人，三个人\",\"avatar_url\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"phone_number\":\"198******34\",\"qq\":\"\",\"authorize_type\":0,\"verify_status\":1,\"is_cp\":0,\"is_auth\":0,\"mp_name\":\"番茄1238518230952666\",\"mp_is_auditing\":false,\"identity_code_mask\":null,\"identity_name_mask\":null,\"point\":0,\"point_detail\":[{\"key\":\"task_point\",\"name\":\"成长分\",\"point\":0},{\"key\":\"income_point\",\"name\":\"稿费分\",\"point\":0},{\"key\":\"other_point\",\"name\":\"附加分\",\"point\":0}],\"point_update_time\":\"1792635637\",\"author_level_id\":100,\"is_ban\":false,\"ai_picture_watermark\":0,\"auth_type\":0,\"enterprise_name\":null,\"enterprise_reg_no\":null,\"enterprise_legal_person_name\":null,\"bank_card_no\":null,\"bank_address\":null,\"pre_audit_switch_close\":0,\"can_create_serial_book\":false},\"log_id\":\"20261025210335A3734B4F529C1BBF9607\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933416120,
+  "url": "https://fanqienovel.com/api/author/hot_word/word_list/v0?aid=2503&app_name=muye_novel&set_read_time=false&gender=1&type=1",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"last_read_time\":0,\"update_date\":202404,\"update_time\":1715592686,\"word_list\":[{\"child_list\":[],\"id\":\"202404_1_1_10\",\"name\":\"游戏\",\"pre_rank\":3,\"rank\":1},{\"child_list\":[],\"id\":\"202404_1_1_3\",\"name\":\"单女主\",\"pre_rank\":-1,\"rank\":2},{\"child_list\":[],\"id\":\"202404_1_1_4\",\"name\":\"末世\",\"pre_rank\":1,\"rank\":3},{\"child_list\":[],\"id\":\"202404_1_1_6\",\"name\":\"搞笑\",\"pre_rank\":4,\"rank\":4},{\"child_list\":[],\"id\":\"202404_1_1_5\",\"name\":\"异能\",\"pre_rank\":-1,\"rank\":5},{\"child_list\":[],\"id\":\"202404_1_1_9\",\"name\":\"同人\",\"pre_rank\":-1,\"rank\":6},{\"child_list\":[],\"id\":\"202404_1_1_8\",\"name\":\"直播\",\"pre_rank\":5,\"rank\":7},{\"child_list\":[],\"id\":\"202404_1_1_2\",\"name\":\"诡异\",\"pre_rank\":8,\"rank\":8},{\"child_list\":[],\"id\":\"202404_1_1_7\",\"name\":\"无限\",\"pre_rank\":9,\"rank\":9},{\"child_list\":[],\"id\":\"202404_1_1_1\",\"name\":\"扮演\",\"pre_rank\":6,\"rank\":10}]},\"log_id\":\"20261025210335A3734B4F529C1BBF9660\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933416354,
+  "url": "https://fanqienovel.com/api/author/activity/activity_list/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"activity_list\":[{\"activity_id\":301,\"deadline\":\"1798732799\",\"description\":\"\",\"detail_url\":\"https://fanqienovel.com/writer/zone/article/7694193795520282686\",\"group_categorys\":[\"1_8\",\"0_8\",\"1_261\",\"0_750\"],\"icon_uri\":\"novel-static/023ee4c73880dec35d119fb7f3ac90ce\",\"is_default_choose\":0,\"start_time\":\"1791820800\",\"status\":1,\"title\":\"番见京华 文映万千\"}],\"total_count\":1},\"log_id\":\"2026102521033636055DA61A8D17273B78\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933416466,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"2026102521033601636ECBB4CBC2D4AE6A\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933425834,
+  "url": "https://fanqienovel.com/api/author/data/upload_pic_v1/v0?aid=2503",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"pic_uri\":\"novel-pic-r/ad9bfdc4b3f695a8557e1cdc2980f846\",\"pic_url\":\"https://p0-reading-private.fanqienovel.com/novel-pic-r/ad9bfdc4b3f695a8557e1cdc2980f846~tplv-noop.image?lk3s=8c91f0b0&policy=eyJ2bSI6MywidWlkIjoiMTIzODUxODIzMDk1MjY2NiJ9&x-orig-authkey=9789e59a7aff57c4619b24f373478561&x-orig-expires=1793019825&x-orig-sign=ihp1uRt5doNDBCuFzrzcMB2uZ7U%3D\",\"width\":360,\"height\":480,\"type\":\"image/png\",\"InnerPublicURL\":\"\"},\"log_id\":\"20261025210344DE432B5316BEE896B7EF\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933426459,
+  "url": "https://fanqienovel.com/api/author/book/create/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":-1018,\"data\":null,\"log_id\":\"20261025210346329672FE4870E4251CA5\",\"message\":\"创建完本模式作品数超出每日上限\"}\n"
+ },
+ {
+  "t": 1792933456874,
+  "url": "https://fanqienovel.com/api/user/info/v2",
+  "status": 200,
+  "body": "{\"data\":{\"avatar\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"name\":\"用户12385182\",\"id\":\"1238518230952666\",\"desc\":\"一个人，两个人，三个人\",\"mediaId\":\"1808693377561609\",\"isCp\":0,\"hasSerialPermission\":1,\"firstBookGender\":1,\"hasAuthentication\":0,\"mpHighlightAuto\":1,\"isAuth\":0,\"isGuardianAuth\":0,\"type\":\"2\",\"isVip\":false,\"playletStatus\":0,\"goldTask\":false,\"aiImageEntryVisible\":false},\"code\":0,\"message\":\"success\",\"log_id\":\"20261025210416D4EAD910E16864FFB222\",\"now\":1792933456156}"
+ },
+ {
+  "t": 1792933456881,
+  "url": "https://fanqienovel.com/api/author/account/info/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_name\":\"用户12385182\",\"description\":\"一个人，两个人，三个人\",\"avatar_url\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"phone_number\":\"198******34\",\"qq\":\"\",\"authorize_type\":0,\"verify_status\":1,\"is_cp\":0,\"is_auth\":0,\"mp_name\":\"番茄1238518230952666\",\"mp_is_auditing\":false,\"identity_code_mask\":null,\"identity_name_mask\":null,\"point\":0,\"point_detail\":[{\"key\":\"task_point\",\"name\":\"成长分\",\"point\":0},{\"key\":\"income_point\",\"name\":\"稿费分\",\"point\":0},{\"key\":\"other_point\",\"name\":\"附加分\",\"point\":0}],\"point_update_time\":\"1792635637\",\"author_level_id\":100,\"is_ban\":false,\"ai_picture_watermark\":0,\"auth_type\":0,\"enterprise_name\":null,\"enterprise_reg_no\":null,\"enterprise_legal_person_name\":null,\"bank_card_no\":null,\"bank_address\":null,\"pre_audit_switch_close\":0,\"can_create_serial_book\":false},\"log_id\":\"20261025210416410C104472EFF7C34C99\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933456897,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"2026102521041604CD5B257A2E4A8136DE\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933456954,
+  "url": "https://fanqienovel.com/api/author/hot_word/word_list/v0?aid=2503&app_name=muye_novel&set_read_time=false&gender=1&type=1",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"last_read_time\":0,\"update_date\":202404,\"update_time\":1715592686,\"word_list\":[{\"child_list\":[],\"id\":\"202404_1_1_10\",\"name\":\"游戏\",\"pre_rank\":3,\"rank\":1},{\"child_list\":[],\"id\":\"202404_1_1_3\",\"name\":\"单女主\",\"pre_rank\":-1,\"rank\":2},{\"child_list\":[],\"id\":\"202404_1_1_4\",\"name\":\"末世\",\"pre_rank\":1,\"rank\":3},{\"child_list\":[],\"id\":\"202404_1_1_6\",\"name\":\"搞笑\",\"pre_rank\":4,\"rank\":4},{\"child_list\":[],\"id\":\"202404_1_1_5\",\"name\":\"异能\",\"pre_rank\":-1,\"rank\":5},{\"child_list\":[],\"id\":\"202404_1_1_9\",\"name\":\"同人\",\"pre_rank\":-1,\"rank\":6},{\"child_list\":[],\"id\":\"202404_1_1_8\",\"name\":\"直播\",\"pre_rank\":5,\"rank\":7},{\"child_list\":[],\"id\":\"202404_1_1_2\",\"name\":\"诡异\",\"pre_rank\":8,\"rank\":8},{\"child_list\":[],\"id\":\"202404_1_1_7\",\"name\":\"无限\",\"pre_rank\":9,\"rank\":9},{\"child_list\":[],\"id\":\"202404_1_1_1\",\"name\":\"扮演\",\"pre_rank\":6,\"rank\":10}]},\"log_id\":\"20261025210416776BD766A4F85BB91258\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933457182,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"20261025210416776BD766A4F85BB912AB\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933457257,
+  "url": "https://fanqienovel.com/api/author/activity/activity_list/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"activity_list\":[{\"activity_id\":301,\"deadline\":\"1798732799\",\"description\":\"\",\"detail_url\":\"https://fanqienovel.com/writer/zone/article/7694193795520282686\",\"group_categorys\":[\"1_8\",\"0_8\",\"1_261\",\"0_750\"],\"icon_uri\":\"novel-static/023ee4c73880dec35d119fb7f3ac90ce\",\"is_default_choose\":0,\"start_time\":\"1791820800\",\"status\":1,\"title\":\"番见京华 文映万千\"}],\"total_count\":1},\"log_id\":\"20261025210417474434785B6B9B3C15DE\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933503277,
+  "url": "https://fanqienovel.com/api/user/info/v2",
+  "status": 200,
+  "body": "{\"data\":{\"avatar\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"name\":\"用户12385182\",\"id\":\"1238518230952666\",\"desc\":\"一个人，两个人，三个人\",\"mediaId\":\"1808693377561609\",\"isCp\":0,\"hasSerialPermission\":1,\"firstBookGender\":1,\"hasAuthentication\":0,\"mpHighlightAuto\":1,\"isAuth\":0,\"isGuardianAuth\":0,\"type\":\"2\",\"isVip\":false,\"playletStatus\":0,\"goldTask\":false,\"aiImageEntryVisible\":false},\"code\":0,\"message\":\"success\",\"log_id\":\"20261025210502C790E88FA5B607BA45A5\",\"now\":1792933502679}"
+ },
+ {
+  "t": 1792933503282,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"202610252105020695B2B2600F16AE7E73\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933503308,
+  "url": "https://fanqienovel.com/api/author/account/info/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"author_name\":\"用户12385182\",\"description\":\"一个人，两个人，三个人\",\"avatar_url\":\"https://p3-novel.byteimg.com/img/novel-static/51cdc818263941cb8985f97b486ddd11~tplv-obj.image\",\"phone_number\":\"198******34\",\"qq\":\"\",\"authorize_type\":0,\"verify_status\":1,\"is_cp\":0,\"is_auth\":0,\"mp_name\":\"番茄1238518230952666\",\"mp_is_auditing\":false,\"identity_code_mask\":null,\"identity_name_mask\":null,\"point\":0,\"point_detail\":[{\"key\":\"task_point\",\"name\":\"成长分\",\"point\":0},{\"key\":\"income_point\",\"name\":\"稿费分\",\"point\":0},{\"key\":\"other_point\",\"name\":\"附加分\",\"point\":0}],\"point_update_time\":\"1792635637\",\"author_level_id\":100,\"is_ban\":false,\"ai_picture_watermark\":0,\"auth_type\":0,\"enterprise_name\":null,\"enterprise_reg_no\":null,\"enterprise_legal_person_name\":null,\"bank_card_no\":null,\"bank_address\":null,\"pre_audit_switch_close\":0,\"can_create_serial_book\":false},\"log_id\":\"202610252105024D8620945759E3531CBC\",\"message\":\"success\"}\n"
+ },
+ {
+  "t": 1792933503353,
+  "url": "https://fanqienovel.com/api/author/hot_word/word_list/v0?aid=2503&app_name=muye_novel&set_read_time=false&gender=1&type=1",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"last_read_time\":0,\"update_date\":202404,\"update_time\":1715592686,\"word_list\":[{\"child_list\":[],\"id\":\"202404_1_1_10\",\"name\":\"游戏\",\"pre_rank\":3,\"rank\":1},{\"child_list\":[],\"id\":\"202404_1_1_3\",\"name\":\"单女主\",\"pre_rank\":-1,\"rank\":2},{\"child_list\":[],\"id\":\"202404_1_1_4\",\"name\":\"末世\",\"pre_rank\":1,\"rank\":3},{\"child_list\":[],\"id\":\"202404_1_1_6\",\"name\":\"搞笑\",\"pre_rank\":4,\"rank\":4},{\"child_list\":[],\"id\":\"202404_1_1_5\",\"name\":\"异能\",\"pre_rank\":-1,\"rank\":5},{\"child_list\":[],\"id\":\"202404_1_1_9\",\"name\":\"同人\",\"pre_rank\":-1,\"rank\":6},{\"child_list\":[],\"id\":\"202404_1_1_8\",\"name\":\"直播\",\"pre_rank\":5,\"rank\":7},{\"child_list\":[],\"id\":\"202404_1_1_2\",\"name\":\"诡异\",\"pre_rank\":8,\"rank\":8},{\"child_list\":[],\"id\":\"202404_1_1_7\",\"name\":\"无限\",\"pre_rank\":9,\"rank\":9},{\"child_list\":[],\"id\":\"202404_1_1_1\",\"name\":\"扮演\",\"pre_rank\":6,\"rank\":10}]},\"log_id\":\"20261025210503E2953F3B10F203F76A9B\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933503774,
+  "url": "https://fanqienovel.com/api/author/activity/activity_list/v0/?aid=2503&app_name=muye_novel",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"activity_list\":[{\"activity_id\":301,\"deadline\":\"1798732799\",\"description\":\"\",\"detail_url\":\"https://fanqienovel.com/writer/zone/article/7694193795520282686\",\"group_categorys\":[\"1_8\",\"0_8\",\"1_261\",\"0_750\"],\"icon_uri\":\"novel-static/023ee4c73880dec35d119fb7f3ac90ce\",\"is_default_choose\":0,\"start_time\":\"1791820800\",\"status\":1,\"title\":\"番见京华 文映万千\"}],\"total_count\":1},\"log_id\":\"20261025210503ED27957B82D3C43C51E0\",\"message\":\"success\"}"
+ },
+ {
+  "t": 1792933503818,
+  "url": "https://fanqienovel.com/api/author/inset/qualification/v0?aid=2503&app_name=muye_novel&book_id=",
+  "status": 200,
+  "body": "{\"code\":0,\"data\":{\"has_qualification\":false,\"answer_status\":0,\"ai_inset_qualification\":0,\"ai_naming_qualification\":1,\"ai_describe_qualification\":0,\"ai_consult_qualification\":1,\"inset_agreement_types\":null,\"ai_hint_qualification\":1,\"inset_toast\":\"\",\"ai_inset_toast\":\"解锁Lv.4及以上作家等级后可以使用\",\"ai_expand_qualification\":0,\"ai_continuation_qualification\":0,\"ai_cover_qualification\":0,\"ai_character_qualification\":0,\"ai_character_toast\":\"解锁Lv.4及以上作家等级后可以使用\"},\"log_id\":\"202610252105037F49AA09576756DB6C8C\",\"message\":\"success\"}\n"
+ }
+]

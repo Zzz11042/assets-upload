@@ -1,0 +1,13 @@
+{
+  "chapter": 41,
+  "deterministic": [
+    {
+      "rule": "伏笔超期",
+      "detail": "FS-001 公司内鬼身份成谜 超期 38 章",
+      "level": "campaign"
+    }
+  ],
+  "llm_hint": "",
+  "llm": [],
+  "at": "2026-10-29 18:45"
+}

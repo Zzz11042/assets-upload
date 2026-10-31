@@ -1,0 +1,51 @@
+{
+  "changes": [
+    {
+      "field_id": "title",
+      "expected": "末日小队(H5)",
+      "value": "末日小队"
+    },
+    {
+      "field_id": "icon",
+      "expected": "https://img.tapimg.com/market/images/3f18817c8377e0b69a63343676159dc3.png",
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/a46eba081a31e3fddf116788ec34ea4d.jpg",
+        "info": {"width": 512, "height": 512, "size": 47624, "format": "jpeg"}
+      }
+    },
+    {
+      "field_id": "screenshots",
+      "op": "replace",
+      "expected": [
+        "https://img.tapimg.com/market/images/442bbddf0e88ff278fe6eb61c18f8725.png",
+        "https://img.tapimg.com/market/images/381ba1dc3fb8a855a8915a1e00ae861f.png",
+        "https://img.tapimg.com/market/images/0ab9abc3a5416ceefd877431cea9d235.png",
+        "https://img.tapimg.com/market/images/5557bdab47d545696f6d5ed51edc65cc.png",
+        "https://img.tapimg.com/market/images/77c4f57e8278e6540ab25558627f27c1.png"
+      ],
+      "value": [
+        "https://img-tc.tapimg.com/market/images/168ee68d962b95588657a84d13e21ee4.jpg",
+        "https://img-tc.tapimg.com/market/images/9c6aa92ce51c92fa42bbdb78c5000c30.jpg",
+        "https://img-tc.tapimg.com/market/images/b8af61fd5922b20d09234ee58a2a8cae.jpg",
+        "https://img-tc.tapimg.com/market/images/879cab893355b435e36785519fa8b318.jpg",
+        "https://img-tc.tapimg.com/market/images/1565b78322255e1d7b869e20d5be6cc4.jpg"
+      ]
+    },
+    {
+      "field_id": "banner_4",
+      "expected": "https://img-tc.tapimg.com/market/images/1e9f94ddbf0e099260d4ea3c8b273e83.png",
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/ea661a73c99fb9589d65891197975c15.jpg",
+        "info": {"width": 1920, "height": 1080, "size": 337383, "format": "jpeg"}
+      }
+    },
+    {
+      "field_id": "square_promo_image",
+      "expected": "https://img-tc.tapimg.com/market/images/c380b4110fe826284e8861c328b6e102.png",
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/53e619b2af2b7d0fe8380749a7a44243.jpg",
+        "info": {"width": 1440, "height": 1440, "size": 563404, "format": "jpeg"}
+      }
+    }
+  ]
+}

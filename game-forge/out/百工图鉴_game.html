@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>百工图鉴</title>
+<style>
+:root {
+--c0:#f5f0e0; --c1:#2a2a2a; --c2:#c84040; --c3:#6a5840; --c4:#d8c8a8;
+--bg:#f5f0e0;--accent:#2a2a2a;--text:#fff
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,'PingFang SC',sans-serif;
+  display:flex;flex-direction:column;align-items:center;min-height:100vh}
+header{padding:16px;text-align:center}
+h1{font-size:22px}
+#screen{width:min(560px,94vw);margin:12px auto;padding:14px;border-radius:12px;
+  background:rgba(0,0,0,.25);backdrop-filter:blur(4px)}
+.canvas-wrap{display:flex;justify-content:center;margin:10px 0}
+canvas{background:#000;border-radius:8px;image-rendering:pixelated;max-width:100%}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+td{border:1px solid var(--accent);padding:4px 8px}
+.btn{background:var(--accent);color:#111;border:0;border-radius:8px;
+  padding:10px 18px;font-size:15px;cursor:pointer;margin:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.meta{font-size:12px;opacity:.7;margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <h1>百工图鉴</h1>
+  <div class="meta">参考游戏: 寻道大千 · 风格: 工笔线描单色</div>
+</header>
+<div id="screen">
+  <div class="canvas-wrap"><canvas id="cv" width="480" height="280"></canvas></div>
+  <div class="meta" id="hud">资源: 100 · 等级: 1 · 波次: 0</div>
+  <button class="btn" id="go">开始 / 下一波</button>
+  <button class="btn" id="shop">商店 (随机)</button>
+  <button class="btn" id="up" disabled>升级</button>
+  <details><summary>机制与数值</summary>
+    <ul><li>随机接单+材料缺口</li>
+<li>同类字牌合成升阶</li>
+<li>高阶工坊生产×1.5/阶</li>
+<li>订单稀有度70/20/8/2%(普/珍/绝/传说)</li>
+<li>离线收益12h封顶(广告翻倍/延至24h)</li>
+<li>赛季30天官印排行(TOP10%限定皮肤+徽章)</li></ul>
+    <table><tr><th>键</th><th>值</th></tr><tr><td>订单报酬</td><td>"基础×1.08^等级"</td></tr>
+<tr><td>材料消耗</td><td>"×1.12^等级(缺口靠抽卡/广告)"</td></tr>
+<tr><td>离线曲线</td><td>"前2h满速/4h半速/12h封顶80%"</td></tr>
+<tr><td>字牌概率</td><td>"白60/青45/绿32/紫20/金8%"</td></tr>
+<tr><td>赛季</td><td>"30天换朝代(宋→元→明→清)，旧官印转下赛季"</td></tr></table>
+  </details>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var S={resource:100,level:1,wave:0,items:[],tick:0};
+  var NUM={"订单报酬": "基础×1.08^等级", "材料消耗": "×1.12^等级(缺口靠抽卡/广告)", "离线曲线": "前2h满速/4h半速/12h封顶80%", "字牌概率": "白60/青45/绿32/紫20/金8%", "赛季": "30天换朝代(宋→元→明→清)，旧官印转下赛季"};
+  var ACCENT='#2a2a2a';
+  function hud(){
+    document.getElementById('hud').textContent=
+      '资源: '+S.resource+' · 等级: '+S.level+' · 波次: '+S.wave;
+  }
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='rgba(255,255,255,0.04)';
+    for(var x=0;x<cv.width;x+=24)
+      for(var y=0;y<cv.height;y+=24)
+        if((x+y)%48<24) ctx.fillRect(x,y,12,12);
+    var px=cv.width/2+Math.sin(S.tick*.05)*40, py=cv.height/2+Math.cos(S.tick*.04)*30;
+    ctx.fillStyle=ACCENT;
+    ctx.fillRect(px-10,py-10,20,20);
+    for(var i=0;i<S.wave;i++){
+      var ex=(i*97)%cv.width, ey=(i*61)%cv.height;
+      ctx.fillStyle='#e05050';ctx.fillRect(ex,ey,8,8);
+    }
+    S.tick++;hud();requestAnimationFrame(draw);
+  }
+  document.getElementById('go').onclick=function(){
+    S.wave++;
+    var gain=NUM['wave_gain']?NUM['wave_gain']:10+S.wave*2;
+    S.resource+=gain;S.level=Math.floor(S.wave/3)+1;
+    document.getElementById('up').disabled=S.resource<50;
+  };
+  document.getElementById('shop').onclick=function(){
+    var costs=[10,20,50,100];
+    S.items.push(costs[Math.floor(Math.random()*costs.length)]);
+  };
+  document.getElementById('up').onclick=function(){
+    if(S.resource>=50){S.resource-=50;S.level++;document.getElementById('up').disabled=true;}
+  };
+  draw();
+})();
+</script>
+</body>
+</html>

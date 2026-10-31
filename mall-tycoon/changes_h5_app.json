@@ -1,0 +1,49 @@
+{
+  "developer_id": 484472,
+  "app_id": 989062,
+  "changes": [
+    {
+      "field_id": "description",
+      "expected": null,
+      "value": "【商场大亨】模拟经营 · 把小商场做成城市地标\n\n你是新开商场的第一任老板。规划铺位、引进业态、升级店铺,用吸引力吸引客流,用消费赚回利润——把一家小商场经营成全城地标!\n\n· 5 种业态:咖啡厅 / 超市 / 游戏厅 / 电影院 / 精品酒店,各有客流与维护成本\n· 升级铺位等级,吸引越来越多顾客\n· 扩建商场,解锁精品酒店等高端业态\n· 每日随机事件:周末促销 / 商场检修,客流随之波动\n· 30 秒自动过天,日报清晰展示收入 / 维护 / 结余\n· 7 项成就、扩张目标、顾客消费动画与音效,经营感十足\n· 本地存档,随时继续你的商场生意\n\n攒到 ¥100,000,达成扩张成功 🏆"
+    },
+    {
+      "field_id": "icon",
+      "expected": "https://img-tc.tapimg.com/market/images/ef4719159691d7db73760cadfc67eac4.png",
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/88cb7d6ec91f36bf9321181dfde31591.png",
+        "info": {"width": 512, "height": 512, "size": 4267, "format": "png"}
+      }
+    },
+    {
+      "field_id": "screenshots",
+      "expected": [],
+      "op": "replace",
+      "value": [
+        "https://img-tc.tapimg.com/market/images/2599b29c748013d1080c627c3e771c73.png",
+        "https://img-tc.tapimg.com/market/images/f9fc84cac8d35e9a324e0556ac0de091.png",
+        "https://img-tc.tapimg.com/market/images/8ff4626c21ae664aa6dc446222223b10.png",
+        "https://img-tc.tapimg.com/market/images/c0df4cfd28e5fc9a13d1c1e19b251871.png",
+        "https://img-tc.tapimg.com/market/images/c05495fac99914c430b426fceb9f623a.png"
+      ]
+    },
+    {
+      "field_id": "promotion_material_type",
+      "expected": null,
+      "value": "BANNER_4"
+    },
+    {
+      "field_id": "banner_4",
+      "expected": null,
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/7f342cbd62b269a5afc18c74df305597.png",
+        "info": {"width": 1920, "height": 1080, "size": 28184, "format": "png"}
+      }
+    },
+    {
+      "field_id": "promotion_text",
+      "expected": null,
+      "value": "30 秒过天,看资金滚雪球。"
+    }
+  ]
+}

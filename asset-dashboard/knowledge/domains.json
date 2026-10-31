@@ -1,0 +1,63 @@
+{
+  "_note": "asset-dashboard 分步生成向导 · 三领域要素定义。domain 切换时按此加载要素序列；每个领域的首要素恒为 idea（一句话思路，text，自写）。pick 要素由 LLM/本地生成 3 候选（附 1 句解释），可自写覆盖。",
+  "domains": {
+    "game": {
+      "label": "游戏",
+      "elements_file": "elements.json",
+      "agent_hint": "H5 单文件游戏实现包",
+      "local_sources": [
+        "game-forge/knowledge/plans.json（5 套完整方案：数值表/波次表/道具池）",
+        "game-forge/knowledge/games.json（20 款相似游戏）",
+        "game-forge/knowledge/styles.json（9 种美工风格）",
+        "game-forge/vault/art-assets（471 素材文件）",
+        "game-forge/vault/design-docs（候选项目方案）"
+      ]
+    },
+    "novel": {
+      "label": "小说",
+      "elements": [
+        {"key": "idea", "name": "思路 (一句话)", "required": true, "kind": "text", "desc": "一句话核心创意，如『末世第三十天，我还在上班』"},
+        {"key": "genre", "name": "类型 (genre)", "required": true, "kind": "pick", "desc": "网文类型：都市重生/末世求生/玄幻/悬疑/科幻/轻小说…"},
+        {"key": "platform", "name": "平台 (platform)", "required": true, "kind": "pick", "desc": "首发平台与调性：番茄(爽文快节奏)/起点(稳健)/晋江(女频)/知乎(盐选)"},
+        {"key": "tone", "name": "基调 (tone)", "required": true, "kind": "pick", "desc": "爽/燃/压/泪 主打情绪 + 节奏定位"},
+        {"key": "protagonist", "name": "主角设定", "required": true, "kind": "pick", "desc": "主角身份/金手指/性格缺陷/口癖（一句话立住）"},
+        {"key": "hook", "name": "开篇钩子 (前3章)", "required": true, "kind": "pick", "desc": "0-300 字入冲突，前 3 章必须兑现的强钩"},
+        {"key": "pacing", "name": "节奏与字数", "required": true, "kind": "pick", "desc": "单章字数/日更频率/高潮间隔/压抑连续章上限"},
+        {"key": "style_dna", "name": "风格 DNA 参考", "required": false, "kind": "pick", "desc": "学习哪本本地书的风格：dianxiao/moshu30/72 的视角句法修辞节奏"},
+        {"key": "arc", "name": "主线与分卷", "required": true, "kind": "pick", "desc": "全书主线 + 卷/弧切分 + 每卷核心冲突"},
+        {"key": "foreshadow", "name": "伏笔规划", "required": false, "kind": "pick", "desc": "长线伏笔清单 + 埋设/引爆章节位"},
+        {"key": "word_count", "name": "目标字数", "required": true, "kind": "pick", "desc": "20 万/30 万/50 万+ 总量与完结规划"},
+        {"key": "mvp", "name": "MVP 范围", "required": true, "kind": "pick", "desc": "首更 3 章做什么/不做（砍到能开更的最小集）"}
+      ],
+      "agent_hint": "长篇小说开更包（大纲+前3章+风格DNA）",
+      "local_sources": [
+        "tomato/books/dianxiao/style-dna.md + canon/（视角句法修辞节奏+伏笔账本）",
+        "tomato/books/moshu30/style-dna.md + design.md",
+        "tomato/books/72/（长篇 120 章 state+consistency）",
+        "game-forge/novel_projects/都市重生爽文/state.json + 大纲.json + ch1.md"
+      ]
+    },
+    "video": {
+      "label": "短剧视频",
+      "elements": [
+        {"key": "idea", "name": "思路 (一句话)", "required": true, "kind": "text", "desc": "一句话核心创意，如『被开除的前高管暗中收购公司』"},
+        {"key": "content_type", "name": "内容类型", "required": true, "kind": "pick", "desc": "爽剧/广告/悬疑/情感/搞笑（决定时长与变现）"},
+        {"key": "hook", "name": "开场钩子 (前3秒)", "required": true, "kind": "pick", "desc": "短视频前 3 秒强钩（决定完播）"},
+        {"key": "shots", "name": "分镜结构", "required": true, "kind": "pick", "desc": "镜头数/节奏/转场方式（自动 4-6 镜或细拆）"},
+        {"key": "characters", "name": "角色", "required": true, "kind": "pick", "desc": "2-4 个角色：身份/口癖/出场顺序"},
+        {"key": "dialogue", "name": "台词风格", "required": true, "kind": "pick", "desc": "台词调性：短密有回镖/官腔反差/冷幽默"},
+        {"key": "visual_style", "name": "视觉风格", "required": true, "kind": "pick", "desc": "电影感写实/像素/手绘/赛博 + 配色"},
+        {"key": "duration", "name": "时长与画幅", "required": true, "kind": "pick", "desc": "6s/15s/30s/60s × 9:16/16:9/1:1"},
+        {"key": "audio", "name": "音频", "required": false, "kind": "pick", "desc": "BGM 风格 + 关键音效位（钩子点/反转点）"},
+        {"key": "cta", "name": "转化点 (CTA)", "required": false, "kind": "pick", "desc": "变现/引流/关注引导点位（广告片必选）"},
+        {"key": "mvp", "name": "MVP 范围", "required": true, "kind": "pick", "desc": "首版出几镜/什么交付物（keyframes/脚本/成片）"}
+      ],
+      "agent_hint": "短剧/视频脚本与分镜包",
+      "local_sources": [
+        "game-forge/projects/广告-修仙掌门推销防脱洗发水/（project.json+keyframes）",
+        "game-forge/projects/爽剧-被开除的前高管暗中收购公司/（project.json）",
+        "game-forge/projects/修仙掌门推销防脱洗发水广告/（project.json+keyframes）"
+      ]
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "changes": [
+    {
+      "field_id": "title",
+      "expected": null,
+      "value": "阿瑞斯小队"
+    },
+    {
+      "field_id": "icon",
+      "expected": null,
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/a46eba081a31e3fddf116788ec34ea4d.jpg",
+        "info": {
+          "width": 512,
+          "height": 512,
+          "size": 47624,
+          "format": "jpeg"
+        }
+      }
+    },
+    {
+      "field_id": "screenshots",
+      "expected": null,
+      "value": [
+        "https://img-tc.tapimg.com/market/images/168ee68d962b95588657a84d13e21ee4.jpg",
+        "https://img-tc.tapimg.com/market/images/9c6aa92ce51c92fa42bbdb78c5000c30.jpg",
+        "https://img-tc.tapimg.com/market/images/b8af61fd5922b20d09234ee58a2a8cae.jpg",
+        "https://img-tc.tapimg.com/market/images/879cab893355b435e36785519fa8b318.jpg",
+        "https://img-tc.tapimg.com/market/images/1565b78322255e1d7b869e20d5be6cc4.jpg"
+      ]
+    },
+    {
+      "field_id": "banner_4",
+      "expected": null,
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/4a516b98e24a18bdc48eb65f278ebd37.jpg",
+        "info": {
+          "width": 1920,
+          "height": 1080,
+          "size": 258829,
+          "format": "jpeg"
+        }
+      }
+    },
+    {
+      "field_id": "square_promo_image",
+      "expected": null,
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/4a1a32a308a0df335ec5bec8a64ceb2c.jpg",
+        "info": {
+          "width": 1440,
+          "height": 1440,
+          "size": 254603,
+          "format": "jpeg"
+        }
+      }
+    },
+    {
+      "field_id": "description",
+      "expected": null,
+      "value": "病毒“阿瑞斯”席卷全球，你是 S.O.T 小队指挥官尼奥。在隔离区废墟中指挥小队接任务、打怪、带资源回营地建设与制作，逐步揭开病毒阴谋。战术射击 × 末世生存经营：纵队/散开/集中/两翼队形切换、自动战斗、补给与制作系统，当前为第 1 章 3 任务可玩原型。"
+    },
+    {
+      "field_id": "developer_message",
+      "expected": null,
+      "value": "《阿瑞斯小队》是「战术小队」玩法与末世生存经营的融合原型。当前为第 1 章 3 任务可玩版本，后续将按路线图更新章节 2-4、兵种扩展与营地 PvP。欢迎在评论区告诉我们你想先看哪部分！"
+    },
+    {
+      "field_id": "promotion_text",
+      "expected": null,
+      "value": "指挥战术小队深入末世废墟，打怪、搜资源、建营地，揭开病毒阿瑞斯的阴谋。"
+    },
+    {
+      "field_id": "category",
+      "expected": null,
+      "value": "strategy"
+    }
+  ]
+}

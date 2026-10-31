@@ -1,0 +1,26 @@
+{
+  "_schema": "asset-dashboard/asset-tags@1",
+  "_note": "可机读标签格式：每条资产/模式/算法带 type + 结构化 tags，LLM 与代码都可直接识别检索。type=asset(素材/资产条目)、pattern(可复用模式，同类功能的算法合并)、algo(单功能算法)。tags 为扁平键值+数组，检索走 /api/tags/search。",
+  "asset": {
+    "id": "string 唯一键，如 art:/design-docs/fanqie_drafts/ch02 或 novel:moshu30:style_dna",
+    "type": "asset|pattern|algo",
+    "domain": "game|novel|video|cross",
+    "kind": "image|doc|style|plan|game|script|state|algorithm",
+    "title": "string",
+    "source": "string 相对路径或来源标识",
+    "tags": ["扁平字符串标签，全部小写化由检索端归一"],
+    "algo": {
+      "name": "string 算法/功能名（同类功能同名 → 合并）",
+      "purpose": "string 一句话：做什么",
+      "inputs": ["string"],
+      "outputs": ["string"],
+      "params": { "key": "可配参数说明" },
+      "variants": ["string 变体/目的差异说明（不同目的但类似功能归到同一 algo.name）"],
+      "reuse_in": ["string 可用于哪些 domain/资产"]
+    },
+    "reusable": true,
+    "refs": ["id 引用其它资产"],
+    "created": "ISO8601",
+    "origin": "local|external"
+  }
+}

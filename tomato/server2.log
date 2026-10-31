@@ -1,0 +1,10 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at /home/zzz/Documents/deepseek-harness/default-workspace/tomato/server2.mjs:22:14 {
+  log: []
+}
+
+Node.js v22.23.3

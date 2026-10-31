@@ -1,0 +1,42 @@
+[
+  {
+    "need": "hero",
+    "category": "character",
+    "prompt": "hero game asset, ink-wash wuxia brushstroke sword-qi, procedural calligraphy strokes as attacks, ink-dot enemies that darken as they die, rice paper texture with dry-brush flying-white, vermillion seal accents, fast satisfying mow-down, game asset",
+    "size": "1K",
+    "ratio": "16:9",
+    "path": "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/墨剑江湖/art/hero.png"
+  },
+  {
+    "need": "enemy",
+    "category": "character",
+    "prompt": "enemy game asset, ink-wash wuxia brushstroke sword-qi, procedural calligraphy strokes as attacks, ink-dot enemies that darken as they die, rice paper texture with dry-brush flying-white, vermillion seal accents, fast satisfying mow-down, game asset",
+    "size": "1K",
+    "ratio": "16:9",
+    "path": "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/墨剑江湖/art/enemy.png"
+  },
+  {
+    "need": "background",
+    "category": "background",
+    "prompt": "background game asset, ink-wash wuxia brushstroke sword-qi, procedural calligraphy strokes as attacks, ink-dot enemies that darken as they die, rice paper texture with dry-brush flying-white, vermillion seal accents, fast satisfying mow-down, game asset",
+    "size": "1K",
+    "ratio": "16:9",
+    "path": "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/墨剑江湖/art/background.png"
+  },
+  {
+    "need": "effect",
+    "category": "effect",
+    "prompt": "effect game asset, ink-wash wuxia brushstroke sword-qi, procedural calligraphy strokes as attacks, ink-dot enemies that darken as they die, rice paper texture with dry-brush flying-white, vermillion seal accents, fast satisfying mow-down, game asset",
+    "size": "1K",
+    "ratio": "16:9",
+    "path": "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/墨剑江湖/art/effect.png"
+  },
+  {
+    "need": "icon",
+    "category": "ui",
+    "prompt": "icon game asset, ink-wash wuxia brushstroke sword-qi, procedural calligraphy strokes as attacks, ink-dot enemies that darken as they die, rice paper texture with dry-brush flying-white, vermillion seal accents, fast satisfying mow-down, game asset",
+    "size": "1K",
+    "ratio": "16:9",
+    "path": "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/墨剑江湖/art/icon.png"
+  }
+]

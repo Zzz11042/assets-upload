@@ -1,0 +1,23 @@
+{
+ "developer_id": 484472,
+ "app_id": 1005095,
+ "app_features": {
+  "package_types": [
+   "h5"
+  ],
+  "has_in_app_purchase": false,
+  "has_ai_content": false,
+  "has_ip_authorization": false,
+  "has_text_story_simulation": false,
+  "is_internet_required": false
+ },
+ "qualification": {
+  "qualification_type": "security-assessment",
+  "safety_report_file": [
+   {
+    "type": "img",
+    "url": "https://img-tc.tapimg.com/market/images/591bbee7a0c1ce63733e5f75dfab9dd0.png"
+   }
+  ]
+ }
+}

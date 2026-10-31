@@ -1,0 +1,241 @@
+{
+  "book": "我在第八十二空降师当店小二",
+  "book_id": "7675577063591398462",
+  "ch2_id": "7675624964543758910",
+  "last_published_chapter": 2,
+  "next_chapter": 251,
+  "ch2_title": "谁在盘账",
+  "ch2_revision": "无系统版已发布（修改稿通过审核，线上生效）",
+  "ch2_hook_type": "倒计时式（明晚账房）+伏笔预告（一列人名账）",
+  "style": "仿潜伏许忠义：对白驱动、笑里藏刀、无系统、贿赂+走私主线",
+  "background": "海湾战争1991沙漠风暴，推翻萨达姆；最终击败地方军阀与邪恶军火代理的雇佣兵",
+  "language": "全文中文",
+  "pending_fix": "无（第2章标题前缀重复问题已在修改稿解决）",
+  "foreshadow_open": [
+    "F1一列人名账",
+    "F2鬼佬明晚账房",
+    "F3鬼佬金表金色烟",
+    "F4白宫语音BGM",
+    "F5金链金戒指纸币赃物",
+    "F6弹药多一倍账",
+    "F7伊军据点为何防控为零"
+  ],
+  "used_gags": "你信基督我信马克思/超度他人/谢谢爸爸/盘库/一列人名",
+  "created": "2026-10-25",
+  "ch3_to_20": "全部已存草稿（ch3-20，每章约1000字，共18章，合计约14000字，加前2章约2500字，总计约16500字）",
+  "ch_drafts": [
+    {
+      "num": 3,
+      "title": "明晚的账房",
+      "len": 1497,
+      "file": "chapters/ch03-1000.txt"
+    },
+    {
+      "num": 4,
+      "title": "停机坪",
+      "len": 859,
+      "file": "chapters/ch04-1000.txt"
+    },
+    {
+      "num": 5,
+      "title": "白宫的纸",
+      "len": 1081,
+      "file": "chapters/ch05-1000.txt"
+    },
+    {
+      "num": 6,
+      "title": "雇佣兵",
+      "len": 759,
+      "file": "chapters/ch06-1000.txt"
+    },
+    {
+      "num": 7,
+      "title": "直升机",
+      "len": 965,
+      "file": "chapters/ch07-1000.txt"
+    },
+    {
+      "num": 8,
+      "title": "七个雇佣兵",
+      "len": 1164,
+      "file": "chapters/ch08-1000.txt"
+    },
+    {
+      "num": 9,
+      "title": "金链",
+      "len": 829,
+      "file": "chapters/ch09-1000.txt"
+    },
+    {
+      "num": 10,
+      "title": "账本被偷",
+      "len": 837,
+      "file": "chapters/ch10-1000.txt"
+    },
+    {
+      "num": 11,
+      "title": "门缝的纸",
+      "len": 829,
+      "file": "chapters/ch11-1000.txt"
+    },
+    {
+      "num": 12,
+      "title": "鬼佬走了",
+      "len": 786,
+      "file": "chapters/ch12-1000.txt"
+    },
+    {
+      "num": 13,
+      "title": "据点",
+      "len": 663,
+      "file": "chapters/ch13-1000.txt"
+    },
+    {
+      "num": 14,
+      "title": "白宫的人",
+      "len": 481,
+      "file": "chapters/ch14-1000.txt"
+    },
+    {
+      "num": 15,
+      "title": "防控为零的原因",
+      "len": 700,
+      "file": "chapters/ch15-1000.txt"
+    },
+    {
+      "num": 16,
+      "title": "白衬衫",
+      "len": 578,
+      "file": "chapters/ch16-1000.txt"
+    },
+    {
+      "num": 17,
+      "title": "金表换了主人",
+      "len": 458,
+      "file": "chapters/ch17-1000.txt"
+    },
+    {
+      "num": 18,
+      "title": "最后一笔账",
+      "len": 921,
+      "file": "chapters/ch18-1000.txt"
+    },
+    {
+      "num": 19,
+      "title": "老板来了",
+      "len": 632,
+      "file": "chapters/ch19-1000.txt"
+    },
+    {
+      "num": 20,
+      "title": "收网",
+      "len": 757,
+      "file": "chapters/ch20-1000.txt"
+    },
+    {
+      "num": 21,
+      "title": "老周的名字",
+      "len": 478,
+      "file": "chapters/ch21-1000.txt"
+    },
+    {
+      "num": 22,
+      "title": "老周来了",
+      "len": 512,
+      "file": "chapters/ch22-1000.txt"
+    },
+    {
+      "num": 23,
+      "title": "三个名字",
+      "len": 581,
+      "file": "chapters/ch23-1000.txt"
+    },
+    {
+      "num": 24,
+      "title": "记到自己头上",
+      "len": 477,
+      "file": "chapters/ch24-1000.txt"
+    },
+    {
+      "num": 25,
+      "title": "九个点",
+      "len": 656,
+      "file": "chapters/ch25-1000.txt"
+    },
+    {
+      "num": 26,
+      "title": "白宫收账",
+      "len": 451,
+      "file": "chapters/ch26-1000.txt"
+    },
+    {
+      "num": 27,
+      "title": "三个来了",
+      "len": 692,
+      "file": "chapters/ch27-1000.txt"
+    },
+    {
+      "num": 28,
+      "title": "账房没了",
+      "len": 563,
+      "file": "chapters/ch28-1000.txt"
+    },
+    {
+      "num": 29,
+      "title": "第七次",
+      "len": 560,
+      "file": "chapters/ch29-1000.txt"
+    },
+    {
+      "num": 30,
+      "title": "第八次没有",
+      "len": 520,
+      "file": "chapters/ch30-1000.txt"
+    },
+    {
+      "num": 31,
+      "title": "第八次",
+      "len": 400,
+      "file": "chapters/ch31-1000.txt"
+    },
+    {
+      "num": 32,
+      "title": "第九次",
+      "len": 380,
+      "file": "chapters/ch32-1000.txt"
+    },
+    {
+      "num": 33,
+      "title": "第九次重记",
+      "len": 353,
+      "file": "chapters/ch33-1000.txt"
+    },
+    {
+      "num": 34,
+      "title": "最后一笔",
+      "len": 500,
+      "file": "chapters/ch34-1000.txt"
+    },
+    {
+      "num": 35,
+      "title": "第十次",
+      "len": 392,
+      "file": "chapters/ch35-1000.txt"
+    }
+  ],
+  "total_chars": "ch1-ch250，全书约103500字（本地草稿）",
+  "note": "ch14/ch17偏短（481/458字），其余均600字以上。全部已存草稿箱，待发布。",
+  "ch3_to_35": "全部已存草稿（ch21-35新写，约8000字；ch3-20约14000字；ch1-2已发布约2500字，全书累计约24500字）",
+  "ch3_to_70": "ch3-70全部已存草稿",
+  "ch3_to_80": "ch3-80全部已存草稿（ch3-20约14000字；ch21-80新写60章，约24000字）",
+  "ch3_to_90": "ch3-90全部已存草稿（ch3-20约14000字；ch21-90新写70章，约28400字）",
+  "ch3_to_115": "ch3-115全部已存草稿（ch101-115为风格转向章节：多线心理、身份揭示反转，仿潜伏）",
+  "ch3_to_121": "ch3-121全部已存草稿（ch101-121为仿潜伏多线心理身份揭示风格，15+5+2章）",
+  "ch3_to_144": "ch3-144全部已存草稿（ch135-144为对账递进章节，10章）",
+  "ch3_to_150": "ch3-150全部已存草稿（ch145-150为对账递进章节，6章，已修正ch146数字）",
+  "ch3_to_170": "ch3-170全部已存草稿（ch151-170为对账递进章节，20章）",
+  "ch3_to_190": "ch3-190全部已存草稿（ch171-190为对账递进章节，20章）",
+  "ch3_to_210": "ch3-210全部已存草稿（ch191-210为对账递进章节，20章）",
+  "ch3_to_230": "ch3-230全部已存草稿（ch211-230为对账递进章节，20章）",
+  "ch3_to_250": "ch3-250全部已存草稿（ch231-250为对账递进章节，20章）"
+}

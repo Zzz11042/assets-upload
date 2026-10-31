@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "field_id": "banner_4",
+      "expected": "https://img-tc.tapimg.com/market/images/4a516b98e24a18bdc48eb65f278ebd37.jpg",
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/965b331d57bb3f5aa1c8ce741d11c98a.jpg",
+        "info": {
+          "width": 1920,
+          "height": 1080,
+          "size": 233720,
+          "format": "jpeg"
+        }
+      }
+    },
+    {
+      "field_id": "square_promo_image",
+      "expected": "https://img-tc.tapimg.com/market/images/4a1a32a308a0df335ec5bec8a64ceb2c.jpg",
+      "value": {
+        "url": "https://img-tc.tapimg.com/market/images/2881de4f9c14e882a943022660c1303a.jpg",
+        "info": {
+          "width": 1440,
+          "height": 1440,
+          "size": 289695,
+          "format": "jpeg"
+        }
+      }
+    }
+  ]
+}

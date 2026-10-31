@@ -1,0 +1,30 @@
+[
+  {
+    "file": "videos/ai-ops-day1.mp4",
+    "title": "AI 自动运营 Day1",
+    "desc": "第一条自动化视频，以后由 AI 全自动发内容、回评论",
+    "tags": "AI工具,自动化,数字生活",
+    "publishAt": "2026-10-23T13:00:00+06:00"
+  },
+  {
+    "file": "videos/ai-ops-day2.mp4",
+    "title": "AI 帮你回评论",
+    "desc": "评论区互动全自动，每一条都不漏",
+    "tags": "AI工具,互动,运营",
+    "publishAt": "2026-10-23T15:00:00+06:00"
+  },
+  {
+    "file": "videos/ai-data-day.mp4",
+    "title": "数据驱动内容",
+    "desc": "爆款分析 → 模仿改进，靠数据不靠感觉",
+    "tags": "数据分析,爆款,内容策略",
+    "publishAt": "2026-10-23T17:00:00+06:00"
+  },
+  {
+    "file": "videos/ai-schedule.mp4",
+    "title": "定时自动发布",
+    "desc": "24h 不间断运营，AI 帮你排好档期",
+    "tags": "自动化,定时,效率",
+    "publishAt": "2026-10-24T10:00:00+06:00"
+  }
+]

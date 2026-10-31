@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>玉匣开鉴</title>
+<style>
+:root {
+--c0:#2a4a3a; --c1:#7ec8a0; --c2:#3a3a3a; --c3:#f5d860; --c4:#8a7a6a;
+--bg:#2a4a3a;--accent:#7ec8a0;--text:#fff
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,'PingFang SC',sans-serif;
+  display:flex;flex-direction:column;align-items:center;min-height:100vh}
+header{padding:16px;text-align:center}
+h1{font-size:22px}
+#screen{width:min(560px,94vw);margin:12px auto;padding:14px;border-radius:12px;
+  background:rgba(0,0,0,.25);backdrop-filter:blur(4px)}
+.canvas-wrap{display:flex;justify-content:center;margin:10px 0}
+canvas{background:#000;border-radius:8px;image-rendering:pixelated;max-width:100%}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+td{border:1px solid var(--accent);padding:4px 8px}
+.btn{background:var(--accent);color:#111;border:0;border-radius:8px;
+  padding:10px 18px;font-size:15px;cursor:pointer;margin:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.meta{font-size:12px;opacity:.7;margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <h1>玉匣开鉴</h1>
+  <div class="meta">参考游戏: 赌石潮(轻松拿捏了) · 风格: 像素鉴宝剖面</div>
+</header>
+<div id="screen">
+  <div class="canvas-wrap"><canvas id="cv" width="480" height="280"></canvas></div>
+  <div class="meta" id="hud">资源: 100 · 等级: 1 · 波次: 0</div>
+  <button class="btn" id="go">开始 / 下一波</button>
+  <button class="btn" id="shop">商店 (随机)</button>
+  <button class="btn" id="up" disabled>升级</button>
+  <details><summary>机制与数值</summary>
+    <ul><li>随机玉饼剖面(种/水/色/净权重40/25/20/15%)</li>
+<li>三维评分出宝(玉质+皮壳+完整性)</li>
+<li>全服限量金(每日金≤200件按顺序分配)</li>
+<li>行商每日汇率±20%(再等等博弈)</li>
+<li>满图鉴解锁新匣池</li></ul>
+    <table><tr><th>键</th><th>值</th></tr><tr><td>出宝概率</td><td>"白55/青25/绿13/紫6/金0.8%"</td></tr>
+<tr><td>玉质评分</td><td>"种40%+水25%+色20%+净15%(可热调)"</td></tr>
+<tr><td>铜钱</td><td>"每日3+广告+1"</td></tr>
+<tr><td>行商汇率</td><td>"每日±20%"</td></tr>
+<tr><td>限量金</td><td>"每日≤200件"</td></tr></table>
+  </details>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var S={resource:100,level:1,wave:0,items:[],tick:0};
+  var NUM={"出宝概率": "白55/青25/绿13/紫6/金0.8%", "玉质评分": "种40%+水25%+色20%+净15%(可热调)", "铜钱": "每日3+广告+1", "行商汇率": "每日±20%", "限量金": "每日≤200件"};
+  var ACCENT='#7ec8a0';
+  function hud(){
+    document.getElementById('hud').textContent=
+      '资源: '+S.resource+' · 等级: '+S.level+' · 波次: '+S.wave;
+  }
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='rgba(255,255,255,0.04)';
+    for(var x=0;x<cv.width;x+=24)
+      for(var y=0;y<cv.height;y+=24)
+        if((x+y)%48<24) ctx.fillRect(x,y,12,12);
+    var px=cv.width/2+Math.sin(S.tick*.05)*40, py=cv.height/2+Math.cos(S.tick*.04)*30;
+    ctx.fillStyle=ACCENT;
+    ctx.fillRect(px-10,py-10,20,20);
+    for(var i=0;i<S.wave;i++){
+      var ex=(i*97)%cv.width, ey=(i*61)%cv.height;
+      ctx.fillStyle='#e05050';ctx.fillRect(ex,ey,8,8);
+    }
+    S.tick++;hud();requestAnimationFrame(draw);
+  }
+  document.getElementById('go').onclick=function(){
+    S.wave++;
+    var gain=NUM['wave_gain']?NUM['wave_gain']:10+S.wave*2;
+    S.resource+=gain;S.level=Math.floor(S.wave/3)+1;
+    document.getElementById('up').disabled=S.resource<50;
+  };
+  document.getElementById('shop').onclick=function(){
+    var costs=[10,20,50,100];
+    S.items.push(costs[Math.floor(Math.random()*costs.length)]);
+  };
+  document.getElementById('up').onclick=function(){
+    if(S.resource>=50){S.resource-=50;S.level++;document.getElementById('up').disabled=true;}
+  };
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>资产与方案 · Dashboard</title>
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--line:#262b36;--txt:#e8ebf2;--dim:#8b93a7;--acc:#5aa9ff;--ok:#51c78a;--warn:#e3b341}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+header{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+header h1{font-size:16px;margin:0;font-weight:600}
+header .sub{color:var(--dim);font-size:12px}
+nav{display:flex;gap:4px;margin-left:auto}
+nav button{background:none;border:1px solid transparent;color:var(--dim);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px}
+nav button.active{color:var(--txt);border-color:var(--line);background:var(--panel)}
+main{padding:20px;max-width:1100px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+/* 方案完整呈现：单列宽版，所有字段展开不截断 */
+.tile.pfull{grid-column:1/-1}
+.psecgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:8px}
+.psec{background:#0b0d12;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.plab{color:var(--dim);font-size:11px;letter-spacing:.08em;margin-bottom:3px}
+.pval{font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.psecraw{margin-top:8px}
+.psecraw summary{font-size:12px}
+.opt{display:flex;gap:8px;align-items:flex-start;background:#0b0d12;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:5px 0;cursor:pointer;font-size:13px}
+.opt:hover{border-color:var(--acc)}
+.opt input{margin-top:2px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.tile h3{margin:0 0 6px;font-size:14px}
+.tile .num{font-size:26px;font-weight:700}
+.tile .meta{color:var(--dim);font-size:12px;margin-top:4px}
+.tag{display:inline-block;background:#20263a;color:var(--acc);border-radius:20px;padding:2px 10px;font-size:11px;margin:2px 2px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:500;font-size:12px}
+td.desc{color:var(--dim);max-width:340px}
+.badge{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px;background:#20263a;color:var(--dim)}
+.badge.ok{color:var(--ok)}
+input,select{background:#0b0d12;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 10px;font-size:13px}
+input{width:100%}
+.btn{background:var(--acc);color:#08111f;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:wait}
+.row{display:flex;gap:10px;margin-bottom:14px}
+.section-title{font-size:12px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin:18px 0 8px}
+.hidden{display:none}
+details summary{cursor:pointer;color:var(--acc);font-size:13px;margin:6px 0}
+pre{background:#0b0d12;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12px;overflow:auto;max-height:300px}
+ul{margin:6px 0;padding-left:20px}
+li{margin:3px 0}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>资产与方案 · 可视化入口</h1>
+    <div class="sub" id="llm-status">读取本地 game-forge / tomato 资产库</div>
+  </div>
+  <nav>
+    <button data-view="overview" class="active">总览</button>
+    <button data-view="assets">资产库</button>
+    <button data-view="assets-live">资产查看</button>
+    <button data-view="novel">小说</button>
+    <button data-view="drama">短剧</button>
+    <button data-view="generate">方案生成</button>
+    <button data-view="wizard">分步生成</button>
+    <button data-view="records">方案记录</button>
+    <button data-view="tags">资产解析</button>
+    <button data-view="settings">设置</button>
+  </nav>
+</header>
+<main>
+  <!-- 总览 -->
+  <section id="view-overview">
+    <div class="grid" id="ov-tiles"></div>
+    <div class="section-title">番茄连载进度</div>
+    <div class="card"><table id="ov-books"></table></div>
+    <div class="section-title">短剧项目</div>
+    <div class="card"><table id="ov-drama"></table></div>
+  </section>
+  <!-- 资产库 -->
+  <section id="view-assets" class="hidden">
+    <div class="row">
+      <input id="asset-search" placeholder="搜索游戏 / 方案 / 风格（关键词）">
+    </div>
+    <div class="section-title">入库游戏 (vault)</div>
+    <div class="card"><table id="as-vault"></table></div>
+    <div class="section-title">知识库游戏 (knowledge/games)</div>
+    <div class="card"><table id="as-games"></table></div>
+    <div class="section-title">可借鉴方案 (knowledge/plans)</div>
+    <div class="card" id="as-plans"></div>
+    <div class="section-title">美工风格 (knowledge/styles)</div>
+    <div class="card" id="as-styles"></div>
+  </section>
+  <!-- 小说 -->
+  <section id="view-novel" class="hidden">
+    <div class="section-title">番茄书</div>
+    <div class="card"><table id="nv-tomato"></table></div>
+    <div class="section-title">novel-forge 长篇项目</div>
+    <div class="card" id="nv-forge"></div>
+  </section>
+  <!-- 短剧 -->
+  <section id="view-drama" class="hidden">
+    <div class="card"><table id="dr-table"></table></div>
+  </section>
+  <!-- 资产实时查看（多工程 + 标签） -->
+  <section id="view-assets-live" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0">资产查看 · 全部工程 + 标签</h3>
+      <div class="sub" style="color:var(--dim);font-size:12px;margin-bottom:8px">显示所有工程（游戏构建 / 番茄小说 / 长篇 / 短剧视频）及其机读标签（来自 asset-tags.json）。点工程展开文件，点文件看实时内容（图片放大 / 文档全文）。</div>
+      <div class="row" style="margin-bottom:8px">
+        <span style="font-size:12px;color:var(--dim);align-self:center">领域：</span>
+        <button class="btn on" data-pdom="" onclick="projFilter(this)">全部</button>
+        <button class="btn" data-pdom="game" onclick="projFilter(this)">游戏</button>
+        <button class="btn" data-pdom="novel" onclick="projFilter(this)">小说</button>
+        <button class="btn" data-pdom="video" onclick="projFilter(this)">短剧视频</button>
+        <button class="btn" style="margin-left:auto;background:var(--panel);color:var(--acc);border:1px solid var(--line)" onclick="loadProjects()">🔄 刷新工程</button>
+      </div>
+      <div id="proj-list"></div>
+    </div>
+    <div class="card" id="as-detail" style="display:none">
+      <h3 style="margin-top:0">内容预览</h3>
+      <div id="as-detail-body" style="max-height:600px;overflow:auto"></div>
+    </div>
+    <!-- vault 文件浏览（原目录模式保留） -->
+    <div class="card">
+      <h3 style="margin-top:0">vault 文件浏览（图片/素材/策划案）</h3>
+      <div class="row" style="margin:6px 0">
+        <select id="as-root" onchange="assetBrowse()" style="min-width:170px">
+          <option value="vault">vault（素材库）</option>
+          <option value="books">tomato/books（番茄书）</option>
+          <option value="out">game-forge/out（游戏构建）</option>
+          <option value="projects">game-forge/projects（短剧）</option>
+          <option value="novel_projects">novel_projects（长篇）</option>
+        </select>
+        <input id="as-path" placeholder="相对目录，如 design-docs/末日小队_策划案" style="min-width:280px">
+        <button class="btn" style="background:var(--panel);color:var(--acc);border:1px solid var(--line)" onclick="assetBrowse()">浏览</button>
+      </div>
+      <div class="grid" id="as-list" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))"></div>
+    </div>
+  </section>
+  <!-- 方案生成 -->
+  <section id="view-generate" class="hidden">
+    <div class="card">
+      <div class="row">
+        <input id="gen-idea" placeholder="一句话思路，例如：三国水墨塔防合成">
+        <button id="gen-btn" class="btn" style="white-space:nowrap">生成方案</button>
+      </div>
+      <div class="sub" style="color:var(--dim);font-size:12px" id="gen-mode">本地回退：按 knowledge/plans.json 关键词打分 top3</div>
+      <div id="gen-results"></div>
+    </div>
+  </section>
+  <!-- 资产解析（可机读标签库 + 解析上传 + 复用定位） -->
+  <section id="view-tags" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0">资产解析 · 可机读标签库</h3>
+      <div class="sub" style="color:var(--dim);font-size:12px">本地资产/模式/算法统一存成可被模型直接识别的标签（knowledge/asset-tags.json，格式 asset-tags.schema.json）。可搜索定位、上传解析新资产/外来参考、按"同类功能算法"复用重组。</div>
+      <div class="row" style="margin:10px 0">
+        <input id="tag-q" placeholder="搜标签/标题/机制（如：合成 波次 塔防 风格DNA…）" style="min-width:260px">
+        <select id="tag-dom" style="min-width:110px">
+          <option value="">全部领域</option><option value="game">游戏</option><option value="novel">小说</option><option value="video">短剧视频</option>
+        </select>
+        <select id="tag-type" style="min-width:110px">
+          <option value="">全部类型</option><option value="asset">资产</option><option value="pattern">模式</option><option value="algo">算法</option>
+        </select>
+        <button class="btn" id="tag-search">搜索</button>
+        <button class="btn" style="background:var(--panel);color:var(--acc);border:1px solid var(--line)" id="tag-refresh">🔄 重新解析本地库</button>
+      </div>
+      <div class="row" style="margin-bottom:6px">
+        <input id="tag-algo" placeholder="按同类功能算法定位（如：合成升阶 / 波次 / 掉级惩罚）" style="min-width:260px">
+        <button class="btn" style="background:var(--panel);color:var(--ok);border:1px solid var(--line)" id="tag-reuse">定位可复用算法</button>
+      </div>
+      <div id="tag-result"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">上传/解析新资产（外来参考也走这套格式）</h3>
+      <div class="sub" style="color:var(--dim);font-size:12px">粘贴一段资产描述/文档/脚本（小说、游戏机制、短视频脚本、外来参考…），LLM 提取结构化标签入库；无 LLM 时走规则提取保底。</div>
+      <textarea id="tag-text" rows="5" style="width:100%;margin:8px 0" placeholder="例如：合成升阶系统——同类卡片合成升阶，ATK×1.4 FRQ×1.1，5级封顶；用于塔防局内成长"></textarea>
+      <div class="row">
+        <select id="tag-up-dom" style="min-width:120px"><option value="game">游戏</option><option value="novel">小说</option><option value="video">短剧视频</option><option value="cross">跨领域</option></select>
+        <button class="btn" id="tag-parse">解析并入库</button>
+      </div>
+      <div id="tag-parse-result" style="margin-top:8px"></div>
+    </div>
+  </section>
+  <!-- 分步向导 -->
+  <section id="view-wizard" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0">分步生成向导（每要素 3 候选 / 可自写，全程记录）</h3>
+      <div class="row" style="margin:8px 0">
+        <span style="font-size:12px;color:var(--dim);align-self:center">领域：</span>
+        <button class="btn" data-dom="game" onclick="wizDomain('game')">游戏</button>
+        <button class="btn" data-dom="novel" onclick="wizDomain('novel')">小说</button>
+        <button class="btn" data-dom="video" onclick="wizDomain('video')">短剧视频</button>
+        <button class="btn" id="wiz-mat-btn" style="margin-left:auto;background:var(--panel);color:var(--acc);border:1px solid var(--line)" onclick="wizMaterials()">调用本地素材</button>
+      </div>
+      <div id="wiz-mat" class="hidden" style="font-size:12px;color:var(--dim);background:var(--panel);border:1px solid var(--line);padding:8px 10px;margin-bottom:8px;max-height:160px;overflow:auto"></div>
+      <div class="sub" style="color:var(--dim);font-size:12px">按「定位→设计→数值→内容→表现→工程→MVP」顺序逐步敲定。每步 3 候选（LLM 在线现生成+1 句解释，离线回退本地库），可自写覆盖。可回退上一步重选。每步决定记入「方案记录」。</div>
+    </div>
+    <div class="card" id="wiz-body"></div>
+  </section>
+  <!-- 方案记录 -->
+  <section id="view-records" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0">方案记录（append-only JSONL）</h3>
+      <div class="sub" style="color:var(--dim);font-size:12px">分步向导的每一步决定 + 最终合成品，全部落盘 <code>asset-dashboard/records/plans.jsonl</code>，可回溯/可喂给后续生成。</div>
+      <div class="row" style="margin-top:10px">
+        <button id="rec-export" class="btn">导出最新合成品给 agent（需先完成分步向导）</button>
+      </div>
+      <div id="rec-export-msg" style="margin-top:8px"></div>
+      <div id="rec-list" style="margin-top:10px"></div>
+    </div>
+  </section>
+  <!-- 设置 -->
+  <section id="view-settings" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0">API 设置</h3>
+      <div class="sub" style="color:var(--dim);font-size:12px;margin-bottom:12px" id="set-status">未加载</div>
+      <label style="font-size:12px;color:var(--dim)">API Base（OpenAI 兼容端点，含 /v1）</label>
+      <input id="set-base" style="margin:6px 0 12px" placeholder="https://apihub.agnes-ai.com/v1">
+      <label style="font-size:12px;color:var(--dim)">API Key</label>
+      <input id="set-key" type="password" style="margin:6px 0 12px" placeholder="留空则保留原 key（GET 不回传完整 key）">
+      <label style="font-size:12px;color:var(--dim)">模型</label>
+      <input id="set-model" style="margin:6px 0 14px" placeholder="agnes-3.0-flash">
+      <div class="row">
+        <button id="set-save" class="btn">保存设置</button>
+        <button id="set-test" class="btn" style="background:var(--panel);color:var(--acc);border:1px solid var(--line)">测试连通</button>
+      </div>
+      <div class="sub" style="color:var(--dim);font-size:12px;margin-top:10px" id="set-msg"></div>
+      <div class="section-title">说明</div>
+      <ul style="font-size:12px;color:var(--dim)">
+        <li>设置写入 <code>asset-dashboard/settings.json</code>，「方案生成」的 LLM 在线分支读取它。</li>
+        <li>留空 Key 保存不会清空原 key（GET 脱敏，不回传完整 key）。</li>
+        <li>也可用环境变量 <code>AGNES_API_BASE</code>/<code>AGNES_API_KEY</code>/<code>AGNES_MODEL</code>，settings.json 优先。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const views=["overview","assets","assets-live","novel","drama","generate","wizard","records","tags","settings"];
+const WIZ={idx:0,els:[],idea:"",choices:{},custom:{},opts:{},multi:{},lastMode:"",lastErr:"",explain:"",loading:false,done:false,domain:"game"};
+function show(v){
+  views.forEach(x=>$("#view-"+x).classList.toggle("hidden",x!==v));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
+  if(v==="wizard"&&WIZ.els.length===0)loadEls();
+  if(v==="records")loadRecords();
+  if(v==="assets-live"){loadProjects();assetBrowse();}
+}
+
+async function api(p){const r=await fetch(p);return r.json();}
+
+function tableEl(id,rows,cols){
+  const t=$(id);t.innerHTML="";
+  const thead="<tr>"+cols.map(c=>"<th>"+c.label+"</th>").join("")+"</tr>";
+  t.innerHTML=thead+rows.map(r=>"<tr>"+cols.map(c=>"<td>"+(c.cls?"<span class='"+c.cls+"'>":"")+esc(r[c.key]??"")+("</td>").replace("</span></td>","")+"</tr>").join("")+"</tr>");
+}
+// simpler robust renderer
+function fillTable(id,rows,cols){
+  const t=$(id);
+  t.innerHTML="<tr>"+cols.map(c=>"<th>"+c.label+"</th>").join("")+"</tr>"+
+    (rows.length?rows.map(r=>"<tr>"+cols.map(c=>{
+      const v=r[c.key]??"-";
+      return "<td class='"+(c.cls||"")+"'>"+fmt(v,c)+("</td>");
+    }).join("")+"</tr>").join(""):"<tr><td colspan="+cols.length+" style='color:var(--dim)'>（空）</td></tr>");
+}
+function fmt(v,c){
+  if(c.key==="status")return "<span class='badge "+(v==="草稿已存"||v==="complete"?"ok":"")+"'>"+esc(v)+"</span>";
+  return esc(String(v));
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+// 方案完整渲染：全字段展开（不折叠、不截断），单列宽版；返回 HTML 字符串
+function planCard(p){
+  const secs=[];
+  const one=p.one_liner||p.desc||p.mood||"";
+  const sec=(label,val)=>{const v=Array.isArray(val)?val.join("、"):(typeof val==="object"&&val?JSON.stringify(val,null,1):String(val||"").trim());if(v&&v!=="[]")secs.push("<div class='psec'><div class='plab'>"+label+"</div><div class='pval'>"+esc(v)+"</div></div>");};
+  sec("一句话",one);
+  sec("类型",p.genre);
+  sec("核心循环",p.core_loop);
+  sec("机制",p.mechanics);
+  sec("数值",p.numbers);
+  sec("长线",p.long_term);
+  sec("变现",p.monetization);
+  sec("技术",p.tech);
+  sec("MVP 范围",p.mvp_scope);
+  sec("风险",p.risks);
+  sec("借鉴自",p.borrow_from);
+  const tags=[p.default_style,...(p.needs||[])].slice(0,8).map(t=>"<span class='tag'>"+esc(t)+"</span>").join("");
+  return "<div class='tile pfull'><h3>"+esc(p.name||p.id)+"</h3>"+(one?"<div class='meta'>"+esc(one)+"</div>":"")+"<div style='margin:6px 0'>"+tags+"</div><div class='psecgrid'>"+secs.join("")+"</div><details class='psecraw'><summary>原始 JSON</summary><pre>"+esc(JSON.stringify(p,null,1))+"</pre></details></div>";
+}
+
+async function loadOverview(){
+  const o=await api("/api/overview");
+  $("#llm-status").textContent=o.llmOnline?"LLM 在线（agnes）":"本地模式（未配 AGNES_API_KEY，方案生成为本地回退）";
+  const tiles=[
+    {t:"入库游戏",n:o.vault.items,m:"按分类："+Object.entries(o.vault.byCategory).map(([k,v])=>k+"×"+v).join(" ")},
+    {t:"知识库游戏",n:o.knowledge.games,m:"可借鉴点检索"},
+    {t:"可借鉴方案",n:o.knowledge.plans,m:"knowledge/plans.json"},
+    {t:"美工风格",n:o.knowledge.styles,m:"palette + 生图 prompt"},
+    {t:"短剧项目",n:o.dramaProjects.length,m:o.dramaProjects.join("、")||"（无）"},
+    {t:"长篇项目",n:o.novelProjects.length,m:o.novelProjects.join("、")||"（无）"},
+    {t:"番茄书",n:o.tomatoBooks.length,m:o.tomatoBooks.join("、")},
+  ];
+  $("#ov-tiles").innerHTML=tiles.map(x=>"<div class='tile'><h3>"+x.t+"</h3><div class='num'>"+x.n+"</div><div class='meta'>"+x.m+"</div></div>").join("");
+  fillTable("#ov-books",o.tomatoBooks.map(b=>({book:b})).length? await (async()=>{
+      const books=await api("/api/books");
+      return Object.entries(books).map(([b,s])=>({book:b,next:s.next_chapter,total:s.total_chars_local||s.total_chars||"",status:s.complete?"完稿":(s.ch3_to_250?s.status:"")||"连载",style:s.style||""}));
+    })():[],[
+      {key:"book",label:"书"},{key:"next",label:"下一章"},{key:"total",label:"累计字数"},{key:"status",label:"状态"},{key:"style",label:"文风",cls:"desc"},
+    ]);
+  fillTable("#ov-drama",await (async()=>{const d=await api("/api/projects/drama");return Object.entries(d).map(([k,v])=>({name:k,idea:v.idea,status:v.status,shots:v.shots,created:v.created||""}));})(),
+    [ {key:"name",label:"项目"},{key:"idea",label:"创意",cls:"desc"},{key:"shots",label:"分镜"},{key:"status",label:"状态"},{key:"created",label:"创建"} ]);
+}
+
+async function loadAssets(){
+  fillTable("#as-vault",await api("/api/vault"),[
+    {key:"game",label:"游戏"},{key:"category",label:"分类"},{key:"files",label:"文件数"},
+  ]);
+  const games=await api("/api/knowledge/games");
+  fillTable("#as-games",games,[
+    {key:"name",label:"游戏"},{key:"genre",label:"类型"},{key:"mood",label:"调性"},{key:"borrow",label:"可借鉴点",cls:"desc"},
+  ]);
+  const plans=await api("/api/knowledge/plans");
+  const pool=Array.isArray(plans)?plans:Object.values(plans);
+  $("#as-plans").innerHTML="<div class='grid'>"+pool.map(planCard).join("")+"</div>";
+  const styles=await api("/api/knowledge/styles");
+  const sp=Array.isArray(styles)?styles:Object.values(styles);
+  $("#as-styles").innerHTML="<div class='grid'>"+sp.map(s=>
+    "<div class='tile'><h3>"+esc(s.name||s.art_style)+"</h3><div class='meta'>"+esc(s.mood||"")+"</div>"+
+    "<div style='display:flex;gap:3px;margin:6px 0'>"+(s.palette||[]).slice(0,6).map(c=>"<span style='width:14px;height:14px;border-radius:3px;background:"+esc(c)+"'></span>").join("")+"</div>"+
+    "<details><summary>生图 prompt</summary><pre>"+esc(s.style_prompt||"")+"</pre></details></div>").join("")+"</div>";
+}
+
+async function loadNovel(){
+  const books=await api("/api/books");
+  fillTable("#nv-tomato",Object.entries(books).map(([b,s])=>({book:b,next:s.next_chapter,total:s.total_chars_local||s.total_chars||"",status:s.complete?"完稿":"连载",style:s.style||"",foreshadow:(s.foreshadow_open||[]).length+" 条未回收"})),
+    [{key:"book",label:"书"},{key:"next",label:"下一章"},{key:"total",label:"累计字数"},{key:"status",label:"状态"},{key:"foreshadow",label:"未回收伏笔"},{key:"style",label:"文风",cls:"desc"}]);
+  const fp=await api("/api/projects/novel");
+  $("#nv-forge").innerHTML="<div class='grid'>"+Object.entries(fp).map(([k,s])=>
+    "<div class='tile'><h3>"+esc(k)+"</h3><div class='num'>"+(s.chapter||s.next_chapter||0)+"</div><div class='meta'>章 "+(s.status||"")+"</div></div>").join("")+"</div>";
+}
+
+async function loadDrama(){
+  const d=await api("/api/projects/drama");
+  fillTable("#dr-table",Object.entries(d).map(([k,v])=>({name:k,idea:v.idea,status:v.status,shots:v.shots,keyframes:v.keyframes,videos:v.videos,created:v.created||""})),
+    [{key:"name",label:"项目"},{key:"idea",label:"创意",cls:"desc"},{key:"shots",label:"分镜"},{key:"keyframes",label:"关键帧"},{key:"videos",label:"视频"},{key:"status",label:"状态"}]);
+}
+
+async function doGenerate(){
+  const idea=$("#gen-idea").value.trim();
+  if(!idea){$("#gen-mode").textContent="请先输入一句话思路";return;}
+  $("#gen-btn").disabled=true;
+  const t0=Date.now();
+  $("#gen-mode").textContent="正在生成（LLM 在线需 1-2 分钟，已用 "+Math.round((Date.now()-t0)/1000)+"s）…";
+  const tick=setInterval(()=>{$("#gen-mode").textContent="正在生成（LLM 较慢属正常，已用 "+Math.round((Date.now()-t0)/1000)+"s，超 90s 自动回退本地）…";},1000);
+  try{
+    const r=await api("/api/generate?idea="+encodeURIComponent(idea));
+    const sec=Math.round((Date.now()-t0)/1000);
+    $("#gen-mode").textContent=r.mode==="local-fallback"
+      ?("本地回退（knowledge/plans.json 关键词 top3）"+(r.llmError?(" · LLM 失败："+r.llmError):" · 未配置 LLM")+" · 耗时 "+sec+"s")
+      :("LLM 在线生成（"+(r.model||"")+"）· 耗时 "+sec+"s");
+    $("#gen-results").innerHTML="<div class='grid'>"+(r.candidates||[]).map(planCard).join("")+"</div>";
+  }catch(e){$("#gen-mode").textContent="请求失败 "+String(e)+" · 耗时 "+Math.round((Date.now()-t0)/1000)+"s";}
+  clearInterval(tick);
+  $("#gen-btn").disabled=false;
+}
+
+async function loadSettings(){
+  const s=await api("/api/settings");
+  $("#set-base").value=s.apiBase||"";
+  $("#set-model").value=s.model||"";
+  $("#set-key").value="";
+  $("#set-status").textContent=(s.hasKey?("已配置 key（尾号 "+s.keyTail+"）· 来源 "+s.source):"未配置 key")+" · LLM 在线 "+(s.apiBase&&s.hasKey?"是":"否");
+}
+async function saveSettings(){
+  const body={apiBase:$("#set-base").value.trim(),model:$("#set-model").value.trim()};
+  const k=$("#set-key").value.trim();
+  if(k)body.apiKey=k; // 留空则保留原 key
+  const r=await fetch("/api/settings",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json();
+  $("#set-msg").textContent=j.ok?("已保存：base="+(j.saved.apiBase||"(空)")+" model="+(j.saved.model||"(默认)")+" key="+(j.saved.hasKey?"保留":"未配置")):("保存失败 "+JSON.stringify(j));
+  loadSettings();
+}
+async function testConn(){
+  $("#set-msg").textContent="测试中（LLM 较慢需 1-2 分钟，期间按钮不可点）…";
+  $("#set-test").disabled=true;
+  const t0=Date.now();
+  const tick=setInterval(()=>{$("#set-msg").textContent="测试中（已用 "+Math.round((Date.now()-t0)/1000)+"s，超 90s 自动回退本地）…";},1000);
+  const idea="测试连通（一句话思路：三国水墨塔防）";
+  try{
+    const r=await api("/api/generate?idea="+encodeURIComponent(idea));
+    $("#set-msg").textContent=(r.mode==="llm"?("连通 OK，LLM 在线生成（"+(r.model||"")+"）"):"本地回退模式"+(r.llmError?("（LLM 失败："+r.llmError+"）"):"（未配置 LLM）"))+" · 耗时 "+Math.round((Date.now()-t0)/1000)+"s";
+  }catch(e){$("#set-msg").textContent="测试失败 "+String(e)+" · 耗时 "+Math.round((Date.now()-t0)/1000)+"s";}
+  clearInterval(tick);
+  $("#set-test").disabled=false;
+}
+$("#set-save").onclick=saveSettings;
+$("#set-test").onclick=testConn;
+
+/* ===== 分步向导 ===== */
+function wizCtx(){return JSON.stringify({已定:WIZ.choices,思路:WIZ.idea,领域:WIZ.domain});}
+async function wizNext(){
+  if(WIZ.loading||WIZ.done)return;
+  const i=WIZ.idx, el=WIZ.els[i];
+  if(el.key==="idea"){
+    const inp=document.getElementById("wiz-idea");
+    WIZ.idea=(inp?inp.value:WIZ.idea).trim();
+    if(!WIZ.idea){alert("请先写一句话思路");return;}
+    postRecord({type:"step",idea:WIZ.idea,step:i,el:el.name,choice:WIZ.idea,source:"custom"});
+    WIZ.idx++;
+  }else{
+    const custom=(WIZ.custom[el.key]||"").trim();
+    let chosen;
+    if(custom)chosen=custom;
+    else{
+      const c=WIZ.choices[el.key];
+      chosen=Array.isArray(c)?c.join(" + "):c||""; // 多选合并成字符串
+    }
+    if(el.required&&!chosen){alert("「"+el.name+"」为必选，请点选候选（可多选）或自己写入");return;}
+    postRecord({type:"step",idea:WIZ.idea,step:i,el:el.name,choice:chosen,source:custom?"custom":(WIZ.lastMode==="llm"?"LLM候选":"本地候选")});
+    if(!custom)WIZ.choices[el.key]=Array.isArray(WIZ.choices[el.key])?WIZ.choices[el.key]:chosen;
+    WIZ.idx++;
+  }
+  if(WIZ.idx>=WIZ.els.length){
+    postRecord({type:"final",idea:WIZ.idea,choices:{...WIZ.choices},custom:WIZ.custom});
+    WIZ.done=true;renderWiz();return;
+  }
+  await loadStep();
+}
+async function loadStep(){
+  const i=WIZ.idx, el=WIZ.els[i];
+  WIZ.loading=true;WIZ.lastErr="";WIZ.explain="";renderWiz();
+  if(el.key!=="idea"){
+    try{
+      const r=await api("/api/steps?key="+encodeURIComponent(el.key)+"&ctx="+encodeURIComponent(wizCtx())+"&domain="+WIZ.domain);
+      WIZ.opts[el.key]=r.local||[];WIZ.lastMode=r.mode||"local";WIZ.lastErr=r.llmError||"";WIZ.explain=r.explain||"";
+    }catch(e){WIZ.opts[el.key]=[];WIZ.lastMode="local";WIZ.lastErr=String(e);}
+  }
+  WIZ.loading=false;renderWiz();
+}
+function postRecord(rec){fetch("/api/record",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(rec)});}
+// 收集本次向导的分步记录（供 /api/export）
+function wizSteps(){
+  const recs=[];
+  // 用当前内存里的 choices + 候选来源重建 steps（不依赖 jsonl）
+  WIZ.els.forEach((el,i)=>{
+    if(el.key==="idea"){recs.push({type:"step",step:i,el:el.name,choice:WIZ.idea,source:"custom"});return;}
+    const c=(WIZ.custom[el.key]||"").trim();
+    let val;
+    if(c)val=c;
+    else{const ch=WIZ.choices[el.key];val=Array.isArray(ch)?ch.join(" + "):ch||"";}
+    recs.push({type:"step",step:i,el:el.name,choice:val,source:c?"custom":"候选"});
+  });
+  return recs;
+}
+async function copyAgentPack(showView){
+  const steps=wizSteps();
+  const r=await fetch("/api/export",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idea:WIZ.idea,domain:WIZ.domain,choices:{...WIZ.choices},steps})});
+  const j=await r.json();
+  if(!j.ok||!j.markdown)return alert("导出失败 "+JSON.stringify(j));
+  let ok=false;
+  try{await navigator.clipboard.writeText(j.markdown);ok=true;}
+  catch(e){
+    // 降级：textarea 复制
+    const ta=document.createElement("textarea");ta.value=j.markdown;ta.style.position="fixed";ta.style.left="-9999px";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");ok=true;}catch(e2){ok=false;}
+    document.body.removeChild(ta);
+  }
+  const msg=$("#wiz-copied");
+  if(msg){msg.style.display="block";msg.className="sub";msg.style.color=ok?"var(--ok)":"var(--warn)";msg.textContent=ok?("✅ 已复制完整 agent 实现包到剪贴板 — 直接粘贴给 DSH / Codex。也存于 records/agent-prompt-latest.md。"):"⚠ 自动复制失败，请手动复制下方文本：";}
+  if(!ok||showView){
+    const pre=document.createElement("pre");pre.style.marginTop="8px";pre.style.maxHeight="200px";pre.textContent=j.markdown;
+    const card=document.getElementById("view-wizard").querySelector(".card");
+    if(card&&!card.querySelector("pre"))card.appendChild(pre);
+  }
+}
+function renderWiz(){
+  const box=$("#wiz-body");
+  if(!WIZ.els.length){box.innerHTML="<div class='card'>加载中…</div>";loadEls();return;}
+  const total=WIZ.els.length, i=WIZ.idx;
+  let h="<div style='font-size:12px;color:var(--dim);margin-bottom:10px'>进度 "+(i+1)+"/"+total+" · 已定 "+Object.keys(WIZ.choices).filter(k=>WIZ.choices[k]).length+"/"+total+" · 候选来源："+(WIZ.lastMode==="llm"?"LLM 在线":"本地库")+ (WIZ.done?" · ✅ 完成":"")+"</div>";
+  if(WIZ.done){
+    h+="<div class='card'><h3 style='margin-top:0'>合成品已生成并记录到「方案记录」</h3>"+planCard({name:WIZ.idea||"未命名合成品",idea:WIZ.idea,...WIZ.choices})+
+       "<div class='row' style='margin-top:12px'><button class='btn' id='wiz-copy'>一键复制给 DSH / Codex</button>"+
+       "<button class='btn' id='wiz-restart' style='background:var(--panel);color:var(--acc);border:1px solid var(--line)'>重新开始</button>"+
+       "<button class='btn' id='wiz-viewrec' style='background:var(--panel);color:var(--acc);border:1px solid var(--line)'>查看方案记录</button></div>"+
+       "<div id='wiz-copied' style='display:none;margin-top:8px'></div></div>";
+    box.innerHTML=h;
+    $("#wiz-restart").onclick=function(){WIZ.done=false;WIZ.idx=0;WIZ.choices={};WIZ.custom={};WIZ.opts={};WIZ.idea="";postRecord({type:"new-session",idea:""});loadEls();};
+    $("#wiz-viewrec").onclick=function(){showRecords();};
+    $("#wiz-copy").onclick=function(){copyAgentPack(false);};
+    return;
+  }
+  const el=WIZ.els[i];
+  const domLabel={game:"游戏",novel:"小说",video:"短剧视频"}[WIZ.domain]||WIZ.domain;
+  h+="<div class='card'><h3 style='margin-top:0'>[" + domLabel + "] 要素 " + (i+1)+"/"+total+"：" + esc(el.name||el.key) + (el.required?" <span class='badge ok'>必选</span>":"") + (el.kind==="pick"?" <span class='badge'>3 候选 / 可自写</span>":"") + "</h3>";
+  h+="<div class='sub' style='color:var(--dim);font-size:12px;margin:4px 0 10px'>"+esc(el.desc||"")+"</div>";
+  if(WIZ.explain&&!WIZ.loading){
+    h+="<div style='font-size:12px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);padding:8px 10px;margin-bottom:10px;color:var(--txt)'><b style='color:var(--acc)'>本步总结：</b>"+esc(WIZ.explain)+"</div>";
+  }
+  if(WIZ.loading)h+="<div class='sub' style='color:var(--dim)'>正在生成本要素的 3 个候选（LLM 在线约 10-30s）…</div>";
+  if(el.key==="idea"){
+    h+="<input id='wiz-idea' value='"+esc(WIZ.idea||"")+"' placeholder='一句话思路，例如：'+\"" + ({game:"水墨国风割草肉鸽",novel:"末世第三十天，我还在上班",video:"被开除的前高管暗中收购公司"}[WIZ.domain]) + "' style='margin-bottom:6px'>";
+  }else if(!WIZ.loading){
+    const opts=WIZ.opts[el.key]||[];
+    const multi=WIZ.multi[el.key]!==false; // 默认多选
+    const sel=WIZ.choices[el.key]; // 多选时是数组
+    h+="<div class='sub' style='color:var(--dim);font-size:11px;margin-bottom:6px'>来源："+(WIZ.lastMode==="llm"?"LLM 在线生成（候选后 ｜ 后为 1 句理由）":(WIZ.lastMode==="local-fallback"?"本地素材回退":"本地素材"))+(WIZ.lastErr?(" · "+esc(WIZ.lastErr)):"")+" · " + (multi?"可多选（勾选合并）":"点选候选") + "，或下面自己写</div>";
+    opts.forEach((o,j)=>{
+      const isSel=(multi?Array.isArray(sel)&&sel.indexOf(o)>=0:(sel===o))&&!WIZ.custom[el.key];
+      const input=multi
+        ?"<input type='checkbox' data-key='"+el.key+"' data-i='"+j+"' "+(isSel?"checked":"")+" onchange=\"wizPickMulti(this.dataset.key,+this.dataset.i,this.checked)\">"
+        :"<input type='radio' name='wiz-opt' data-key='"+el.key+"' data-i='"+j+"' "+(isSel?"checked":"")+" onchange=\"wizPick(this.dataset.key,+this.dataset.i)\">";
+      h+="<label class='opt'>"+input+"<span>"+esc(o)+"</span></label>";
+    });
+    h+=`<div style='margin-top:10px'><div class='sub' style='color:var(--dim);font-size:11px;margin-bottom:4px'>或自己写入（覆盖候选）</div>`;
+    h+=`<input id='wiz-custom' value='${esc(WIZ.custom[el.key]||"")}' placeholder='自写 ${esc(el.name)}' data-key='${el.key}' oninput='wizCustom(this.dataset.key,this.value)' style='width:100%'></div>`;
+  }
+  h+="<div class='row' style='margin-top:12px'>" + (i>0?"<button class='btn' style='background:var(--panel);color:var(--warn);border:1px solid var(--line)' onclick='wizBack()'>← 回退上一步</button>":"")
+     + "<button class='btn' style='background:var(--panel);color:var(--acc);border:1px solid var(--line)' "+(WIZ.loading?"disabled":"")+" onclick='wizReroll()'>🔄 重新生成</button>"
+     + "<button class='btn' id='wiz-next' "+(WIZ.loading?"disabled":"")+" onclick='wizNext()'>"+(i===0?"下一步 →":"确认并下一步 →")+"</button></div></div>";
+  box.innerHTML=h;
+}
+function wizPick(key,i){WIZ.choices[key]=WIZ.opts[key][i];delete WIZ.custom[key];renderWiz();}
+function wizPickMulti(key,i,checked){
+  // 多选：choices[key] 为数组（合并勾选）；取消勾选则移除
+  if(!Array.isArray(WIZ.choices[key]))WIZ.choices[key]=[];
+  const v=WIZ.opts[key][i];
+  if(checked){if(WIZ.choices[key].indexOf(v)<0)WIZ.choices[key].push(v);}
+  else{WIZ.choices[key]=WIZ.choices[key].filter(x=>x!==v);}
+  delete WIZ.custom[key];
+  renderWiz();
+}
+function wizCustom(key,v){WIZ.custom[key]=v;if(Array.isArray(WIZ.choices[key]))WIZ.choices[key]=[];else delete WIZ.choices[key];renderWiz();}
+// 重新生成：reroll=true 让 LLM 换一批（排除上一批），离线则本地池换一批
+async function wizReroll(){
+  const el=WIZ.els[WIZ.idx];
+  if(el.key==="idea"||WIZ.loading)return;
+  WIZ.loading=true;WIZ.lastErr="";WIZ.explain="";renderWiz();
+  const avoid=(WIZ.opts[el.key]||[]).join("|||");
+  try{
+    const r=await api("/api/steps?key="+encodeURIComponent(el.key)+"&ctx="+encodeURIComponent(wizCtx())+"&domain="+WIZ.domain+"&reroll=1&avoid="+encodeURIComponent(avoid));
+    WIZ.opts[el.key]=r.local||[];WIZ.lastMode=r.mode||"local";WIZ.lastErr=r.llmError||"";WIZ.explain=r.explain||"";
+    WIZ.multi[el.key]=r.multi!==false;
+    delete WIZ.choices[el.key];delete WIZ.custom[el.key]; // 重新生成后清空本步已选
+  }catch(e){WIZ.opts[el.key]=[];WIZ.lastMode="local";WIZ.lastErr=String(e);}
+  WIZ.loading=false;renderWiz();
+}
+function loadEls(){
+  api("/api/domainElements?domain="+WIZ.domain).then(e=>{
+    const els=(e.elements||[]).filter(x=>x.key!=="similar_game");
+    WIZ.idx=0;WIZ.els=els;WIZ.choices={};WIZ.custom={};WIZ.opts={};WIZ.multi={};WIZ.lastMode="";WIZ.lastErr="";WIZ.explain="";WIZ.done=false;WIZ.idea="";
+    renderWiz();
+    loadStep();
+  }).catch(e=>{console.error("loadEls",e);boxError();});
+}
+function wizDomain(d){
+  WIZ.domain=d;WIZ.idx=0;WIZ.els=[];WIZ.idea="";WIZ.choices={};WIZ.custom={};WIZ.opts={};WIZ.multi={};WIZ.lastMode="";WIZ.lastErr="";WIZ.explain="";WIZ.done=false;
+  document.querySelectorAll("#view-wizard [data-dom]").forEach(b=>b.classList.toggle("on",b.dataset.dom===d));
+  loadEls();
+}
+async function wizMaterials(){
+  const box=document.getElementById("wiz-mat");
+  box.classList.remove("hidden");box.innerHTML="加载中…";
+  try{
+    const r=await api("/api/materials?domain="+WIZ.domain);
+    box.innerHTML=(r.blocks||[]).map(b=>"<div style='margin-bottom:6px'><b style='color:var(--acc)'>"+esc(b.name)+"</b> <span style='color:var(--dim)'>["+esc(b.tag)+"]</span><div style='white-space:pre-wrap;margin-top:2px'>"+esc(b.text)+"</div></div>").join("")||"<span>（无本地素材）</span>";
+  }catch(e){box.innerHTML="加载失败 "+esc(String(e));}
+}
+function wizBack(){
+  if(WIZ.idx<=0)return;
+  // 回退上一步：撤销「当前要素」（idx 处）的决定，回到 idx-1
+  const cur=WIZ.els[WIZ.idx];
+  if(cur){delete WIZ.choices[cur.key];delete WIZ.custom[cur.key];}
+  WIZ.idx--;
+  WIZ.done=false;WIZ.lastMode="";WIZ.lastErr="";WIZ.explain="";
+  renderWiz();
+  loadStep();
+}
+function boxError(){const b=document.getElementById("wiz-body");if(b)b.innerHTML="<div class='card'>要素加载失败（服务未起？），请刷新重试</div>";}
+function showRecords(){show("records");loadRecords();}
+document.getElementById("rec-export").onclick=function(){
+  copyAgentPack(true).then(()=>{
+    const m=document.getElementById("rec-export-msg");
+    m.textContent="✅ 已复制最新合成品给 agent（也存于 records/agent-prompt-latest.md）";
+    m.className="sub";m.style.color="var(--ok)";
+    setTimeout(()=>{m.textContent="";},4000);
+  }).catch(e=>{
+    const m=document.getElementById("rec-export-msg");
+    m.textContent="导出失败 "+e;m.className="sub";m.style.color="var(--warn)";
+  });
+};
+async function loadRecords(){
+  const recs=await api("/api/records");
+  const list=$("#rec-list");
+  if(!recs.length){list.innerHTML="<div class='sub' style='color:var(--dim)'>暂无记录（完成分步向导后自动记入）</div>";return;}
+  list.innerHTML="<div class='grid'>"+recs.map(r=>{
+    if(r.type==="final")return "<div class='tile pfull'><h3>合成品 · "+esc(r.idea||"")+"</h3><div class='meta'>"+esc(r.ts||"")+"</div><div class='psecgrid' style='margin-top:8px'>"+Object.entries(r.choices||{}).map(([k,v])=>"<div class='psec'><div class='plab'>"+esc(k)+"</div><div class='pval'>"+esc(String(v))+"</div></div>").join("")+"</div></div>";
+    return "<div class='tile pfull'><h3>第"+(r.step+1)+"步 · "+esc(r.el||"")+" <span class='badge ok'>"+esc(r.source||"")+"</span></h3><div class='meta'>"+esc(r.choice||"")+"</div><div class='sub' style='color:var(--dim);font-size:11px;margin-top:4px'>"+esc(r.ts||"")+"</div></div>";
+  }).join("")+"</div>";
+}
+
+
+$("#gen-btn").onclick=doGenerate;
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.view));
+// ===== 资产解析（标签库） =====
+async function tagSearch(){
+  const q=document.getElementById("tag-q").value.trim();
+  const dom=document.getElementById("tag-dom").value;
+  const typ=document.getElementById("tag-type").value;
+  const r=await api("/api/tags/search?q="+encodeURIComponent(q)+"&domain="+dom+"&type="+typ);
+  const box=document.getElementById("tag-result");
+  if(!r.entries||!r.entries.length){box.innerHTML="<div class='sub' style='color:var(--dim)'>无匹配（总库 "+r.total+" 条命中 0）</div>";return;}
+  box.innerHTML="<div class='sub' style='color:var(--dim);margin:6px 0'>命中 "+r.total+" 条（显示前 "+r.entries.length+"）</div>"+r.entries.map(e=>{
+    const t=e.type==="algo"?"🧮":(e.type==="pattern"?"📐":"📦");
+    return "<div class='card' style='margin-bottom:6px;padding:8px'><b style='color:var(--acc)'>"+t+" "+esc(e.title)+"</b> <span class='badge'>"+esc(e.domain)+"</span> <span class='badge'>"+esc(e.type)+"</span><div class='sub' style='color:var(--dim);font-size:11px;margin:3px 0'>tags："+esc((e.tags||[]).join(" "))+(e.algo?(" · algo："+esc(e.algo.name)+"（变体："+esc((e.variants_of||[]).join("、"))+"）"):"")+(e.reusable?" · 可复用":"")+"</div></div>";
+  }).join("");
+}
+async function tagReuse(){
+  const algo=document.getElementById("tag-algo").value.trim();
+  const r=await api("/api/tags/reuse?algo="+encodeURIComponent(algo));
+  const box=document.getElementById("tag-result");
+  if(!r.merged||!r.merged.length){box.innerHTML="<div class='sub' style='color:var(--dim)'>未找到「"+esc(algo)+"」同类功能算法</div>";return;}
+  box.innerHTML="<div class='sub' style='color:var(--dim);margin:6px 0'>「"+esc(algo)+"」合并出 "+r.merged.length+" 个同类功能（跨 "+r.total+" 条资产），可重组应用到别的资产：</div>"+r.merged.map(m=>"<div class='card' style='margin-bottom:6px;padding:8px'><b style='color:var(--ok)'>"+esc(m.name)+"</b><div class='sub' style='font-size:11px;color:var(--dim)'>来源："+esc([...new Set(m.sources)].join("、"))+"<br>变体/可复用："+esc([...new Set(m.reuse_in)].join("、")||"（待补充）")+"</div></div>").join("");
+}
+document.getElementById("tag-search").onclick=tagSearch;
+document.getElementById("tag-reuse").onclick=tagReuse;
+document.getElementById("tag-refresh").onclick=async()=>{
+  const r=await api("/api/tags/refresh");
+  alert("本地库重新解析：" + JSON.stringify(r.counts||r));
+  tagSearch();
+};
+document.getElementById("tag-parse").onclick=async()=>{
+  const text=document.getElementById("tag-text").value.trim();
+  const domain=document.getElementById("tag-up-dom").value;
+  const out=document.getElementById("tag-parse-result");
+  if(!text){out.innerHTML="<div class='sub' style='color:var(--warn)'>请先粘贴要解析的资产文本</div>";return;}
+  out.innerHTML="<div class='sub' style='color:var(--dim)'>解析中（LLM 约 10-30s）…</div>";
+  try{
+    const r=await fetch("/api/tags/parse",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text,domain,source:"网页上传"})});
+    const j=await r.json();
+    if(!j.ok){out.innerHTML="<div class='sub' style='color:var(--warn)'>解析失败 "+esc(j.error||"")+"</div>";return;}
+    out.innerHTML="<div class='sub' style='color:var(--ok)'>✅ 已入库 "+esc(j.id)+" · 标题「"+esc(j.title)+"」· 标签："+esc(j.tags.join(" "))+ (j.algo?(" · 算法："+esc(j.algo.name)):"")+"（存于 asset-tags.json，可在上方搜索/复用）</div>";
+  }catch(e){out.innerHTML="<div class='sub' style='color:var(--warn)'>请求失败 "+esc(String(e))+"</div>";}
+};
+// 资产实时查看（多工程 + 标签）
+let PROJ_CACHE=[];
+async function loadProjects(){
+  const r=await api("/api/projects-index");
+  PROJ_CACHE=r.projects||[];
+  const on=document.querySelector("#view-assets-live [data-pdom].on");
+  renderProjects(on?on.dataset.pdom:"");
+}
+function projFilter(btn){
+  document.querySelectorAll("#view-assets-live [data-pdom]").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  renderProjects(btn.dataset.pdom);
+}
+function renderProjects(dom){
+  const box=document.getElementById("proj-list");
+  if(!box)return;
+  const list=PROJ_CACHE.filter(p=>!dom||p.domain===dom);
+  if(!list.length){box.innerHTML="<div class='sub' style='color:var(--dim)'>该领域无工程</div>";return;}
+  box.innerHTML=list.map(p=>{
+    const root=p.source.startsWith("tomato/")?"books":p.source.startsWith("game-forge/out/")?"out":p.source.startsWith("game-forge/projects/")?"projects":p.source.startsWith("game-forge/novel_projects/")?"novel_projects":"vault";
+    const seg=p.source.split("/").pop();
+    const tagHtml=(p.tags||[]).slice(0,10).map(t=>"<span class='badge' style='font-size:10px'>"+esc(t)+"</span>").join(" ");
+    const files=(p.files||[]).slice(0,14).map(f=>"<span style='font-size:11px;color:var(--dim)'>"+esc(f)+"</span>").join(" · ");
+    return "<div class='card' style='margin-bottom:6px;padding:8px;cursor:pointer' onclick=\"document.getElementById('as-root').value='"+root+"';document.getElementById('as-path').value='"+esc(seg)+"';assetBrowse();document.getElementById('as-root').scrollIntoView({behavior:'smooth'})\">"+
+      "<div class='row' style='margin-bottom:4px'><b style='color:var(--acc)'>"+esc(p.name)+"</b> <span class='badge'>"+esc(p.domain)+"</span> <span class='badge'>"+esc(p.kind)+"</span></div>"+
+      (tagHtml?"<div style='margin-bottom:4px'>"+tagHtml+"</div>":"")+
+      "<div>"+files+"</div></div>";
+  }).join("");
+}
+async function assetBrowse(){
+  const root=document.getElementById("as-root").value;
+  const rel=document.getElementById("as-path").value.trim();
+  const list=document.getElementById("as-list");
+  list.innerHTML="<div class='sub' style='color:var(--dim);grid-column:1/-1'>加载中…</div>";
+  const r=await api("/api/assets?path="+encodeURIComponent(rel)+"&root="+root);
+  const ents=r.entries||[];
+  if(!ents.length){list.innerHTML="<div class='sub' style='color:var(--dim);grid-column:1/-1'>该目录为空或不存在（"+esc(root)+"/"+esc(rel||"根")+"）</div>";return;}
+  list.innerHTML=ents.map(e=>{
+    const rel2=(rel?rel+"/":"")+e.name;
+    const imgSrc="/api/asset-preview?path="+encodeURIComponent(rel2)+"&root="+root;
+    if(e.type==="dir")return "<div class='card' style='cursor:pointer' onclick=\"document.getElementById('as-path').value='"+esc(rel2)+"';assetBrowse()\">📁 "+esc(e.name)+"</div>";
+    if(e.preview==="image")return "<div class='card' style='text-align:center;padding:8px' onclick=\"assetDetailImage('"+esc(rel2)+"','"+root+"')\"><img src='"+imgSrc+"' style='max-width:100%;max-height:90px;object-fit:contain' onerror=\"this.style.display='none'\" alt='"+esc(e.name)+"'><div style='font-size:11px;color:var(--dim);margin-top:4px;word-break:break-all'>"+esc(e.name)+"</div></div>";
+    if(e.preview==="text")return "<div class='card' style='cursor:pointer;padding:8px' onclick=\"assetDetailText('"+esc(rel2)+"','"+root+"')\">📄 "+esc(e.name)+"</div>";
+    return "<div class='card' style='padding:8px;color:var(--dim)' title='"+esc(rel2)+"'>"+esc(e.name)+"</div>";
+  }).join("");
+}
+function assetDetailImage(rel,root){
+  const d=document.getElementById("as-detail");
+  d.style.display="block";
+  document.getElementById("as-detail-body").innerHTML="<div style='text-align:center'><img src='/api/asset-preview?path="+encodeURIComponent(rel)+"&root="+encodeURIComponent(root)+"' style='max-width:100%;max-height:500px;object-fit:contain'><div class='sub' style='color:var(--dim);margin-top:8px'>"+esc(root)+"/"+esc(rel)+"</div></div>";
+  d.scrollIntoView({behavior:"smooth"});
+}
+async function assetDetailText(rel,root){
+  const d=document.getElementById("as-detail");
+  d.style.display="block";
+  document.getElementById("as-detail-body").innerHTML="<div class='sub' style='color:var(--dim)'>加载中…</div>";
+  const r=await api("/api/asset-text?path="+encodeURIComponent(rel)+"&root="+encodeURIComponent(root));
+  if(r.error){document.getElementById("as-detail-body").innerHTML="<div class='sub' style='color:var(--warn)'>读取失败："+esc(r.error)+"</div>";return;}
+  document.getElementById("as-detail-body").innerHTML="<div class='sub' style='color:var(--dim)'>"+esc(root)+"/"+esc(r.path)+(r.truncated?"（已截断 20000 字）":"")+"</div><pre style='white-space:pre-wrap;font-size:12px;line-height:1.6'>"+esc(r.text)+"</pre>";
+  d.scrollIntoView({behavior:"smooth"});
+}
+
+$("#asset-search").oninput=function(){
+  const q=this.value.toLowerCase();
+  document.querySelectorAll("#as-games tr").forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(q)?"":"none"});
+  document.querySelectorAll("#as-plans .tile").forEach(t=>{t.style.display=t.textContent.toLowerCase().includes(q)?"":"none"});
+};
+
+loadOverview();loadAssets();loadNovel();loadDrama();loadSettings();
+</script>
+</body>
+</html>

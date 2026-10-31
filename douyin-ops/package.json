@@ -1,0 +1,17 @@
+{
+  "name": "douyin-ops",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Fully automated Douyin account operations: login, video publishing, comment replies, data polling.",
+  "scripts": {
+    "login": "node bin/login.mjs",
+    "publish": "node bin/publish.mjs",
+    "reply-comments": "node bin/reply-comments.mjs",
+    "status": "node bin/status.mjs",
+    "poll": "node bin/poll.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}

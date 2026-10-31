@@ -1,0 +1,2492 @@
+{
+ "_schema": "asset-dashboard/asset-tags@1",
+ "generated_at": "2026-10-30T15:28:10.057Z",
+ "counts": {
+  "asset": 27,
+  "pattern": 23,
+  "algo": 31
+ },
+ "entries": [
+  {
+   "id": "plan:A",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "plan",
+   "title": "上元灯阵",
+   "source": "game-forge/knowledge/plans.json#A",
+   "tags": [
+    "合成",
+    "塔防",
+    "灯",
+    "异步",
+    "每日",
+    "国风",
+    "合成+塔防"
+   ],
+   "core_loop": "摇签消耗灯珠(第n次=10×1.35^n)→随机得灯兵/灯灵将/灯铲(扩格)→同类同级合成升阶(ATK×1.4、FRQ×1.1，5级封顶)→拖入有限格子部署→12波灯灵来袭守5命主灯→胜利掉落灯芯与金币→局外道具店(主动2槽)+每日异步对抗+段位榜",
+   "mechanics": [
+    "抽卡式征兵盲盒",
+    "空间管理(有限格子+随机铲子扩张)",
+    "武将字牌碎片解锁全屏技能",
+    "非对称数值惩罚(掉级×0.9^n)",
+    "每日4图轮换+buff当日失效",
+    "异步对抗(回放对手昨日操作)"
+   ],
+   "numbers": {
+    "灯珠消耗": "10×1.35^n",
+    "灯种POW配平": "100±3 (走马灯近战高伤/河灯远程慢/孔明灯群攻/纱灯快攻低伤)",
+    "合成升阶": "ATK×1.4 FRQ×1.1 5级封顶",
+    "掉级惩罚": "×0.9^n",
+    "波次": "12波，BOSS每4波",
+    "主灯命条": "5",
+    "武器回收": "三阶以下卖金币，回收价=购入×0.6",
+    "道具池": "每日12随机8，主动限2槽"
+   },
+   "monetization": {
+    "模型": "IAA",
+    "点位": [
+     "摇签+1(每日3)",
+     "开局额外灯珠",
+     "复活1条命",
+     "广告道具自选",
+     "离线收益翻倍"
+    ],
+    "约束": "单局≤4广告点，无强制广告"
+   },
+   "mvp_scope": [
+    "4灯种+合灯升阶",
+    "12波+5命主灯",
+    "1张地图+摇签",
+    "异步榜(省榜)",
+    "广告点位接入"
+   ],
+   "borrow_from": 7,
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.045Z",
+   "origin": "local"
+  },
+  {
+   "id": "plan:B",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "plan",
+   "title": "百工图鉴",
+   "source": "game-forge/knowledge/plans.json#B",
+   "tags": [
+    "经营",
+    "挂机",
+    "工匠",
+    "图鉴",
+    "赛季",
+    "离线",
+    "合成+经营"
+   ],
+   "core_loop": "接单(随时间刷新, 消耗材料产出银两)→收集匠人字牌二合一升阶(白→金, 概率60/45/32/20/8%)→工坊每3级解锁新订单池→每日限定珍品订单→赛季官印积分",
+   "mechanics": [
+    "随机接单+材料缺口",
+    "同类字牌合成升阶",
+    "高阶工坊生产×1.5/阶",
+    "订单稀有度70/20/8/2%(普/珍/绝/传说)",
+    "离线收益12h封顶(广告翻倍/延至24h)",
+    "赛季30天官印排行(TOP10%限定皮肤+徽章)"
+   ],
+   "numbers": {
+    "订单报酬": "基础×1.08^等级",
+    "材料消耗": "×1.12^等级(缺口靠抽卡/广告)",
+    "离线曲线": "前2h满速/4h半速/12h封顶80%",
+    "字牌概率": "白60/青45/绿32/紫20/金8%",
+    "赛季": "30天换朝代(宋→元→明→清)，旧官印转下赛季"
+   },
+   "monetization": {
+    "模型": "IAA",
+    "点位": [
+     "离线翻倍/延时",
+     "珍品订单加速",
+     "抽卡+1",
+     "广告自选材料"
+    ],
+    "约束": "单局≤5广告点，无内购"
+   },
+   "mvp_scope": [
+    "5类匠人字牌(锻/织/木/瓷/漆)",
+    "3级工坊+订单池",
+    "离线收益",
+    "1个赛季"
+   ],
+   "borrow_from": 8,
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.045Z",
+   "origin": "local"
+  },
+  {
+   "id": "plan:C",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "plan",
+   "title": "玉匣开鉴",
+   "source": "game-forge/knowledge/plans.json#C",
+   "tags": [
+    "赌石",
+    "收集",
+    "每日重置",
+    "鉴宝",
+    "行商",
+    "赌石收集"
+   ],
+   "core_loop": "每日3匣(铜钱免费3+广告+1+成就攒)→切玉(随机剖面5属性:皮壳/裂/砂/雾/种)→显示玉质→再切或出→出宝(白→传说5阶)→鉴宝阁图鉴+行商汇率(±20%浮动)",
+   "mechanics": [
+    "随机玉饼剖面(种/水/色/净权重40/25/20/15%)",
+    "三维评分出宝(玉质+皮壳+完整性)",
+    "全服限量金(每日金≤200件按顺序分配)",
+    "行商每日汇率±20%(再等等博弈)",
+    "满图鉴解锁新匣池"
+   ],
+   "numbers": {
+    "出宝概率": "白55/青25/绿13/紫6/金0.8%",
+    "玉质评分": "种40%+水25%+色20%+净15%(可热调)",
+    "铜钱": "每日3+广告+1",
+    "行商汇率": "每日±20%",
+    "限量金": "每日≤200件"
+   },
+   "monetization": {
+    "模型": "IAA",
+    "点位": [
+     "开匣+1(每日2)",
+     "切第二刀免广告",
+     "行商汇率查询",
+     "离线铜钱2h"
+    ],
+    "约束": "无内购"
+   },
+   "mvp_scope": [
+    "3匣池",
+    "切玉+出宝",
+    "图鉴(5阶)",
+    "行商汇率",
+    "限量金计数"
+   ],
+   "borrow_from": 9,
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.045Z",
+   "origin": "local"
+  },
+  {
+   "id": "plan:D",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "plan",
+   "title": "墨剑江湖",
+   "source": "game-forge/knowledge/plans.json#D",
+   "tags": [
+    "割草",
+    "肉鸽",
+    "水墨",
+    "武侠",
+    "词缀",
+    "build",
+    "文字肉鸽割草"
+   ],
+   "core_loop": "波次割草(每30s一波墨点成潮)→主角自动挥笔清怪→玩家2件事:选招式方向(上下左右横扫)+攒墨量放全屏大招→波后3选1词缀(36张池)→掉落残页合成武功(武学树9系)→每10波墨蛟BOSS",
+   "mechanics": [
+    "低操作割草(自动挥笔)",
+    "局内build随机(36词缀, 稀有度60/25/10/4/1%)",
+    "波次怪物血=基础×1.15^波",
+    "词缀期望DPS提升≈1.3倍/波(build成长>怪物成长)",
+    "武学树9系每级+2%基础属性(100级封顶)",
+    "墨蛟BOSS(墨点变形需换招式破盾)"
+   ],
+   "numbers": {
+    "怪物血": "基础×1.15^波",
+    "词缀DPS": "≈1.3倍/波",
+    "词缀稀有度": "60/25/10/4/1%",
+    "武学树": "9系每级+2%, 100级",
+    "单局": "3分钟"
+   },
+   "monetization": {
+    "模型": "IAA+轻内购双轨",
+    "点位": [
+     "复活",
+     "广告词缀重选",
+     "离线残页"
+    ],
+    "内购": "外观(笔颜色/水墨立绘)，不做数值保护IAA公平",
+    "约束": "TapTap无版号首版纯IAA"
+   },
+   "mvp_scope": [
+    "波次割草+挥笔选招式",
+    "3选1词缀(36池)",
+    "残页合成武学树",
+    "墨蛟BOSS(10波)",
+    "IAA点位"
+   ],
+   "borrow_from": 10,
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.045Z",
+   "origin": "local"
+  },
+  {
+   "id": "plan:E",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "plan",
+   "title": "末日小队",
+   "source": "game-forge/knowledge/plans.json#E",
+   "tags": [
+    "末日",
+    "小队",
+    "战术",
+    "经营",
+    "营地",
+    "离线",
+    "章节",
+    "生存",
+    "即时战术+经营"
+   ],
+   "core_loop": "出击任务(战斗/探索)→带资源回营地→经营建设/制作/治疗→部队营地变强→推更深任务→剧情事件→更强资源",
+   "mechanics": [
+    "俯瞰2.5D指挥小队(3-6士兵+指挥官)",
+    "点取移动+点取自动攻击+特殊武器拖动瞄准",
+    "兵种克制(步兵扛线/机枪输出/狙击爆头/榴弹AOE/医疗/工兵)",
+    "营地6建筑(兵营/工坊/厨房/医疗/围墙/电台)",
+    "双层生存数值(食物/士气/伤病)",
+    "制作系统(零件→武器改装/食物烹饪/药品合成)",
+    "章节制叙事(4章每章5-8任务)",
+    "任务星评(全灭无伤/限时/收集)"
+   ],
+   "numbers": {
+    "单局": "10-20分钟",
+    "士兵状态": "饥饿/疲劳/伤病/士气(带伤上阵debuff)",
+    "首章": "2-3小时通关",
+    "性能": "单屏≤30单位30fps"
+   },
+   "monetization": {
+    "模型": "免费+内购",
+    "内购": [
+     "金币包",
+     "士兵/枪械皮肤",
+     "营地建筑外观"
+    ],
+    "约束": "不做体力(TapTap反感)，广告可选(复活1次/日/离线翻倍)"
+   },
+   "mvp_scope": [
+    "3兵种+2特殊武器+2任务类型",
+    "3建筑+食物库存+士兵状态简化",
+    "章节1的5任务+3NPC事件",
+    "军衔1级+武器制作3种"
+   ],
+   "borrow_from": 5,
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.045Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:抽卡式征兵盲盒",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "抽卡式征兵盲盒",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "抽卡式征兵盲盒",
+    "game"
+   ],
+   "algo": {
+    "name": "抽卡式征兵盲盒",
+    "purpose": "抽卡式征兵盲盒",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "上元灯阵"
+   ],
+   "refs": [
+    "plan:A"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:空间管理",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "空间管理",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "空间管理",
+    "game"
+   ],
+   "algo": {
+    "name": "空间管理",
+    "purpose": "空间管理(有限格子+随机铲子扩张)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "上元灯阵"
+   ],
+   "refs": [
+    "plan:A"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:武将字牌碎片解锁全屏技能",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "武将字牌碎片解锁全屏技能",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "武将字牌碎片解锁全屏技能",
+    "game"
+   ],
+   "algo": {
+    "name": "武将字牌碎片解锁全屏技能",
+    "purpose": "武将字牌碎片解锁全屏技能",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "上元灯阵"
+   ],
+   "refs": [
+    "plan:A"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:非对称数值惩罚",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "非对称数值惩罚",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "非对称数值惩罚",
+    "game"
+   ],
+   "algo": {
+    "name": "非对称数值惩罚",
+    "purpose": "非对称数值惩罚(掉级×0.9^n)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "上元灯阵"
+   ],
+   "refs": [
+    "plan:A"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:每日4图轮换+buff当",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "每日4图轮换+buff当",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "每日4图轮换+buff当",
+    "game"
+   ],
+   "algo": {
+    "name": "每日4图轮换+buff当",
+    "purpose": "每日4图轮换+buff当日失效",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "上元灯阵"
+   ],
+   "refs": [
+    "plan:A"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:异步对抗",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "异步对抗",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "异步对抗",
+    "game"
+   ],
+   "algo": {
+    "name": "异步对抗",
+    "purpose": "异步对抗(回放对手昨日操作)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "上元灯阵"
+   ],
+   "refs": [
+    "plan:A"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:随机接单+材料缺口",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "随机接单+材料缺口",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "随机接单+材料缺口",
+    "game"
+   ],
+   "algo": {
+    "name": "随机接单+材料缺口",
+    "purpose": "随机接单+材料缺口",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "百工图鉴"
+   ],
+   "refs": [
+    "plan:B"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:同类字牌合成升阶",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "同类字牌合成升阶",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "同类字牌合成升阶",
+    "game"
+   ],
+   "algo": {
+    "name": "同类字牌合成升阶",
+    "purpose": "同类字牌合成升阶",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "百工图鉴"
+   ],
+   "refs": [
+    "plan:B"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:高阶工坊生产×1.5/阶",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "高阶工坊生产×1.5/阶",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "高阶工坊生产×1.5/阶",
+    "game"
+   ],
+   "algo": {
+    "name": "高阶工坊生产×1.5/阶",
+    "purpose": "高阶工坊生产×1.5/阶",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "百工图鉴"
+   ],
+   "refs": [
+    "plan:B"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:订单稀有度70/20/8",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "订单稀有度70/20/8",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "订单稀有度70/20/8",
+    "game"
+   ],
+   "algo": {
+    "name": "订单稀有度70/20/8",
+    "purpose": "订单稀有度70/20/8/2%(普/珍/绝/传说)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "百工图鉴"
+   ],
+   "refs": [
+    "plan:B"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:离线收益12h封顶",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "离线收益12h封顶",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "离线收益12h封顶",
+    "game"
+   ],
+   "algo": {
+    "name": "离线收益12h封顶",
+    "purpose": "离线收益12h封顶(广告翻倍/延至24h)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "百工图鉴"
+   ],
+   "refs": [
+    "plan:B"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:赛季30天官印排行",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "赛季30天官印排行",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "赛季30天官印排行",
+    "game"
+   ],
+   "algo": {
+    "name": "赛季30天官印排行",
+    "purpose": "赛季30天官印排行(TOP10%限定皮肤+徽章)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "百工图鉴"
+   ],
+   "refs": [
+    "plan:B"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:随机玉饼剖面",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "随机玉饼剖面",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "随机玉饼剖面",
+    "game"
+   ],
+   "algo": {
+    "name": "随机玉饼剖面",
+    "purpose": "随机玉饼剖面(种/水/色/净权重40/25/20/15%)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "玉匣开鉴"
+   ],
+   "refs": [
+    "plan:C"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:三维评分出宝",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "三维评分出宝",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "三维评分出宝",
+    "game"
+   ],
+   "algo": {
+    "name": "三维评分出宝",
+    "purpose": "三维评分出宝(玉质+皮壳+完整性)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "玉匣开鉴"
+   ],
+   "refs": [
+    "plan:C"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:全服限量金",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "全服限量金",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "全服限量金",
+    "game"
+   ],
+   "algo": {
+    "name": "全服限量金",
+    "purpose": "全服限量金(每日金≤200件按顺序分配)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "玉匣开鉴"
+   ],
+   "refs": [
+    "plan:C"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:行商每日汇率±20%",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "行商每日汇率±20%",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "行商每日汇率±20%",
+    "game"
+   ],
+   "algo": {
+    "name": "行商每日汇率±20%",
+    "purpose": "行商每日汇率±20%(再等等博弈)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "玉匣开鉴"
+   ],
+   "refs": [
+    "plan:C"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:满图鉴解锁新匣池",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "满图鉴解锁新匣池",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "满图鉴解锁新匣池",
+    "game"
+   ],
+   "algo": {
+    "name": "满图鉴解锁新匣池",
+    "purpose": "满图鉴解锁新匣池",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "玉匣开鉴"
+   ],
+   "refs": [
+    "plan:C"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:低操作割草",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "低操作割草",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "低操作割草",
+    "game"
+   ],
+   "algo": {
+    "name": "低操作割草",
+    "purpose": "低操作割草(自动挥笔)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "墨剑江湖"
+   ],
+   "refs": [
+    "plan:D"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:局内build随机",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "局内build随机",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "局内build随机",
+    "game"
+   ],
+   "algo": {
+    "name": "局内build随机",
+    "purpose": "局内build随机(36词缀, 稀有度60/25/10/4/1%)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "墨剑江湖"
+   ],
+   "refs": [
+    "plan:D"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:波次怪物血=基础×1.1",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "波次怪物血=基础×1.1",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "波次怪物血=基础×1.1",
+    "game"
+   ],
+   "algo": {
+    "name": "波次怪物血=基础×1.1",
+    "purpose": "波次怪物血=基础×1.15^波",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "墨剑江湖"
+   ],
+   "refs": [
+    "plan:D"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:词缀期望DPS提升≈1.",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "词缀期望DPS提升≈1.",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "词缀期望DPS提升≈1.",
+    "game"
+   ],
+   "algo": {
+    "name": "词缀期望DPS提升≈1.",
+    "purpose": "词缀期望DPS提升≈1.3倍/波(build成长>怪物成长)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "墨剑江湖"
+   ],
+   "refs": [
+    "plan:D"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:武学树9系每级+2%基础",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "武学树9系每级+2%基础",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "武学树9系每级+2%基础",
+    "game"
+   ],
+   "algo": {
+    "name": "武学树9系每级+2%基础",
+    "purpose": "武学树9系每级+2%基础属性(100级封顶)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "墨剑江湖"
+   ],
+   "refs": [
+    "plan:D"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:墨蛟BOSS",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "墨蛟BOSS",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "墨蛟BOSS",
+    "game"
+   ],
+   "algo": {
+    "name": "墨蛟BOSS",
+    "purpose": "墨蛟BOSS(墨点变形需换招式破盾)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "墨剑江湖"
+   ],
+   "refs": [
+    "plan:D"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:俯瞰2.5D指挥小队",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "俯瞰2.5D指挥小队",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "俯瞰2.5D指挥小队",
+    "game"
+   ],
+   "algo": {
+    "name": "俯瞰2.5D指挥小队",
+    "purpose": "俯瞰2.5D指挥小队(3-6士兵+指挥官)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:点取移动+点取自动攻击+",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "点取移动+点取自动攻击+",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "点取移动+点取自动攻击+",
+    "game"
+   ],
+   "algo": {
+    "name": "点取移动+点取自动攻击+",
+    "purpose": "点取移动+点取自动攻击+特殊武器拖动瞄准",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:兵种克制",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "兵种克制",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "兵种克制",
+    "game"
+   ],
+   "algo": {
+    "name": "兵种克制",
+    "purpose": "兵种克制(步兵扛线/机枪输出/狙击爆头/榴弹AOE/医疗/工兵)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:营地6建筑",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "营地6建筑",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "营地6建筑",
+    "game"
+   ],
+   "algo": {
+    "name": "营地6建筑",
+    "purpose": "营地6建筑(兵营/工坊/厨房/医疗/围墙/电台)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:双层生存数值",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "双层生存数值",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "双层生存数值",
+    "game"
+   ],
+   "algo": {
+    "name": "双层生存数值",
+    "purpose": "双层生存数值(食物/士气/伤病)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.046Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:制作系统",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "制作系统",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "制作系统",
+    "game"
+   ],
+   "algo": {
+    "name": "制作系统",
+    "purpose": "制作系统(零件→武器改装/食物烹饪/药品合成)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:章节制叙事",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "章节制叙事",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "章节制叙事",
+    "game"
+   ],
+   "algo": {
+    "name": "章节制叙事",
+    "purpose": "章节制叙事(4章每章5-8任务)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "algo:任务星评",
+   "type": "algo",
+   "domain": "game",
+   "kind": "algorithm",
+   "title": "任务星评",
+   "source": "game-forge/knowledge/plans.json",
+   "tags": [
+    "任务星评",
+    "game"
+   ],
+   "algo": {
+    "name": "任务星评",
+    "purpose": "任务星评(全灭无伤/限时/收集)",
+    "inputs": [
+     "配置"
+    ],
+    "outputs": [
+     "行为"
+    ],
+    "variants": [],
+    "reuse_in": [
+     "game"
+    ]
+   },
+   "variants_of": [
+    "末日小队"
+   ],
+   "refs": [
+    "plan:E"
+   ],
+   "reusable": true,
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:1",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "赵云与阿斗",
+   "source": "game-forge/knowledge/games.json#1",
+   "tags": [
+    "合成",
+    "塔防",
+    "抽卡",
+    "文字",
+    "竞技",
+    "异步榜",
+    "IAA",
+    "低美术成本",
+    "合成+塔防",
+    "三国文字"
+   ],
+   "mechanics": "征兵抽卡盲盒 + 有限格子部署 + 两两合成升阶 + 1V1 异步对抗 + 每日地图轮转",
+   "borrow": "抽卡式征兵随机 + 空间管理(有限格子+铲子扩格) + 武将字牌碎片解锁全屏技能 + 非对称数值惩罚防滚雪球",
+   "art_style": "汉字+水墨极简",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:2",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "寻道大千",
+   "source": "game-forge/knowledge/games.json#2",
+   "tags": [
+    "挂机",
+    "修仙",
+    "卡牌",
+    "灵兽",
+    "无尽塔",
+    "竞技场",
+    "IAP",
+    "放置数值养成",
+    "修仙"
+   ],
+   "mechanics": "砍树挂机得修为/装备 + 收服灵兽 + 卡牌阵容自动战斗 + 无尽塔/竞技场付费深度",
+   "borrow": "挂机收益指数增长制造在线压力 + 多资源线互锁(灵兽需洗练/精怪需升级) + 增减伤属性为付费锚点",
+   "art_style": "2D国风修仙立绘",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:3",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "向僵尸开炮",
+   "source": "game-forge/knowledge/games.json#3",
+   "tags": [
+    "割草",
+    "肉鸽",
+    "射击",
+    "塔防",
+    "局内build",
+    "局外养成",
+    "肉鸽割草",
+    "末日僵尸"
+   ],
+   "mechanics": "极低操作割草射击 + 局内肉鸽随机词缀build + 局外枪械/角色养成 + 不重数值设计",
+   "borrow": "低操作门槛割草 + 局内build随机多巴胺 + 局外成长缓慢保证微氪生存 + 2D射击手感节奏",
+   "art_style": "2D卡通射击",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:4",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "赌石潮(轻松拿捏了)",
+   "source": "game-forge/knowledge/games.json#4",
+   "tags": [
+    "赌石",
+    "切玉",
+    "收集",
+    "每日重置",
+    "FOMO",
+    "随机剖面",
+    "赌石收集",
+    "古玩鉴宝"
+   ],
+   "mechanics": "每日开匣 + 随机玉饼剖面(种/水/色/净) + 切一刀出宝 + 图鉴收集 + 行商汇率浮动博弈 + 全服限量金",
+   "borrow": "随机剖面+稀缺判定+每日重置的爆款周期 + 行商汇率'再等等'博弈 + 限量金FOMO",
+   "art_style": "像素/简笔剖面",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:5",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "末日小队(自研)",
+   "source": "game-forge/knowledge/games.json#5",
+   "tags": [
+    "末日",
+    "小队",
+    "战术",
+    "经营",
+    "营地",
+    "离线",
+    "章节",
+    "生存管理",
+    "即时战术+经营",
+    "末日病毒"
+   ],
+   "mechanics": "俯瞰2.5D指挥小队出击 + 带资源回营地经营建设 + 制作装备 + 推更深地块 + 病毒剧情",
+   "borrow": "小小部队战术射击 × 阿瑞斯病毒生存经营 + 双层生存数值(食物/士气/伤病) + 章节制叙事",
+   "art_style": "Q版微缩军事",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:6",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "商场大亨(mall-tycoon)",
+   "source": "game-forge/knowledge/games.json#6",
+   "tags": [
+    "经营",
+    "商场",
+    "业态",
+    "连锁",
+    "昼夜",
+    "顾客",
+    "破产",
+    "税收",
+    "离线",
+    "模拟经营",
+    "商场经营"
+   ],
+   "mechanics": "9业态开店 + 连锁收益 + 多阶段扩建 + 随机事件 + 破产判定 + 税收递增 + 离线收益",
+   "borrow": "多经营线+连锁协同+昼夜节奏+税收难度曲线",
+   "art_style": "像素风(Stardew Valley)",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:7",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "上元灯阵(方案A)",
+   "source": "game-forge/knowledge/games.json#7",
+   "tags": [
+    "合成",
+    "塔防",
+    "灯",
+    "异步",
+    "每日",
+    "水墨",
+    "灯彩",
+    "合成+塔防",
+    "国风上元灯会"
+   ],
+   "mechanics": "摇签抽灯兵 + 合灯升阶 + 守主灯灯阵 + 每日换图 + 异步对抗榜",
+   "borrow": "赵云与阿斗灯阵化，4灯种配平POW=ATK×FRQ×RGE",
+   "art_style": "水墨+灯彩极简",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:8",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "百工图鉴(方案B)",
+   "source": "game-forge/knowledge/games.json#8",
+   "tags": [
+    "经营",
+    "挂机",
+    "工匠",
+    "图鉴",
+    "赛季",
+    "离线",
+    "合成+经营",
+    "宋代百工"
+   ],
+   "mechanics": "收集匠人字牌合成 + 自动接单赚钱 + 离线收益 + 赛季官印",
+   "borrow": "寻道大千放置框架IAA化 + 赵云合成取舍",
+   "art_style": "极简工笔线描+单色字牌",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:9",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "玉匣开鉴(方案C)",
+   "source": "game-forge/knowledge/games.json#9",
+   "tags": [
+    "赌石",
+    "收集",
+    "每日重置",
+    "鉴宝",
+    "行商",
+    "赌石收集",
+    "古玩鉴宝"
+   ],
+   "mechanics": "每日开匣 + 切玉得宝 + 鉴宝阁图鉴 + 行商汇率",
+   "borrow": "赌石潮玩法+题材差异化+长线收集",
+   "art_style": "像素/简笔剖面",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.047Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:10",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "墨剑江湖(方案D)",
+   "source": "game-forge/knowledge/games.json#10",
+   "tags": [
+    "割草",
+    "肉鸽",
+    "水墨",
+    "武侠",
+    "词缀",
+    "build",
+    "文字肉鸽割草",
+    "水墨武侠"
+   ],
+   "mechanics": "波次割草 + 挥笔选招式 + 3选1词缀build + 残页合成武功 + 墨蛟BOSS",
+   "borrow": "向僵尸开炮割草肉鸽压到水墨文字层",
+   "art_style": "水墨笔触程序化",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:11",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "Tiny Troopers 2",
+   "source": "game-forge/knowledge/games.json#11",
+   "tags": [
+    "军事",
+    "TD",
+    "兵种",
+    "载具",
+    "基地",
+    "波次",
+    "3D卡通",
+    "即时战术",
+    "军事TD"
+   ],
+   "mechanics": "Q版军事TD + 兵营/弹药/医疗多线资源 + 3级墙HP + Boomer/Dropper敌人 + 载具humvee",
+   "borrow": "兵营资源线 + 载具低模 + 波次设计 + 天气雾效4套",
+   "art_style": "轻度3D卡通军事",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:12",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "Brotato 土豆兄弟",
+   "source": "game-forge/knowledge/games.json#12",
+   "tags": [
+    "割草",
+    "波次",
+    "商店",
+    "构筑",
+    "roguelite",
+    "波次生存",
+    "像素"
+   ],
+   "mechanics": "20波节奏 + 波内只攒不用 + 自走棋式商店 + 构筑身份",
+   "borrow": "波次结束才结算 + 10-20s商店期 + build节奏",
+   "art_style": "像素",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:13",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "Darkwood",
+   "source": "game-forge/knowledge/games.json#13",
+   "tags": [
+    "昼夜",
+    "营地",
+    "防守",
+    "搜刮",
+    "生存",
+    "基地防御",
+    "生存恐怖"
+   ],
+   "mechanics": "白天搜刮修营地→夜晚守家(barricade+traps)→重复",
+   "borrow": "昼夜循环驱动节奏 + 准备-防守-结算三段式",
+   "art_style": "写实阴郁",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:14",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "Stardew Valley",
+   "source": "game-forge/knowledge/games.json#14",
+   "tags": [
+    "经营",
+    "农场",
+    "季节",
+    "社交",
+    "像素",
+    "温暖",
+    "模拟经营",
+    "农场"
+   ],
+   "mechanics": "多经营线+季节+社交+制作",
+   "borrow": "像素暖色调 + 24色量化 + 多经营线节奏",
+   "art_style": "像素(暖色)",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:15",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "Hades",
+   "source": "game-forge/knowledge/games.json#15",
+   "tags": [
+    "肉鸽",
+    "局外",
+    "叙事",
+    "构筑",
+    "短循环",
+    "Roguelike",
+    "希腊神话"
+   ],
+   "mechanics": "局内Build+局外叙事推进 + 死亡不惩罚",
+   "borrow": "死亡不惩罚 + 对话驱动局外推进",
+   "art_style": "2D卡通",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:vault-mall-tycoon",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "mall-tycoon",
+   "source": "game-forge/knowledge/games.json#vault-mall-tycoon",
+   "tags": [
+    "source-game",
+    "vault",
+    ""
+   ],
+   "mechanics": "",
+   "borrow": "商场大亨 (Mall Tycoon)",
+   "art_style": "",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:vault-ares-squad",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "ares-squad",
+   "source": "game-forge/knowledge/games.json#vault-ares-squad",
+   "tags": [
+    "source-game",
+    "vault",
+    ""
+   ],
+   "mechanics": "",
+   "borrow": "末日小队 (Ares Squad) — H5 原型",
+   "art_style": "",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:vault-mo-sword",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "mo-sword",
+   "source": "game-forge/knowledge/games.json#vault-mo-sword",
+   "tags": [
+    "source-game",
+    "vault",
+    ""
+   ],
+   "mechanics": "",
+   "borrow": "墨剑江湖 V1 可玩 Demo（移动端优先） | 手机直接打开（推荐）：起本地服务后手机同 WiFi 访问 | 手机浏览器打开 http://<电脑IP>:8901",
+   "art_style": "",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:vault-apk_extract",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "apk_extract",
+   "source": "game-forge/knowledge/games.json#vault-apk_extract",
+   "tags": [
+    "unity-extract",
+    "vault",
+    ""
+   ],
+   "mechanics": "",
+   "borrow": "",
+   "art_style": "",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "game:vault-pixel-assets",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game",
+   "title": "pixel-assets",
+   "source": "game-forge/knowledge/games.json#vault-pixel-assets",
+   "tags": [
+    "source-game",
+    "vault",
+    ""
+   ],
+   "mechanics": "",
+   "borrow": "",
+   "art_style": "",
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:ink-lantern",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "国风水墨灯彩",
+   "source": "game-forge/knowledge/styles.json#ink-lantern",
+   "tags": [
+    "国风",
+    "水墨",
+    "灯",
+    "上元",
+    "极简",
+    "文化",
+    "宁静、节庆、东方禅意"
+   ],
+   "palette": [
+    "#1a1a2e",
+    "#f5e8c8",
+    "#e8a030",
+    "#8a2020",
+    "#d8c8a8"
+   ],
+   "style_prompt": "ink-wash chinese lantern festival, minimalist glowing character tiles, warm amber light halos on dark ink background, paper fiber texture, subtle ink stains, cozy festive oriental mood, clean geometric shapes, game asset",
+   "reference": [
+    "赵云与阿斗(汉字水墨)",
+    "上元灯阵"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:ink-line",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "工笔线描单色",
+   "source": "game-forge/knowledge/styles.json#ink-line",
+   "tags": [
+    "宋代",
+    "工笔",
+    "线描",
+    "百工",
+    "极简",
+    "字牌",
+    "古朴、匠人、克制"
+   ],
+   "palette": [
+    "#f5f0e0",
+    "#2a2a2a",
+    "#c84040",
+    "#6a5840",
+    "#d8c8a8"
+   ],
+   "style_prompt": "minimal chinese gongbi line-art on rice paper, single-ink brush strokes, one red seal accent, ancient artisan aesthetic, flat lighting, paper texture, restrained palette, clean game asset",
+   "reference": [
+    "百工图鉴"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:pixel-jade",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "像素鉴宝剖面",
+   "source": "game-forge/knowledge/styles.json#pixel-jade",
+   "tags": [
+    "赌石",
+    "玉",
+    "古玩",
+    "剖面",
+    "像素",
+    "收集",
+    "赌性、稀缺、收藏"
+   ],
+   "palette": [
+    "#2a4a3a",
+    "#7ec8a0",
+    "#3a3a3a",
+    "#f5d860",
+    "#8a7a6a"
+   ],
+   "style_prompt": "pixel-art jade stone cross-section, procedural noise shell with 5 attributes (skin/crack/sand/fog/seed), luminous jade interior glow, antique gem aesthetic, green emerald and gold accents, game asset 32-bit",
+   "reference": [
+    "赌石潮(轻松拿捏了)"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:ink-wuxia",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "水墨武侠笔触",
+   "source": "game-forge/knowledge/styles.json#ink-wuxia",
+   "tags": [
+    "水墨",
+    "武侠",
+    "割草",
+    "肉鸽",
+    "笔触",
+    "剑气",
+    "侠气、爽感、禅意"
+   ],
+   "palette": [
+    "#0a0a0a",
+    "#4a4a4a",
+    "#8a8a8a",
+    "#c8c8c8",
+    "#c84040"
+   ],
+   "style_prompt": "ink-wash wuxia brushstroke sword-qi, procedural calligraphy strokes as attacks, ink-dot enemies that darken as they die, rice paper texture with dry-brush flying-white, vermillion seal accents, fast satisfying mow-down, game asset",
+   "reference": [
+    "向僵尸开炮(割草)",
+    "墨剑江湖"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:q-chibi-military",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "Q版微缩军事",
+   "source": "game-forge/knowledge/styles.json#q-chibi-military",
+   "tags": [
+    "末日",
+    "军事",
+    "Q版",
+    "微缩",
+    "小队",
+    "战术",
+    "紧张、末世、萌化"
+   ],
+   "palette": [
+    "#4a5a3a",
+    "#8a7a5a",
+    "#3a3a3a",
+    "#6a8a4a",
+    "#c8b890"
+   ],
+   "style_prompt": "chibi low-poly military squad, cute miniature soldiers and vehicles (humvee/helicopter), isometric 45 degree view, muted desert green and sand palette, desaturated post-apocalyptic mood, soft cel shading, game asset 3D",
+   "reference": [
+    "Tiny Troopers 2",
+    "末日小队"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:pixel-warm",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "像素暖色(星露谷风)",
+   "source": "game-forge/knowledge/styles.json#pixel-warm",
+   "tags": [
+    "像素",
+    "经营",
+    "农场",
+    "温暖",
+    "Stardew",
+    "温馨、治愈、田园"
+   ],
+   "palette": [
+    "#f5ecd0",
+    "#f5e8c8",
+    "#d8c8a8",
+    "#c88840",
+    "#6a5840",
+    "#7ec8a0"
+   ],
+   "style_prompt": "cozy pixel art farm shop, warm beige and wood tones, 24-color quantized palette, soft top lighting with day/night color shift, pixel grid texture, healing pastoral mood, Stardew Valley inspired, game asset",
+   "reference": [
+    "Stardew Valley",
+    "商场大亨"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:dark-synth",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "暗黑赛博",
+   "source": "game-forge/knowledge/styles.json#dark-synth",
+   "tags": [
+    "赛博",
+    "霓虹",
+    "科技",
+    "暗黑",
+    "未来",
+    "冷峻、未来、高对比"
+   ],
+   "palette": [
+    "#0a0a1e",
+    "#e040a0",
+    "#40e0e0",
+    "#2a2a4a",
+    "#f5f5f5"
+   ],
+   "style_prompt": "cyberpunk neon sci-fi, deep blue background with magenta and cyan glow, glass and metal textures, scanline effects, high contrast, cold futuristic mood, game asset",
+   "reference": [
+    "赛博朋克"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:flat-cartoon",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "扁平卡通",
+   "source": "game-forge/knowledge/styles.json#flat-cartoon",
+   "tags": [
+    "卡通",
+    "扁平",
+    "明亮",
+    "高饱和",
+    "Q版",
+    "欢快、活泼、大众"
+   ],
+   "palette": [
+    "#ff6b6b",
+    "#f5d860",
+    "#4ecdc4",
+    "#5a9cf8",
+    "#f8f8f8"
+   ],
+   "style_prompt": "flat chibi cartoon, bright high-saturation colors, thick clean outlines, no shading, playful wholesome mood, cute minimal characters, game asset",
+   "reference": [
+    "Two Point Hospital",
+    "Kingdom Rush"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "style:realistic",
+   "type": "pattern",
+   "domain": "game",
+   "kind": "style",
+   "title": "写实",
+   "source": "game-forge/knowledge/styles.json#realistic",
+   "tags": [
+    "写实",
+    "光影",
+    "细节",
+    "PBR",
+    "沉浸、电影感"
+   ],
+   "palette": [
+    "#3a3a3a",
+    "#8a7a6a",
+    "#5a6a7a",
+    "#c8b890",
+    "#1a1a1a"
+   ],
+   "style_prompt": "photorealistic PBR, cinematic global illumination, high-res materials, natural color grading, immersive mood, game asset",
+   "reference": [
+    "GTA",
+    "刺客信条"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.048Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:72",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "state",
+   "title": "七十二楼",
+   "source": "tomato/books/72",
+   "tags": [
+    "章2000-2500字",
+    "72"
+   ],
+   "foreshadow_open": [],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.049Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:72:style_dna",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "style",
+   "title": "七十二楼 风格DNA",
+   "source": "tomato/books/72/style-dna.md",
+   "tags": [
+    "风格DNA",
+    "章2000-2500字"
+   ],
+   "excerpt": "# 风格 DNA — 七十二楼（72）\n\n> 来源：`books/72/design.md`「写作规范」节 + 已写 ch1-ch40 提取。\n> 本文件是写作时唯一风格权威。创作者发新材料时走 §2.1 流程更新。\n\n## 视角与人称\n- 第一人称贴主角（林深），冷静克制，不喊叫。\n- 职业习惯式叙述（建筑工程师认楼、认结构、认管道井）。\n\n## 句法\n- 短句为主，声音出现时句子更短（「门。撞了。」）。\n- 平均 10-20 字/句，紧张时刻 5-10 字/句。\n- 段落极短（1-2 行），对话独立成段。\n- 叙述:对话 ≈ 7:3，少心理描写，多动作与感官（声音/温度/光）。\n\n## 修辞禁区与高频手法\n- **写实系**：不写异能、不写系统、不写金手指面板。冷静=职业习惯（建筑工程师），不解释。\n- **声音事件**：每章至少 1 次「声音事件」（楼里铁律：静=活，声=死，感染者循",
+   "reusable": true,
+   "refs": [
+    "novel:72"
+   ],
+   "created": "2026-10-30T15:28:10.050Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:dianxiao",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "state",
+   "title": "我在第八十二空降师当店小二（店小二）",
+   "source": "tomato/books/dianxiao",
+   "tags": [
+    "第三人称",
+    "吐槽流",
+    "职场梗",
+    "章2000-2500字",
+    "dianxiao"
+   ],
+   "next_chapter": 251,
+   "foreshadow_open": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.050Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:dianxiao:style_dna",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "style",
+   "title": "我在第八十二空降师当店小二（店小二） 风格DNA",
+   "source": "tomato/books/dianxiao/style-dna.md",
+   "tags": [
+    "风格DNA",
+    "第三人称",
+    "吐槽流",
+    "职场梗",
+    "章2000-2500字"
+   ],
+   "excerpt": "# 风格 DNA — 我在第八十二空降师当店小二（店小二）\n\n> 来源：`tomato/skill-番茄爆款写作.md`「文风基准」节（第1-2章提取）+ 创作者定调（2026-10-25）。\n> 本文件是写作时唯一风格权威。创作者发新材料时走 §2.1 流程更新。\n\n## 视角与人称\n- 第三人称贴主角（忠义/皮特），内心吐槽流，「他」称主角。\n- 上辈子后勤处长视角看这辈子军队（吐槽锚点）。\n\n## 句法\n- 平均 15-25 字/句，吐槽句短促（「不是，还来？」）。\n- 自然段 1-3 行，对话独立成段。禁止超过 4 行的长段落。\n- 对白占比 ≥40%。少心理描写，多动作与对话推进；内心 OS 用吐槽代替，一次不超过两句。\n\n## 修辞禁区与高频手法\n- **猫腻式克制**：不堆辞藻，不写「仿佛……一般」超过 3 处/章，白话干净。\n- **许忠义式对白**：嘴上滑（拍马屁、装怂、",
+   "reusable": true,
+   "refs": [
+    "novel:dianxiao"
+   ],
+   "created": "2026-10-30T15:28:10.050Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:hengda",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "state",
+   "title": "hengda",
+   "source": "tomato/books/hengda",
+   "tags": [
+    "第三人称",
+    "重生",
+    "hengda"
+   ],
+   "next_chapter": 7,
+   "foreshadow_open": [
+    "F-S1",
+    "F-S2",
+    "F-S3",
+    "F-1A(强化中)",
+    "F-1B(埋设)"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.050Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:hengda:style_dna",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "style",
+   "title": "hengda 风格DNA",
+   "source": "tomato/books/hengda/style-dna.md",
+   "tags": [
+    "风格DNA",
+    "第三人称",
+    "重生"
+   ],
+   "excerpt": "# 风格 DNA — 重生许家印：重造恒大（hengda）\n\n> 规格书\"风格 DNA 参考\"指定：**商战悬疑流**。本文件是唯一风格权威。\n> 技法来源：本地沉淀《潜伏》《渗透》对白与细节方法论（dsh-kb/06-资源/2026-10-29_lantian-shentou-style.md）\n> + 番茄快节奏爽文节奏基准。学其法不抄其文。\n\n## 视角与人称\n- 第三人称有限视角，锚定主角许衡（重生者许家印），关键时刻切\"监管线人老周\"半章视角（每 20 章 1 次，制造悬疑）。\n- 主角内心：重生的信息差必须\"用动作和判断泄露\"，不直接写\"他知道未来\"；偶尔一句内心独白带时间戳（\"2021 年他会为这单并购哭死\"式）。\n\n## 句法\n- 平均句长 15-22 字，长短句比 3:7；段落 2-4 行；对白独立成段。\n- 叙述:对白 ≈ 4:6（商战戏对白占比 ≥35%）。\n- 短句",
+   "reusable": true,
+   "refs": [
+    "novel:hengda"
+   ],
+   "created": "2026-10-30T15:28:10.050Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:moshu30",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "state",
+   "title": "末世第三十天，我还在上班",
+   "source": "tomato/books/moshu30",
+   "tags": [
+    "第三人称",
+    "吐槽流",
+    "职场梗",
+    "末世",
+    "章2000-2500字",
+    "moshu30"
+   ],
+   "next_chapter": 15,
+   "foreshadow_open": [
+    "G1老周变异没咬死人的原因",
+    "G2周然的员工底档含家属住址",
+    "G3铁腕帮要借一半丧尸",
+    "G4白手套过期军粮渠道（第3章埋）",
+    "G5军方收编意向（第8-10章埋）"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.050Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:moshu30:style_dna",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "style",
+   "title": "末世第三十天，我还在上班 风格DNA",
+   "source": "tomato/books/moshu30/style-dna.md",
+   "tags": [
+    "风格DNA",
+    "第三人称",
+    "吐槽流",
+    "职场梗",
+    "末世"
+   ],
+   "excerpt": "# 风格 DNA — 末世第三十天，我还在上班（moshu30）\n\n> 来源：`books/moshu30/design.md` + 已写 ch1-ch14 提取 + 创作者定调。\n> 本文件是写作时唯一风格权威。创作者发新材料时走 §2.1 流程更新。\n\n## 视角与人称\n- 第三人称贴主角（周然），内心吐槽流（职场梗×末世），「他」称主角。\n- 职场管理流视角：把末世生存当「项目管理」，把丧尸当「末位淘汰」。\n\n## 句法\n- 平均 15-25 字/句，吐槽句短促（「末位淘汰，今天执行。」）。\n- 自然段 1-3 行，对话独立成段，禁止超过 4 行的长段落。\n- 对白占比 ≥40%。职场梗密度：每章 4-6 个（OKR/KPI/末位淘汰/打卡/调岗/编制/乙方）。\n\n## 修辞禁区与高频手法\n- **职场梗×末世**：把末世生存事件翻译成职场语言（「铁腕帮上门要'借丧尸'」=「跨部门借",
+   "reusable": true,
+   "refs": [
+    "novel:moshu30"
+   ],
+   "created": "2026-10-30T15:28:10.051Z",
+   "origin": "local"
+  },
+  {
+   "id": "novel:wuye",
+   "type": "pattern",
+   "domain": "novel",
+   "kind": "state",
+   "title": "雾夜列车",
+   "source": "tomato/books/wuye",
+   "tags": [
+    "wuye"
+   ],
+   "foreshadow_open": [],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.051Z",
+   "origin": "local"
+  },
+  {
+   "id": "novelproj:都市重生爽文-996程序员猝死后回到2019-带",
+   "type": "asset",
+   "domain": "novel",
+   "kind": "state",
+   "title": "都市重生爽文: 996程序员猝死后回到2019,带着记忆逆袭股市与科技",
+   "source": "game-forge/novel_projects/都市重生爽文-996程序员猝死后回到2019-带",
+   "tags": [
+    "番茄",
+    "长篇30万+",
+    "都市重生爽文: 996程序员猝死后回到2019,带着记忆逆袭股市与科技"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.052Z",
+   "origin": "local"
+  },
+  {
+   "id": "gameout:flow",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game-build",
+   "title": "flow",
+   "source": "game-forge/out/flow",
+   "tags": [
+    "已生成game.html",
+    "含art_manifest",
+    "flow"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.053Z",
+   "origin": "local"
+  },
+  {
+   "id": "gameout:墨剑江湖",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game-build",
+   "title": "墨剑江湖",
+   "source": "game-forge/out/墨剑江湖",
+   "tags": [
+    "墨剑江湖"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.053Z",
+   "origin": "local"
+  },
+  {
+   "id": "gameout:玉匣开鉴",
+   "type": "asset",
+   "domain": "game",
+   "kind": "game-build",
+   "title": "玉匣开鉴",
+   "source": "game-forge/out/玉匣开鉴",
+   "tags": [
+    "玉匣开鉴"
+   ],
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-30T15:28:10.054Z",
+   "origin": "local"
+  },
+  {
+   "id": "video:修仙掌门推销防脱洗发水广告",
+   "type": "asset",
+   "domain": "video",
+   "kind": "script",
+   "title": "修仙掌门推销防脱洗发",
+   "source": "game-forge/projects/修仙掌门推销防脱洗发水广告",
+   "tags": [
+    "通用短剧",
+    "6s",
+    "9:16",
+    "（待补全: 电影感/日系动漫/水墨/像素…）"
+   ],
+   "card": {
+    "_idea": "修仙掌门推销防脱洗发水广告",
+    "title": "修仙掌门推销防脱洗发",
+    "synopsis": "（待补全: 30字内讲清谁在哪做什么）",
+    "duration_sec": 6,
+    "aspect": "9:16",
+    "visual_style": "（待补全: 电影感/日系动漫/水墨/像素…）",
+    "content_type": "通用短剧",
+    "notes": "",
+    "generated_at": "2026-10-29 10:50"
+   },
+   "shots": 5,
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-29 10:50",
+   "origin": "local"
+  },
+  {
+   "id": "video:广告-修仙掌门推销防脱洗发水",
+   "type": "asset",
+   "domain": "video",
+   "kind": "script",
+   "title": "广告: 修仙掌门推销",
+   "source": "game-forge/projects/广告-修仙掌门推销防脱洗发水",
+   "tags": [
+    "通用短剧",
+    "6s",
+    "9:16",
+    "（待补全: 电影感/日系动漫/水墨/像素…）"
+   ],
+   "card": {
+    "_idea": "广告: 修仙掌门推销防脱洗发水",
+    "title": "广告: 修仙掌门推销",
+    "synopsis": "（待补全: 30字内讲清谁在哪做什么）",
+    "duration_sec": 6,
+    "aspect": "9:16",
+    "visual_style": "（待补全: 电影感/日系动漫/水墨/像素…）",
+    "content_type": "通用短剧",
+    "notes": "",
+    "generated_at": "2026-10-29 10:57"
+   },
+   "shots": 6,
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-29 10:57",
+   "origin": "local"
+  },
+  {
+   "id": "video:爽剧-被开除的前高管暗中收购公司",
+   "type": "asset",
+   "domain": "video",
+   "kind": "script",
+   "title": "爽剧-被开除的前高管暗中收购公司",
+   "source": "game-forge/projects/爽剧-被开除的前高管暗中收购公司",
+   "tags": [
+    "爽剧",
+    "6s",
+    "9:16",
+    "电影感写实",
+    "主角"
+   ],
+   "card": {
+    "title": "爽剧-被开除的前高管暗中收购公司",
+    "synopsis": "爽剧: 被开除的前高管暗中收购公司",
+    "duration_sec": 6,
+    "aspect": "9:16",
+    "shot_mode": "自动4-6镜",
+    "visual_style": "电影感写实",
+    "content_type": "爽剧",
+    "notes": "（离线卡片，建议在线用 LLM 细化）",
+    "generated_at": "2026-10-29 10:22"
+   },
+   "shots": 5,
+   "reusable": true,
+   "refs": [],
+   "created": "2026-10-29 10:22",
+   "origin": "local"
+  }
+ ]
+}

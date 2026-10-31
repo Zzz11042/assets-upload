@@ -1,0 +1,26 @@
+{
+  "idea": "末日经营",
+  "choices": {
+    "idea": "末日经营",
+    "genre": "即时战术+经营",
+    "pillars": "0",
+    "core_loop": "4",
+    "win_loss": "0",
+    "economy": "0",
+    "progression": "0",
+    "content_scale": "0",
+    "style": "q-chibi-military",
+    "audio": "0",
+    "tech": "0",
+    "monetization": "0",
+    "mvp_scope": "0"
+  },
+  "confirmed": true,
+  "generated": [
+    "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/flow/设计.md",
+    "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/flow/game.html",
+    "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/flow/数值注入.md",
+    "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/flow/art_manifest.json",
+    "/home/zzz/Documents/deepseek-harness/default-workspace/game-forge/out/flow/FLOW_MANIFEST.json"
+  ]
+}

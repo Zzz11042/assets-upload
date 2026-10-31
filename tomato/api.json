@@ -1,0 +1,70 @@
+[
+  {
+    "url": "https://vcs.zijieapi.com/vc/setting",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/webid",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/list",
+    "status": 200
+  },
+  {
+    "url": "https://security.zijieapi.com/api/metrics/emit",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/list",
+    "status": 200
+  },
+  {
+    "url": "https://vcs.zijieapi.com/vc/setting",
+    "status": 200
+  },
+  {
+    "url": "https://fanqienovel.com/api/user/info/v2?msToken=_svVnHU0wHicW40bqjedTBJ4bZiauzDKE4OxMbEMdYJH5zfMABeTJOFOocF2tgraEzPaZQ1HTEthBN7n4rKX-pIQ8C082ojwPeJdfdva7K05taxPlpXk7NuNd94uh9LRC3UaVszpx_EkHzvGezJPfNBuRFWTU9lDNUKXRQ_cSYQa0Qfbe4p4Lg%3D%3D&a_bogus=QvBQhOZOMsm1Cw3W2hkz9HDEWa80YW45gZEzKd2oZtoq",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/webid",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/list",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/list",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/list",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/list",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/list",
+    "status": 200
+  },
+  {
+    "url": "https://mon.zijieapi.com/monitor_web/settings/browser-settings?bid=passport_account_api&store=1",
+    "status": 200
+  },
+  {
+    "url": "https://mon.zijieapi.com/monitor_web/settings/browser-settings?bid=novel_pc&store=1",
+    "status": 200
+  },
+  {
+    "url": "https://imc.ugsdk.cn/api/v2/resource/asset-sdk?msToken=_svVnHU0wHicW40bqjedTBJ4bZiauzDKE4OxMbEMdYJH5zfMABeTJOFOocF2tgraEzPaZQ1HTEthBN7n4rKX-pIQ8C082ojwPeJdfdva7K05taxPlpXk7NuNd94uh9LRC3UaVszpx_EkHzvGezJPfNBuRFWTU9lDNUKXRQ_cSYQa0Qfbe4p4Lg%3D%3D&a_bogus=myMQhOZOMsm1CLeW2hkz9Hd3Wa80YWRYgZEzKd2o6zLj",
+    "status": 200
+  },
+  {
+    "url": "https://mcs.zijieapi.com/tobid",
+    "status": 200
+  }
+]

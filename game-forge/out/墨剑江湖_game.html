@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>墨剑江湖</title>
+<style>
+:root {
+--c0:#0a0a0a; --c1:#4a4a4a; --c2:#8a8a8a; --c3:#c8c8c8; --c4:#c84040;
+--bg:#0a0a0a;--accent:#4a4a4a;--text:#fff
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,'PingFang SC',sans-serif;
+  display:flex;flex-direction:column;align-items:center;min-height:100vh}
+header{padding:16px;text-align:center}
+h1{font-size:22px}
+#screen{width:min(560px,94vw);margin:12px auto;padding:14px;border-radius:12px;
+  background:rgba(0,0,0,.25);backdrop-filter:blur(4px)}
+.canvas-wrap{display:flex;justify-content:center;margin:10px 0}
+canvas{background:#000;border-radius:8px;image-rendering:pixelated;max-width:100%}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+td{border:1px solid var(--accent);padding:4px 8px}
+.btn{background:var(--accent);color:#111;border:0;border-radius:8px;
+  padding:10px 18px;font-size:15px;cursor:pointer;margin:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.meta{font-size:12px;opacity:.7;margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <h1>墨剑江湖</h1>
+  <div class="meta">参考游戏: 向僵尸开炮 · 风格: 水墨武侠笔触</div>
+</header>
+<div id="screen">
+  <div class="canvas-wrap"><canvas id="cv" width="480" height="280"></canvas></div>
+  <div class="meta" id="hud">资源: 100 · 等级: 1 · 波次: 0</div>
+  <button class="btn" id="go">开始 / 下一波</button>
+  <button class="btn" id="shop">商店 (随机)</button>
+  <button class="btn" id="up" disabled>升级</button>
+  <details><summary>机制与数值</summary>
+    <ul><li>低操作割草(自动挥笔)</li>
+<li>局内build随机(36词缀, 稀有度60/25/10/4/1%)</li>
+<li>波次怪物血=基础×1.15^波</li>
+<li>词缀期望DPS提升≈1.3倍/波(build成长>怪物成长)</li>
+<li>武学树9系每级+2%基础属性(100级封顶)</li>
+<li>墨蛟BOSS(墨点变形需换招式破盾)</li></ul>
+    <table><tr><th>键</th><th>值</th></tr><tr><td>怪物血</td><td>"基础×1.15^波"</td></tr>
+<tr><td>词缀DPS</td><td>"≈1.3倍/波"</td></tr>
+<tr><td>词缀稀有度</td><td>"60/25/10/4/1%"</td></tr>
+<tr><td>武学树</td><td>"9系每级+2%, 100级"</td></tr>
+<tr><td>单局</td><td>"3分钟"</td></tr></table>
+  </details>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var S={resource:100,level:1,wave:0,items:[],tick:0};
+  var NUM={"怪物血": "基础×1.15^波", "词缀DPS": "≈1.3倍/波", "词缀稀有度": "60/25/10/4/1%", "武学树": "9系每级+2%, 100级", "单局": "3分钟"};
+  var ACCENT='#4a4a4a';
+  function hud(){
+    document.getElementById('hud').textContent=
+      '资源: '+S.resource+' · 等级: '+S.level+' · 波次: '+S.wave;
+  }
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='rgba(255,255,255,0.04)';
+    for(var x=0;x<cv.width;x+=24)
+      for(var y=0;y<cv.height;y+=24)
+        if((x+y)%48<24) ctx.fillRect(x,y,12,12);
+    var px=cv.width/2+Math.sin(S.tick*.05)*40, py=cv.height/2+Math.cos(S.tick*.04)*30;
+    ctx.fillStyle=ACCENT;
+    ctx.fillRect(px-10,py-10,20,20);
+    for(var i=0;i<S.wave;i++){
+      var ex=(i*97)%cv.width, ey=(i*61)%cv.height;
+      ctx.fillStyle='#e05050';ctx.fillRect(ex,ey,8,8);
+    }
+    S.tick++;hud();requestAnimationFrame(draw);
+  }
+  document.getElementById('go').onclick=function(){
+    S.wave++;
+    var gain=NUM['wave_gain']?NUM['wave_gain']:10+S.wave*2;
+    S.resource+=gain;S.level=Math.floor(S.wave/3)+1;
+    document.getElementById('up').disabled=S.resource<50;
+  };
+  document.getElementById('shop').onclick=function(){
+    var costs=[10,20,50,100];
+    S.items.push(costs[Math.floor(Math.random()*costs.length)]);
+  };
+  document.getElementById('up').onclick=function(){
+    if(S.resource>=50){S.resource-=50;S.level++;document.getElementById('up').disabled=true;}
+  };
+  draw();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+ "pid": 11162,
+ "port": 8791,
+ "driverPort": 4573,
+ "started": "2026-10-22T12:27:26.571Z",
+ "sessions": {
+  "s1": {
+   "driverSession": "5506186d-e6f6-4d6c-9d04-735e75583794",
+   "step": 2
+  }
+ }
+}
