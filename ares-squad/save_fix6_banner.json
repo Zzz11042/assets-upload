@@ -1,9 +1,0 @@
-{
-  "changes": [
-    {
-      "field_id": "banner_4",
-      "expected": "https://img-tc.tapimg.com/market/images/965b331d57bb3f5aa1c8ce741d11c98a.jpg",
-      "value": {"url": "https://img-tc.tapimg.com/market/images/df8306731bb2ce7006db8be904817203.jpg", "info": {"width": 1920, "height": 1080, "size": 356263, "format": "jpeg"}}
-    }
-  ]
-}
