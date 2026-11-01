@@ -37,6 +37,23 @@ LLM 在线方案生成（可选）：
 - 网页「设置」视图填 API Base + Key + 模型 → 写入 `settings.json`（已被 .gitignore 排除，不入库）
 - 或设环境变量 `AGNES_API_BASE` / `AGNES_API_KEY` / `AGNES_MODEL`（settings.json 优先）
 
+## 公开部署（线上访问）
+
+默认监听 `127.0.0.1`（仅本机）。若要发布为公网可访问的站点，启用以下部署开关（环境变量）：
+
+| 变量 | 说明 |
+|---|---|
+| `HOST` | 监听地址，默认 `127.0.0.1`；公网部署设 `0.0.0.0` |
+| `PORT` | 端口，默认 `7800` |
+| `NODE_ENV` | 设 `production` 后对静态资源开 `Cache-Control: public, max-age=3600` |
+| `SCAN_ROOTS_ALLOWED` | 逗号分隔的绝对路径白名单；设置后 `/api/local-scan` 的 `roots` 参数被限制在白名单内，防止本机任意目录/文件枚举 |
+| `MAX_BODY_BYTES` | 请求体上限（默认 1MB），超限被拒绝 |
+
+> **安全注意**：`/api/local-scan`、`/api/asset-text` 等端点会读取部署机本机的文件与目录。公网部署时务必：
+> 1. 设 `SCAN_ROOTS_ALLOWED` 限定可扫描目录；
+> 2. 在网关 / 反向代理层加鉴权（本服务自身不校验访问者身份）；
+> 3. 只暴露需要的端点，敏感本机数据不要放进部署目录。
+
 ## 目录结构
 
 ```
