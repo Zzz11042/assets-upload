@@ -85,16 +85,25 @@ async function llmChat(messages, maxTokens = 1200) {
   throw lastErr;
 }
 
+const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 1024 * 1024); // 默认 1MB，防大请求撑爆内存
 function readBody(req) {
   return new Promise((resolve, reject) => {
-    let d = "";
-    req.on("data", c => (d += c));
-    req.on("end", () => { try { resolve(JSON.parse(d || "{}")); } catch { resolve({}); } });
+    let d = "", size = 0;
+    req.on("data", c => { size += c.length; if (size <= MAX_BODY_BYTES) d += c; });
+    req.on("end", () => {
+      if (size > MAX_BODY_BYTES) return reject(new Error("payload too large (max " + MAX_BODY_BYTES + " bytes)"));
+      try { resolve(JSON.parse(d || "{}")); } catch { resolve({}); }
+    });
     req.on("error", reject);
   });
 }
 
 const API = {
+  // 健康检查（部署监控 / uptime 探针）
+  "/api/health": () => {
+    const c = llmCfg();
+    return { ok: true, uptime_s: Math.round(process.uptime()), llmOnline: !!(c.apiBase && c.apiKey), model: c.model, node: process.version };
+  },
   // 三领域要素定义（游戏读 knowledge/elements.json，小说/短剧读 domains.json）
   "/api/domains": () => readJson(path.join(__dirname, "knowledge/domains.json"), { domains: {} }),
   // 某领域的要素序列：{domain} → elements 数组
@@ -164,8 +173,13 @@ const API = {
     if (req.method === "POST") {
       const body = await readBody(req);
       const cur = readJson(SETTINGS_FILE, {}) || {};
+      const apiBase = body.apiBase !== undefined ? String(body.apiBase || "").trim() : String(cur.apiBase || "");
+      if (apiBase && !/^https?:\/\//i.test(apiBase)) {
+        res.writeHead(400, { "content-type": "application/json" });
+        return res.end(JSON.stringify({ ok: false, error: "apiBase 必须为空或以 http:// / https:// 开头" }));
+      }
       const next = {
-        apiBase: body.apiBase ?? cur.apiBase ?? "",
+        apiBase,
         apiKey: body.apiKey !== undefined ? body.apiKey : cur.apiKey,
         model: body.model ?? cur.model ?? "agnes-3.0-flash",
       };
@@ -632,6 +646,12 @@ const API = {
     } else {
       roots = [WS, FORGE, TOMATO];
     }
+    // 公开部署安全：设 SCAN_ROOTS_ALLOWED（逗号分隔绝对路径）时，扫描根被限制在白名单内，防止本机任意目录枚举
+    const allowR = (process.env.SCAN_ROOTS_ALLOWED || "").split(",").map(s => s.trim()).filter(Boolean).map(a => path.resolve(a));
+    if (allowR.length) {
+      roots = (roots || []).filter(r => allowR.some(a => r === a || r.startsWith(a + path.sep)));
+      if (!roots.length) roots = allowR.slice();
+    }
     const SKIP = new Set(["node_modules", ".git", "__pycache__", ".cache", "dist", "build", "profiles", "logs", "vault"]);
     const IMG = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".glb", ".fbx"];
     const DOC = [".md", ".txt", ".json", ".csv", ".html", ".py", ".mjs", ".js", ".ts"];
@@ -830,12 +850,15 @@ const server = http.createServer(async (req, res) => {
   fs.readFile(fp, (err, buf) => {
     if (err) { res.writeHead(404, { "content-type": "text/plain" }); return res.end("not found: " + file); }
     const ct = fp.endsWith(".html") ? "text/html; charset=utf-8" : fp.endsWith(".js") ? "text/javascript; charset=utf-8" : fp.endsWith(".css") ? "text/css; charset=utf-8" : "application/octet-stream";
-    // 本地开发：全 no-store，确保改完前端立刻生效（浏览器不缓存）
-    const headers = { "content-type": ct, "cache-control": "no-store, no-cache, must-revalidate, max-age=0", "pragma": "no-cache", "expires": "0" };
+    // 本地开发：全 no-store（改完前端立刻生效）；NODE_ENV=production 时对静态资源开缓存
+    const isProd = process.env.NODE_ENV === "production";
+    const headers = { "content-type": ct, "cache-control": isProd ? "public, max-age=3600" : "no-store, no-cache, must-revalidate, max-age=0" };
+    if (!isProd) Object.assign(headers, { "pragma": "no-cache", "expires": "0" });
     res.writeHead(200, headers);
     res.end(buf);
   });
 });
 
 const PORT = Number(process.env.PORT || 7800);
-server.listen(PORT, "127.0.0.1", () => console.log(`asset-dashboard → http://127.0.0.1:${PORT}`));
+const HOST = process.env.HOST || "127.0.0.1"; // 公开部署可 HOST=0.0.0.0（务必同时设 SCAN_ROOTS_ALLOWED 并配 LLM 密钥鉴权）
+server.listen(PORT, HOST, () => console.log(`asset-dashboard → http://${HOST}:${PORT}` + (HOST === "127.0.0.1" ? "" : "  (listening on all interfaces — set SCAN_ROOTS_ALLOWED for safety)")));
