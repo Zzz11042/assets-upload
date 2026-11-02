@@ -70,11 +70,13 @@ li{margin:3px 0}
     <button data-view="tags">资产解析</button>
     <button data-view="settings">设置</button>
     <button data-view="local-scan">本地扫描</button>
+    <button data-view="dedup">去重分析</button>
   </nav>
 </header>
 <main>
   <!-- 总览 -->
   <section id="view-overview">
+    <div id="ov-src" class="hidden" style="color:var(--warn);font-size:12px;margin-bottom:8px"></div>
     <div class="grid" id="ov-tiles"></div>
     <div class="section-title">番茄连载进度</div>
     <div class="card"><table id="ov-books"></table></div>
@@ -269,10 +271,34 @@ li{margin:3px 0}
       <div class="sub" style="color:var(--dim);font-size:12px;margin-top:8px" id="ls-msg"></div>
     </div>
   </section>
+  <!-- 去重分析：字节级完全重复 + 同名跨根嫌疑（report-only，不移动/删除文件） -->
+  <section id="view-dedup" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0">资产去重分析</h3>
+      <div class="sub" style="color:var(--dim);font-size:12px;margin-bottom:8px">对当前扫描根做图片去重（png/jpg/webp/gif）：先按「大小+扩展名」预筛，再对疑似组算 SHA-1。字节级完全重复（安全清理候选）+ 同名跨根文件（跨格式嫌疑，需目检）。本工具只列报告，不移动/删除任何文件。</div>
+      <div class="row" style="margin-bottom:12px">
+        <label style="font-size:12px;color:var(--dim)">深度</label>
+        <select id="dd-depth" style="background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 8px">
+          <option value="4">4（快）</option>
+          <option value="6" selected>6</option>
+          <option value="8">8（慢）</option>
+        </select>
+        <label style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:4px"><input type="checkbox" id="dd-hidden"> 含隐藏目录</label>
+        <button class="btn" style="background:var(--panel);color:var(--acc);border:1px solid var(--line)" id="dd-go">🔍 运行去重分析</button>
+        <button class="btn" style="background:var(--panel);color:var(--txt);border:1px solid var(--line)" id="dd-save">💾 保存当前扫描根为默认</button>
+      </div>
+      <div class="grid" id="dd-tiles" style="margin-bottom:12px"></div>
+      <div class="section-title">字节级完全重复（SHA-1 相同，可安全清理）</div>
+      <div class="card"><table id="dd-exact"></table></div>
+      <div class="section-title">同名跨根文件（跨格式嫌疑，需目检）</div>
+      <div class="card"><table id="dd-samename"></table></div>
+      <div class="sub" style="color:var(--dim);font-size:12px;margin-top:8px" id="dd-msg"></div>
+    </div>
+  </section>
 </main>
 <script>
 const $=s=>document.querySelector(s);
-const views=["overview","assets","assets-live","novel","drama","generate","wizard","records","tags","settings","local-scan"];
+const views=["overview","assets","assets-live","novel","drama","generate","wizard","records","tags","settings","local-scan","dedup"];
 const WIZ={idx:0,els:[],idea:"",choices:{},custom:{},opts:{},multi:{},lastMode:"",lastErr:"",explain:"",loading:false,done:false,domain:"game"};
 function show(v){
   views.forEach(x=>$("#view-"+x).classList.toggle("hidden",x!==v));
@@ -281,6 +307,7 @@ function show(v){
   if(v==="records")loadRecords();
   if(v==="assets-live"){loadProjects();assetBrowse();}
   if(v==="local-scan")loadLocalScan();
+  if(v==="dedup")loadDedup();
 }
 
 async function api(p){const r=await fetch(p);if(!r.ok)throw new Error("HTTP "+r.status);let j;try{j=await r.json();}catch(e){throw new Error("响应非 JSON（HTTP "+r.status+"）");}return j;}
@@ -326,6 +353,9 @@ function planCard(p){
 
 async function loadOverview(){
   const o=await api("/api/overview");
+  const srcEl=$("#ov-src");
+  if(o.sources&&o.sources.missing&&o.sources.missing.length){srcEl.classList.remove("hidden");srcEl.textContent="数据源缺失："+o.sources.missing.join(" / ")+"（仓库仅保留 asset-dashboard，相关端点为空属设计如此）";}
+  else srcEl.classList.add("hidden");
   $("#llm-status").textContent=o.llmOnline?"LLM 在线（agnes）":"本地模式（未配 AGNES_API_KEY，方案生成为本地回退）";
   const tiles=[
     {t:"入库游戏",n:o.vault.items,m:"按分类："+Object.entries(o.vault.byCategory).map(([k,v])=>k+"×"+v).join(" ")},
@@ -440,6 +470,7 @@ async function loadLocalScan(){
   else{
     $("#ls-grouped").innerHTML="";
     $("#ls-msg").textContent="点「🔍 一键扫描」开始整理本机项目与资产。预设：工作区 / 主目录 / 全电脑；也可在输入框填自定义根目录（逗号分隔）。";
+    api("/api/scan-roots").then(sr=>{if(sr.configured)$("#ls-msg").textContent+="  已保存 "+sr.roots.length+" 个默认扫描根（scan-roots.json），不带参数时使用。";}).catch(()=>{});
     fillTable("#ls-analyzable",[],[{label:"名称",key:"name"},{label:"路径",key:"path"},{label:"类型",key:"type"},{label:"分析提示",key:"analyze_hint"}]);
     fillTable("#ls-all",[],[{label:"名称",key:"name"},{label:"类型",key:"type"},{label:"文件",key:"files"},{label:"MB",key:"sizeMB"}]);
   }
@@ -513,6 +544,62 @@ document.addEventListener("click",async e=>{
     catch(e){alert("复制失败："+String(e));}
   };
 })();
+
+/* ===== 资产去重分析（report-only，不移动/删除文件）===== */
+async function loadDedup(){
+  try{
+    const sr=await api("/api/scan-roots");
+    if(sr.configured)$("#dd-msg").textContent="当前默认扫描根（"+sr.roots.length+" 个）："+sr.roots.join("、")+"。点「运行去重分析」立即用它们分析。";
+    else $("#dd-msg").textContent="尚未保存默认扫描根：不带参数时将使用 workspace 根（game-forge / tomato 在本仓库缺失时仅剩 WS）。可先在「本地扫描」页扫一次，再回来点「保存当前扫描根为默认」。";
+  }catch(e){$("#dd-msg").textContent="读取扫描根配置失败 "+String(e);}
+}
+async function runDedup(){
+  const depth=$("#dd-depth").value||"6";
+  const hidden=$("#dd-hidden").checked?"1":"0";
+  $("#dd-msg").textContent="分析中（SHA-1 计算可能较慢，请耐心等待）…";
+  $("#dd-go").disabled=true;
+  try{
+    const r=await api("/api/dedup?depth="+depth+"&includeHidden="+hidden);
+    const s=r.summary||{};
+    $("#dd-tiles").innerHTML=
+      "<div class='tile'><div class='num'>"+(s.filesScanned||0)+"</div><div class='lbl'>图片文件</div></div>"+
+      "<div class='tile'><div class='num'>"+(s.totalImageMB||0)+"</div><div class='lbl'>总量 MB</div></div>"+
+      "<div class='tile'><div class='num'>"+(s.exactGroupCount||0)+"</div><div class='lbl'>完全重复组</div></div>"+
+      "<div class='tile'><div class='num'>"+(s.exactDupFiles||0)+"</div><div class='lbl'>重复文件</div></div>"+
+      "<div class='tile'><div class='num'>"+(s.potentialSavingsMB||0)+"</div><div class='lbl'>可省 MB</div></div>"+
+      "<div class='tile'><div class='num'>"+(s.sameNameGroupCount||0)+"</div><div class='lbl'>同名嫌疑组</div></div>";
+    ddExactTable(s.exactGroups||r.exactGroups||[]);
+    ddNameTable(s.sameNameGroups||r.sameNameGroups||[]);
+    $("#dd-msg").textContent="根来源："+r.source+"，扫描根："+(r.roots_abs||[]).join("、")+"。"+(r.note||"");
+  }catch(e){$("#dd-msg").textContent="去重分析失败 "+String(e);}
+  $("#dd-go").disabled=false;
+}
+function ddExactTable(groups){
+  const t=$("#dd-exact");
+  if(!groups.length){t.innerHTML="<tr><td colspan='6' style='color:var(--dim)'>(无字节级完全重复)</td></tr>";return;}
+  t.innerHTML="<tr><th>SHA-1</th><th>扩展名</th><th>组内文件数</th><th>每组 MB</th><th>可省 MB</th><th>文件列表</th></tr>"+groups.map(g=>
+    "<tr><td class='dim' style='font-size:11px'>"+esc(g.sha1||"")+"</td><td>"+esc(g.ext||"")+"</td><td>"+(g.count||0)+"</td><td>"+(g.sizeMB||0)+"</td><td>"+(g.wasteMB||0)+"</td><td class='dim' style='font-size:11px'><details><summary>"+((g.files||[]).length)+" 个文件</summary><pre style='white-space:pre-wrap;font-size:11px;margin:4px 0'>"+esc((g.files||[]).map(f=>f.path).join("\n"))+"</pre></details></td></tr>"
+  ).join("");
+}
+function ddNameTable(groups){
+  const t=$("#dd-samename");
+  if(!groups.length){t.innerHTML="<tr><td colspan='4' style='color:var(--dim)'>(无同名跨根文件)</td></tr>";return;}
+  t.innerHTML="<tr><th>文件名</th><th>出现次数</th><th>合计 MB</th><th>分布</th></tr>"+groups.map(g=>{
+    const files=g.files||[];
+    const list=files.map(f=>f.root+(f.ext?"（"+f.ext+"）":"")+" · "+(f.sizeMB||0)+"MB · "+(f.path||"")).join("\n");
+    return "<tr><td>"+esc(g.name||"")+"</td><td>"+(g.count||files.length)+"</td><td>"+files.reduce((a,f)=>a+(f.sizeMB||0),0).toFixed(1)+"</td><td class='dim' style='font-size:11px'><details><summary>"+files.length+" 个文件</summary><pre style='white-space:pre-wrap;font-size:11px;margin:4px 0'>"+esc(list)+"</pre></details></td></tr>";
+  }).join("");
+}
+$("#dd-go").onclick=runDedup;
+$("#dd-save").onclick=async()=>{
+  const abs=(LS_LAST&&LS_LAST.options&&LS_LAST.options.abs_roots)||[];
+  if(!abs.length){alert("请先在「本地扫描」页点一次「🔍 一键扫描」，再回来保存本次扫描根为默认。");return;}
+  try{
+    const r=await (await fetch("/api/scan-roots",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({roots:abs})})).json();
+    if(r.ok){alert("已保存 "+r.count+" 个默认扫描根（scan-roots.json）：/api/local-scan 与 /api/dedup 不带参数时将使用它们。");}
+    else alert("保存失败："+(r.error||"未知错误"));
+  }catch(e){alert("保存失败 "+String(e));}
+};
 
 /* ===== 分步向导 ===== */
 function wizCtx(){return JSON.stringify({已定:WIZ.choices,思路:WIZ.idea,领域:WIZ.domain});}

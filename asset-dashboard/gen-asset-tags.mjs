@@ -235,6 +235,16 @@ doc.counts = {
 };
 doc.generated_at = now();
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
+// 知识库保护：本机若缺少 game-forge/tomato 数据源，不得用空快照冲掉已提交的 asset-tags.json
+const oldDoc = readJson(OUT, null);
+if (!fs.existsSync(FORGE) && !fs.existsSync(TOMATO) && oldDoc && (oldDoc.entries || []).length > 0) {
+  console.log("本地数据源缺失（game-forge/tomato 不存在），保留现有 asset-tags.json（" + oldDoc.entries.length + " 条），跳过本次重建。");
+  process.exit(0);
+}
+// 数据源存在时重建：保留上一版解析出的 external 条目（避免 --force/刷新 丢失 inbox 参考资产）
+if (oldDoc) {
+  for (const e of oldDoc.entries || []) if (e.origin === "external" && !doc.entries.some(n => n.id === e.id)) doc.entries.push(e);
+}
 const force = process.argv.includes("--force");
 if (!force) {
   const old = readJson(OUT, null);

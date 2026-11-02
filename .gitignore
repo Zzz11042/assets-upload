@@ -1,0 +1,6 @@
+# 本地运行产物（不入库）
+*.log
+scan-result.json
+dedup-report.json
+dedup-report.md
+.server-lines.txt

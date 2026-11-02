@@ -1,3 +1,4 @@
 # 凭据与本地状态（勿提交）
 settings.json
 records/
+scan-roots.json

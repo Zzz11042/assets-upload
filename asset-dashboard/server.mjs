@@ -17,12 +17,14 @@ import fs from "node:fs";
 import path from "node:path";
 import url from "node:url";
 import { execSync } from "node:child_process";
+import { runDedup } from "./dedup.mjs";
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const WS = path.resolve(__dirname, ".."); // default-workspace
 const FORGE = path.join(WS, "game-forge");
 const TOMATO = path.join(WS, "tomato");
 const SETTINGS_FILE = path.join(__dirname, "settings.json");
+const SCAN_ROOTS_FILE = path.join(__dirname, "scan-roots.json");
 
 function readJson(p, fallback = null) {
   try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return fallback; }
@@ -41,6 +43,32 @@ function llmCfg() {
 }
 function saveSettings(cfg) {
   fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ ...readJson(SETTINGS_FILE, {}), ...cfg }, null, 2));
+}
+
+// 扫描根持久化：/api/local-scan 或 /api/dedup 不带 roots 参数时，默认用 scan-roots.json
+function savedScanRoots() {
+  const d = readJson(SCAN_ROOTS_FILE, null);
+  const r = (d && Array.isArray(d.roots) ? d.roots : []).map(x => String(x).trim()).filter(Boolean);
+  return [...new Set(r.map(p => path.resolve(p)))];
+}
+// 公开部署白名单（SCAN_ROOTS_ALLOWED 环境变量）：限制可扫描的根
+function allowRoots() {
+  return (process.env.SCAN_ROOTS_ALLOWED || "").split(",").map(s => s.trim()).filter(Boolean).map(a => path.resolve(a));
+}
+function filterAllowed(roots) {
+  const allowR = allowRoots();
+  if (!allowR.length) return roots;
+  const f = (roots || []).filter(r => allowR.some(a => r === a || r.startsWith(a + path.sep)));
+  return f.length ? f : allowR.slice();
+}
+// 数据源可用性：本仓库仅保留 asset-dashboard，game-forge/tomato 可能缺失（相关端点按设计返回空，但需显式暴露缺失）
+function sourceStatus() {
+  const forge = fs.existsSync(FORGE);
+  const tomato = fs.existsSync(TOMATO);
+  const missing = [];
+  if (!forge) missing.push("game-forge");
+  if (!tomato) missing.push("tomato");
+  return { ws: WS, game_forge: forge, tomato, missing };
 }
 
 // 调用 OpenAI 兼容 chat completions（带 90s 超时 + max_tokens 上限 + 429 退避重试，避免无限转圈）
@@ -137,9 +165,12 @@ const API = {
       tomatoBooks,
       llmOnline: !!(c.apiBase && c.apiKey),
       llmModel: c.model,
+      sources: sourceStatus(),
     };
   },
   "/api/vault": () => readJson(path.join(FORGE, "vault/INDEX.json"), []),
+  // 数据源可用性：game-forge/tomato 缺失时相关端点按设计为空；此端点供前端显式提示（不再静默）
+  "/api/sources": () => sourceStatus(),
   "/api/knowledge/games": () => readJson(path.join(FORGE, "knowledge/games.json"), []),
   "/api/knowledge/plans": () => readJson(path.join(FORGE, "knowledge/plans.json"), []),
   "/api/knowledge/styles": () => readJson(path.join(FORGE, "knowledge/styles.json"), []),
@@ -405,6 +436,7 @@ const API = {
     const base = roots[root] || roots.vault;
     const fp = path.resolve(base, rel);
     if (!fp.startsWith(base + path.sep)) return { error: "forbidden", root };
+    const source_missing = !fs.existsSync(base);
     let entries = [];
     try {
       entries = fs.readdirSync(fp, { withFileTypes: true }).map(e => ({
@@ -417,14 +449,15 @@ const API = {
       const ext = path.extname(e.name).toLowerCase();
       return { ...e, preview: e.type === "file" ? (IMG.includes(ext) ? "image" : DOC.includes(ext) ? "text" : "other") : null };
     });
-    return { path: rel, root, base: "game-forge/" + root, entries };
+    return { path: rel, root, base: "game-forge/" + root, entries, source_missing, note: source_missing ? "数据源缺失（本仓库仅保留 asset-dashboard）：该目录为空属设计如此" : null };
   },
   // 本地素材/思路库（"学习本地思路"：按领域返回可引用的本地素材块）
   "/api/materials": (q) => {
     const domain = q.get("domain") || "game";
-    const out = { domain, blocks: [] };
+    const out = { domain, blocks: [], missing: [] };
+    const relSrc = (p) => p.startsWith(WS + path.sep) ? p.slice(WS.length + 1).split(path.sep).join("/") : p;
     const rd = (p, name, tag) => {
-      try { const t = fs.readFileSync(p, "utf8"); out.blocks.push({ name, tag, text: t.slice(0, 600), source: p.split("/home/zzz/Documents/deepseek-harness/default-workspace/").pop() }); } catch { }
+      try { const t = fs.readFileSync(p, "utf8"); out.blocks.push({ name, tag, text: t.slice(0, 600), source: relSrc(p) }); } catch { out.missing.push(relSrc(p)); }
     };
     if (domain === "novel") {
       rd(path.join(WS, "tomato/books/dianxiao/style-dna.md"), "dianxiao 风格DNA", "视角/句法/修辞禁区/节奏基准/口癖");
@@ -433,19 +466,23 @@ const API = {
       rd(ledg, "dianxiao 伏笔账本", "埋设/引爆成对追踪");
       rd(path.join(WS, "game-forge/novel_projects/都市重生爽文-996程序员猝死后回到2019-带/state.json"), "长篇 state", "重生爽文 120 章进度");
     } else if (domain === "video") {
-      listDir(path.join(FORGE, "projects")).forEach(d => {
+      const projDir = path.join(FORGE, "projects");
+      if (!fs.existsSync(projDir)) out.missing.push(relSrc(projDir));
+      listDir(projDir).forEach(d => {
         const p = readJson(path.join(FORGE, "projects", d, "project.json"), null);
         if (p) out.blocks.push({ name: d, tag: "短剧/视频项目", text: JSON.stringify(p.card || {}, null, 1).slice(0, 500) + "\n角色：" + JSON.stringify(((p.characters || {}).characters || []).map(c => c.name)), source: "game-forge/projects/" + d });
       });
     } else {
-      const plans = readJson(path.join(FORGE, "knowledge/plans.json"), []);
-      out.blocks.push({ name: "完整方案库", tag: "plans.json×5", text: plans.map(p => (p.name || p.id) + "：" + grab0(p.one_liner)).join("\n").slice(0, 600), source: "game-forge/knowledge/plans.json" });
+      const kp = path.join(FORGE, "knowledge/plans.json"), kg = path.join(FORGE, "knowledge/games.json"), ks = path.join(FORGE, "knowledge/styles.json"), ka = path.join(FORGE, "vault/art-assets");
+      for (const p of [kp, kg, ks, ka]) if (!fs.existsSync(p)) out.missing.push(relSrc(p));
+      const plans = readJson(kp, []);
+      out.blocks.push({ name: "完整方案库", tag: "plans.json×" + plans.length, text: plans.map(p => (p.name || p.id) + "：" + grab0(p.one_liner)).join("\n").slice(0, 600), source: "game-forge/knowledge/plans.json" });
       const gms = readJson(path.join(FORGE, "knowledge/games.json"), []);
       out.blocks.push({ name: "相似游戏库", tag: "games.json×" + gms.length, text: gms.slice(0, 6).map(g => g.name + "（" + (g.genre || "") + "）借鉴：" + grab0(g.borrow)).join("\n").slice(0, 400), source: "game-forge/knowledge/games.json" });
-      const st = readJson(path.join(FORGE, "knowledge/styles.json"), []);
+      const st = readJson(ks, []);
       const sl = Array.isArray(st) ? st : Object.values(st);
       out.blocks.push({ name: "美工风格库", tag: "styles×" + sl.length, text: sl.map(s => s.name + "：" + grab0(s.art_style)).join("\n").slice(0, 400), source: "game-forge/knowledge/styles.json" });
-      out.blocks.push({ name: "素材资产", tag: "vault art-assets×471", text: "extracted_art(442)+pixel-assets(29)，可在实现时直接引用", source: "game-forge/vault/art-assets" });
+      out.blocks.push({ name: "素材资产", tag: fs.existsSync(ka) ? "vault art-assets" : "vault art-assets（缺失）", text: "extracted_art+pixel-assets，可在实现时直接引用", source: "game-forge/vault/art-assets" });
     }
     function grab0(v) { return v == null ? "" : Array.isArray(v) ? v.join("、") : (typeof v === "object" ? JSON.stringify(v) : String(v)); }
     return out;
@@ -612,12 +649,45 @@ const API = {
       try { return fs.readdirSync(dir, { withFileTypes: true }).map(f => f.name).slice(0, 40); } catch { return []; }
     }
   },
+  // 持久化默认扫描根：GET 读当前配置；POST 保存绝对路径列表（受 SCAN_ROOTS_ALLOWED 白名单约束）
+  "/api/scan-roots": async (q, req, res) => {
+    if (req.method === "GET") {
+      const roots = savedScanRoots();
+      return { configured: roots.length > 0, roots, file: "scan-roots.json", note: roots.length ? "已保存默认扫描根：不带参数时 /api/local-scan 与 /api/dedup 将使用它们" : "尚未保存：默认使用 workspace 根（WS / game-forge / tomato）" };
+    }
+    const body = await readBody(req);
+    const roots = (body && Array.isArray(body.roots)) ? body.roots.map(x => String(x).trim()).filter(Boolean) : [];
+    if (!roots.length) { res.writeHead(400, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "roots 必须为非空数组" })); }
+    for (const r of roots) {
+      if (!path.isAbsolute(r)) { res.writeHead(400, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "扫描根必须是绝对路径: " + r })); }
+      if (!fs.existsSync(r) || !fs.statSync(r).isDirectory()) { res.writeHead(400, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "扫描根不存在或不是目录: " + r })); }
+    }
+    const allowR = allowRoots();
+    if (allowR.length) {
+      const ok = roots.every(r => allowR.some(a => r === a || r.startsWith(a + path.sep)));
+      if (!ok) { res.writeHead(400, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "扫描根超出 SCAN_ROOTS_ALLOWED 白名单" })); }
+    }
+    const resolved = [...new Set(roots.map(r => path.resolve(r)))];
+    fs.writeFileSync(SCAN_ROOTS_FILE, JSON.stringify({ roots: resolved, updated_at: new Date().toISOString() }, null, 2));
+    return { ok: true, count: resolved.length, roots: resolved };
+  },
+  // 资产去重分析（report-only，不移动/删除任何文件）：字节级完全重复 + 同名跨根嫌疑
+  "/api/dedup": async (q) => {
+    const rootsParam = (q.get("roots") || "").split(",").map(s => s.trim()).filter(Boolean);
+    const saved = rootsParam.length ? [] : savedScanRoots();
+    let roots = rootsParam.length ? rootsParam.map(r => path.resolve(r)) : (saved.length ? saved : [WS, FORGE, TOMATO]);
+    roots = filterAllowed(roots).filter(r => fs.existsSync(r));
+    const depth = Math.min(Number(q.get("depth")) || 6, 8);
+    const r = await runDedup(roots, { depth, includeHidden: q.get("includeHidden") === "1" });
+    r.source = rootsParam.length ? "param" : (saved.length ? "saved" : "default-workspace");
+    return r;
+  },
   // 一键本地扫描：递归整理指定根目录下的所有项目与资产，标出可分析项供创作者选择
   // 规则：识别项目（package.json/pyproject/project.json/state.json/index.html/server.mjs）、
   //       资产（png/jpg/webp/gl 计数）、文档；analyzable = 有可读入口或资产文件 >=10
   // 预设：preset=workspace（默认）/ home / all（全电脑）；可配 includeHidden、maxDepth
   "/api/local-scan": (q) => {
-    const preset = q.get("preset") || "workspace";
+    let preset = q.get("preset") || "workspace";
     const depth = Math.min(Number(q.get("depth") || (preset === "all" ? 4 : 3)), 8);
     const includeHidden = q.get("includeHidden") === "1";
     const rootsParam = (q.get("roots") || "").split(",").map(s => s.trim()).filter(Boolean);
@@ -644,7 +714,9 @@ const API = {
         if (!roots.length) roots = [WS, FORGE, TOMATO];
       }
     } else {
-      roots = [WS, FORGE, TOMATO];
+      const saved = savedScanRoots();
+      if (saved.length) { roots = saved; preset = "saved"; }
+      else roots = [WS, FORGE, TOMATO];
     }
     // 公开部署安全：设 SCAN_ROOTS_ALLOWED（逗号分隔绝对路径）时，扫描根被限制在白名单内，防止本机任意目录枚举
     const allowR = (process.env.SCAN_ROOTS_ALLOWED || "").split(",").map(s => s.trim()).filter(Boolean).map(a => path.resolve(a));
@@ -734,7 +806,7 @@ const API = {
       byType: dedup.reduce((m, r) => (m[r.type] = (m[r.type] || 0) + 1, m), {}),
       items: dedup,
       grouped,
-      options: { depth, includeHidden, preset, roots: (roots || []).map(r => path.basename(r) || r) },
+      options: { depth, includeHidden, preset, roots: (roots || []).map(r => path.basename(r) || r), abs_roots: (roots || []).map(r => path.resolve(r)) },
     };
     // 字段完整性兜底：任何情况下都保证前端所需字段存在
     out.total = out.total || 0;
