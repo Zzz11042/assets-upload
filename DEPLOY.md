@@ -78,6 +78,13 @@ node server.mjs
 
 ## 数据源缺失提示（本仓库形态）
 
+## Agent 接入层（Codex / DSH）
+
+1. **本机开放模式**（127.0.0.1 监听）：`/api/agent/*` 无需鉴权，Codex 按仓库根 `AGENTS.md` 手册直接调用（manifest 能力发现 → plan 需求转机读方案 → 本地执行 → 回传）。
+2. **公开部署鉴权**：设 `AGENT_TOKEN=<随机串>`（或 `settings.json` 写 `{"agentToken":"…"}`，后者优先）→ 所有 `/api/agent/*` 需请求头 `x-agent-token: <token>`；请配合 `SCAN_ROOTS_ALLOWED` / `MAX_BODY_BYTES` 使用（见 README「公开部署」）。
+3. **agent-local.json（每部署机自备）**：`asset-dashboard/agent-local.json`（.gitignore 排除）覆盖内置默认的本机工具路径——`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir`。文件缺失时 manifest 与 plan 带 `assumed:true`，agent 应据此先核对路径再执行。
+4. 完整端点、方案 schema（`asset-dashboard/agent-plan@1`）与执行/回传约定见仓库根 `AGENTS.md`。
+
 本仓库仅保留 `asset-dashboard/` 本身，`game-forge/` 与 `tomato/` 不在仓内。相关端点（vault / books / projects 等）按设计返回空，不会报错；`/api/sources` 与「总览」页会显式列出缺失的数据源，避免误以为数据丢失。
 
 ## 常见问题
@@ -87,3 +94,4 @@ node server.mjs
 - **扫不到某目录**：该目录在跳过名单（node_modules / .git / __pycache__ / profiles / vault）或被深度上限 4 层截断
 - **不带参数扫描/去重用了哪些根**：`GET /api/scan-roots` 查看已保存的默认扫描根；`scan-roots.json` 缺省时回退到工作区根（WS / game-forge / tomato）
 - **公网部署安全**：`/api/dedup` 与 `POST /api/scan-roots` 均受 `SCAN_ROOTS_ALLOWED` 白名单约束（见 README「公开部署」）
+- **agent-local.json 缺失会怎样**：manifest / plan 中的 `agent_local.assumed=true`（内置默认路径仅作参考）；agent 执行前应先核对 `execution.tools.paths` 是否真实存在，缺失则向用户确认

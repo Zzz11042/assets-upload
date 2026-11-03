@@ -126,6 +126,104 @@ function readBody(req) {
   });
 }
 
+// ============ Codex agent 接入层 ============
+// 外部 agent（Codex/DSH）接入闭环：
+//   1) GET  /api/agent/manifest  能力发现（端点注册表 / 资产库 / 数据源 / 认证）
+//   2) POST /api/agent/plan      需求 → 可执行方案（机读 plan：matched_assets + execution.tasks）
+//   3) agent 在本地按 plan.execution.tasks 执行（T2I 生图 / 去重清理 / 功能实现）
+//   4) POST /api/record + /api/tags/parse 回传结果并把新资产登记进知识库
+// 认证：AGENT_TOKEN（env 或 settings.json.agentToken）启用后，/api/agent/* 需带 x-agent-token 头
+// 本机工具路径：agent-local.json（gitignored，按部署机器覆盖）；缺失时用内置默认值并标 assumed
+function agentAuthCfg() {
+  const s = readJson(SETTINGS_FILE, {}) || {};
+  const token = String(s.agentToken || process.env.AGENT_TOKEN || "").trim();
+  return { token, mode: token ? "token" : "open", source: s.agentToken ? "settings.json" : (process.env.AGENT_TOKEN ? "env" : null) };
+}
+function agentAuthOk(req, res) {
+  const cfg = agentAuthCfg();
+  if (cfg.mode !== "token") return true;
+  const got = String(req.headers["x-agent-token"] || "");
+  const lenOk = got.length === cfg.token.length; // 定长比较，降低时序侧信道
+  if (lenOk && got === cfg.token) return true;
+  res.writeHead(401, { "content-type": "application/json", "www-authenticate": 'X-Agent-Token' });
+  res.end(JSON.stringify({ ok: false, error: "agent token required (AGENT_TOKEN 已启用)", auth: cfg.mode, source: cfg.source }));
+  return false;
+}
+function agentLocalTools() {
+  const defaults = {
+    t2i_tool: "E:/agent-work/creator/tools/agnes_image.py",
+    t2i_retry: "E:/agent-work/creator/tools/agnes_image_retry.py",
+    t2i_key: "E:/agent-work/creator/agnes.json",
+    chroma_tool: "E:/codex/2026-10-07/new-chat-2/work/chroma.py",
+    art_repo: "E:/codex/art-assets",
+    batch_dir: "E:/agent-work/game-art/_gen",
+    raw_dir: "E:/agent-work/game-art/_gen/raw",
+  };
+  const local = readJson(path.join(__dirname, "agent-local.json"), null);
+  if (!local || typeof local !== "object") return { ...defaults, tools_source: "default", assumed: true, note: "agent-local.json 缺失：使用内置默认本机路径（assumed），在部署机创建该文件可覆盖" };
+  const merged = { ...defaults, ...local };
+  const missingKeys = Object.keys(defaults).filter(k => !merged[k]);
+  return { ...merged, tools_source: "agent-local.json", assumed: false, missingKeys };
+}
+const ART_CATEGORIES = [
+  { key: "monster", dir: "monsters", label: "怪物/角色/Boss", re: /monster|boss|敌人|怪物|角色|英雄|立绘|英雄|立絵/i },
+  { key: "effect", dir: "effects", label: "攻击效果/VFX 关键帧", re: /vfx|fx|效果|攻击|技能|粒子/i },
+  { key: "ui", dir: "ui", label: "UI 卡片/面板/图标", re: /ui|界面|卡片|面板|图标|icon|hud/i },
+  { key: "scene", dir: "scenes", label: "场景/背景", re: /scene|场景|背景|地图|地图背景/i },
+  { key: "prop", dir: "props", label: "道具/物件", re: /prop|道具|物件|装备|武器/i },
+];
+function categorizeArt(reqText) {
+  const t = String(reqText || "").toLowerCase();
+  for (const c of ART_CATEGORIES) if (c.re.test(t)) return c;
+  return { key: "asset", dir: "ui", label: "未识别类别（默认 ui，可手工指定）", guessed: true };
+}
+function inferAgentDomain(text) {
+  const t = String(text || "").toLowerCase();
+  if (/小说|网文|章节|连载|爽文|重生|末世|玄幻|大纲|伏笔|番茄|起点/.test(t)) return "novel";
+  if (/短剧|视频|剧本|分镜|镜头|台词|旁白|成片/.test(t)) return "video";
+  if (/游戏|关卡|波次|塔防|挂机|战斗|数值|道具|玩法/.test(t)) return "game";
+  return "cross";
+}
+function artRequirementText(text) {
+  const t = String(text || "").toLowerCase();
+  return ART_CATEGORIES.some(c => c.re.test(t));
+}
+// 本机是否存在该游戏的素材目录（art-assets 分类目录或扫描根内同名目录）
+function localGameDirs(game) {
+  const g = String(game || "").toLowerCase();
+  if (!g) return { game: game, art_dir: null, dirs_found: [] };
+  const found = [];
+  const artRepo = agentLocalTools().art_repo;
+  for (const c of ART_CATEGORIES) {
+    const p = path.join(artRepo, c.dir, g);
+    if (fs.existsSync(p)) found.push(p);
+  }
+  for (const r of savedScanRoots()) {
+    const p = path.join(r, g);
+    if (fs.existsSync(p) && !found.includes(p)) found.push(p);
+  }
+  const target = found[0] || (fs.existsSync(artRepo) ? path.join(artRepo, categorizeArt(g).dir, g) : null);
+  return { game, art_dir: target, dirs_found: found };
+}
+// 按需求文本生成 T2I prompt 模板（遵循本机美术生图规则：透明素材绿幕母版 + chroma key）
+function artPromptTemplates(game, category, reqText) {
+  const ctx = String(reqText || "").slice(0, 120).trim() || "（未提供细节，按 ASSUMPTION 补全：像素/水墨风关键帧）";
+  return {
+    _note: "模板由 asset-dashboard 按本机美术生图规则生成；ASSUMPTION=风格/数量/尺寸需由 agent 确认后补全",
+    green_chroma: "isolated on a solid #00B140 green screen background, no character, no text, no watermark",
+    portrait: "game character portrait, dark fantasy cel-shading, dramatic lighting, bust framing, clean silhouette, no text, no watermark",
+    samples: [
+      {
+        tag: game + "_" + category.key + "_01",
+        out: "E:/codex/art-assets/" + categorizeArt(category.key).dir + "/" + game + "/" + game + "_" + category.key + "_01.png",
+        chroma: category.key !== "ui",
+        seed: 1000 + Math.floor(Math.random() * 8999),
+        prompt: "game asset: " + ctx + ". style: dark sumi ink cel anime, high contrast. " + (category.key !== "ui" ? "isolated on a solid #00B140 green screen background, no text, no watermark" : "flat vector UI card, clean lines, dark background panel, no watermark"),
+      },
+    ],
+  };
+}
+
 const API = {
   // 健康检查（部署监控 / uptime 探针）
   "/api/health": () => {
@@ -892,6 +990,187 @@ const API = {
     fs.writeFileSync(path.join(DIR, "agent-prompt-latest.md"), md);
     res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
     return res.end(JSON.stringify({ ok: true, domain, markdown: md, spec, files: ["records/agent-prompt-latest.md", "records/agent-spec-latest.json"] }));
+  },
+  // ============ agent 接入端点 ============
+  // 能力发现：外部 Codex/DSH 读此注册表即可接入（端点 / 资产库 / 数据源 / 认证 / 闭环）
+  "/api/agent/manifest": (q, req, res) => {
+    if (!agentAuthOk(req, res)) return null;
+    const c = llmCfg();
+    const tags = readJson(path.join(__dirname, "knowledge/asset-tags.json"), { entries: [] });
+    const counts = (tags.entries || []).reduce((m, e) => (m[e.type] = (m[e.type] || 0) + 1, m), {});
+    const st = sourceStatus();
+    const roots = savedScanRoots();
+    const auth = agentAuthCfg();
+    const base = (req.headers["x-forwarded-proto"] ? req.headers["x-forwarded-proto"] + "://" : (req.socket.secure ? "https://" : "http://")) + (req.headers.host || "127.0.0.1:7800");
+    const tools = [
+      { tool: "health", method: "GET", endpoint: "/api/health", desc: "探活 + LLM 在线状态" },
+      { tool: "agent_manifest", method: "GET", endpoint: "/api/agent/manifest", desc: "本注册表（能力发现）" },
+      { tool: "agent_plan", method: "POST", endpoint: "/api/agent/plan", params: "requirement/domain?/game?/context?", desc: "需求 → 可执行方案（机读 plan）" },
+      { tool: "agent_plan_get", method: "GET", endpoint: "/api/agent/plan", params: "plan_id?", desc: "取回方案（缺省=最近一次）" },
+      { tool: "tags_search", method: "GET", endpoint: "/api/tags/search", params: "q/domain/type/algo", desc: "资产/算法知识库检索" },
+      { tool: "tags_reuse", method: "GET", endpoint: "/api/tags/reuse", params: "algo", desc: "同类算法定位与变体合并" },
+      { tool: "materials", method: "GET", endpoint: "/api/materials", params: "domain", desc: "本地素材块（含缺失列表）" },
+      { tool: "domain_elements", method: "GET", endpoint: "/api/domainElements", params: "domain", desc: "领域要素序列 + agent 提示" },
+      { tool: "projects_index", method: "GET", endpoint: "/api/projects-index", params: "domain?", desc: "工程级索引" },
+      { tool: "local_scan", method: "GET", endpoint: "/api/local-scan", params: "preset/roots/depth/includeHidden", desc: "本地目录扫描与项目识别" },
+      { tool: "dedup", method: "GET", endpoint: "/api/dedup", params: "roots/depth/includeHidden", desc: "资产去重分析（report-only）" },
+      { tool: "scan_roots", method: "GET+POST", endpoint: "/api/scan-roots", desc: "持久化默认扫描根" },
+      { tool: "record", method: "POST", endpoint: "/api/record", desc: "记录方案决策/执行结果（append JSONL）" },
+      { tool: "records", method: "GET", endpoint: "/api/records", desc: "最近 500 条记录" },
+      { tool: "tags_parse", method: "POST", endpoint: "/api/tags/parse", params: "text/domain/source", desc: "新资产 → LLM 提取标签 → 写入知识库" },
+      { tool: "tags_refresh", method: "POST", endpoint: "/api/tags/refresh", desc: "重新解析本地库（跑 gen-asset-tags.mjs --force）" },
+      { tool: "export", method: "POST", endpoint: "/api/export", desc: "导出 agent 实现包（markdown + JSON spec）" },
+      { tool: "asset_preview", method: "GET", endpoint: "/api/asset-preview", params: "path/root", desc: "图片二进制实时预览" },
+      { tool: "asset_text", method: "GET", endpoint: "/api/asset-text", params: "path/root", desc: "文档文本读取（≤20KB）" },
+      { tool: "asset_browser", method: "GET", endpoint: "/api/assets", params: "path/root", desc: "目录浏览" },
+    ];
+    return {
+      _schema: "asset-dashboard/agent-manifest@1",
+      project: "asset-dashboard",
+      generated_at: new Date().toISOString(),
+      connect: {
+        base_url: base,
+        health: "/api/health",
+        auth: { mode: auth.mode, header: "x-agent-token", token_source: auth.source, note: auth.mode === "token" ? "公开部署已启用 token：所有 /api/agent/* 需 x-agent-token 头" : "本机开放模式：未设 AGENT_TOKEN，/api/agent/* 无鉴权" },
+      },
+      llm: { online: !!(c.apiBase && c.apiKey), model: c.model, apiBase: c.apiBase || "(未配置)" },
+      domains: (readJson(path.join(__dirname, "knowledge/domains.json"), { domains: {} }).domains || {}),
+      asset_library: { total_entries: (tags.entries || []).length, counts, file: "knowledge/asset-tags.json" },
+      data_sources: st,
+      scan_roots: roots,
+      agent_local: agentLocalTools(),
+      loop: [
+        "1. GET /api/agent/manifest（能力发现）",
+        "2. POST /api/agent/plan {requirement, domain?, game?, context?} → 机读方案",
+        "3. 本地执行 plan.execution.tasks（T2I 生图 / 去重 / 功能实现）",
+        "4. POST /api/record {plan_id, result} 回传结果；新素材 POST /api/tags/parse 登记知识库",
+      ],
+      tools,
+    };
+  },
+  // 需求 → 可执行方案：matched_assets（复用现有）+ execution.tasks（新增：T2I/去重/回传）
+  "/api/agent/plan": async (q, req, res) => {
+    if (!agentAuthOk(req, res)) return null;
+    // GET：取回方案（plan_id 或最近一次）
+    if (req.method === "GET") {
+      const dir = path.join(__dirname, "records");
+      const want = q.get("plan_id") || "";
+      let files;
+      if (want) files = [want + ".json"];
+      else files = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.startsWith("plan-") && f.endsWith(".json")).sort().reverse() : [];
+      for (const f of files) {
+        const p = path.join(dir, f);
+        if (!fs.existsSync(p)) continue;
+        const j = readJson(p, null);
+        if (j && j.plan) return { ok: true, plan: j.plan, file: f };
+      }
+      res.writeHead(404, { "content-type": "application/json" });
+      return res.end(JSON.stringify({ ok: false, error: want ? "plan not found: " + want : "no saved plan yet" }));
+    }
+    if (req.method !== "POST") { res.writeHead(405, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "POST or GET only" })); }
+    const body = await readBody(req);
+    const requirement = String(body.requirement || "").trim();
+    if (!requirement) { res.writeHead(400, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "requirement 不能为空" })); }
+    const ctx = String(body.context || "");
+    const fullText = requirement + " " + ctx;
+    let game = String(body.game || "").trim();
+    const domain = (["game", "novel", "video", "cross"].includes(String(body.domain || "").trim().toLowerCase())) ? String(body.domain).trim().toLowerCase() : inferAgentDomain(fullText);
+    const isArt = artRequirementText(fullText);
+    if (isArt && !game) game = "generic"; // 美术类需求缺 game 时落到通用桶，保证任务命令路径完整
+    const category = isArt ? categorizeArt(fullText) : null;
+    // 匹配现有资产
+    const tags = readJson(path.join(__dirname, "knowledge/asset-tags.json"), { entries: [] });
+    const kw = (requirement + " " + game + " " + ctx).toLowerCase();
+    const matched = (tags.entries || [])
+      .map(e => {
+        const hay = JSON.stringify([e.title, e.tags, e.kind, e.algo]).toLowerCase();
+        const hit = kw ? hay.split(" ").filter(t => t && kw.includes(t)).length : 0;
+        return { ...e, _score: hit };
+      })
+      .filter(e => e._score > 0)
+      .sort((a, b) => b._score - a._score)
+      .slice(0, 8)
+      .map(({ _score, ...e }) => e);
+    // 执行任务
+    const tasks = [];
+    const tools = agentLocalTools();
+    const local = localGameDirs(game);
+    if (isArt) {
+      const cat = category || categorizeArt(fullText);
+      const green = cat.key !== "ui";
+      tasks.push({
+        id: "T1-gen", step: 1, tool: "agnes_t2i", do: "生成美术素材（T2I）",
+        action: "按 artPromptTemplates 生成 " + cat.label + "（" + game + "）",
+        command: "python " + tools.t2i_tool + " batch <batch.json>",
+        green_chroma: green,
+        out_dir: "E:/codex/art-assets/" + cat.dir + "/" + game + "/",
+        fallback: "Agnes 不可用时回退 Pollinations flux：https://image.pollinations.ai/prompt/<prompt>?width=1024&height=1024&model=flux&nologo=true&seed=N",
+        assumed: tools.assumed,
+      });
+      if (green) tasks.push({
+        id: "T2-chroma", step: 2, tool: "chroma_key", do: "绿幕母版 → 透明 PNG",
+        command: "python " + tools.chroma_tool + " <src.png> <dst.png>",
+        raw_dir: tools.raw_dir,
+        note: "chroma=true 素材渲染 #00B140 绿底，驱动跑 chroma.py 得透明 PNG；绿底母版存 raw/",
+        assumed: tools.assumed,
+      });
+      tasks.push({
+        id: "T3-sync", step: 3, tool: "git_art_repo", do: "同步进私有 art-assets 仓并提交",
+        command: "git -C " + tools.art_repo + " add -A && git -C " + tools.art_repo + " commit -m \"art(" + game + "): " + requirement.slice(0, 40) + "\"",
+        only_add: "只增新文件，不覆盖既有美术",
+        assumed: tools.assumed,
+      });
+      tasks.push({
+        id: "T4-integrate", step: 4, tool: "game_ingest", do: "游戏项目 img/ 接入 + 冒烟",
+        action: "把新素材拷入 " + game + " 的 img/ 目录（只增不覆盖），node --check 验证无语法错",
+        command: "robocopy " + tools.art_repo + "\\" + cat.dir + "\\" + game + " <" + game + " 项目 img\\ 目录（见 local_dirs）> /E /XO  （/XO=不覆盖较旧文件，只增新素材）",
+        local_dirs: local.dirs_found,
+        local_assumed: !local.art_dir,
+      });
+      tasks.push({
+        id: "T5-report", step: 5, tool: "report_back", do: "回传结果 + 登记知识库",
+        action: "POST /api/record {plan_id, result} 记录执行；新素材 POST /api/tags/parse {text, domain:\"" + domain + "\", source:\"" + game + "\"} 登记",
+        command: "curl -X POST <base_url>/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: "<本方案 plan_id>", result: "…" }) + "'；新素材再 POST <base_url>/api/tags/parse '" + JSON.stringify({ text: "…", domain: domain, source: game }) + "'",
+      });
+    } else {
+      // 非美术需求 → 领域方案（复用 plans/games/styles 知识库 + LLM 增强）
+      tasks.push({
+        id: "T1-plan", step: 1, tool: "domain_plan", do: "生成领域方案",
+        action: "POST /api/generate?idea=" + encodeURIComponent(requirement) + "（LLM 在线时走模型，离线回退本地方案池）",
+        command: "curl \"<base_url>/api/generate?idea=" + encodeURIComponent(requirement) + "\"",
+        domain,
+      });
+      tasks.push({
+        id: "T2-implement", step: 2, tool: "export_pack", do: "导出 agent 实现包并本地实现",
+        action: "POST /api/export {idea:\"" + requirement + "\", domain:\"" + domain + "\", choices:{}, steps:[]} → 拿 markdown 实现包，按其中 agent 指令本地实现",
+        command: "curl -X POST <base_url>/api/export -H \"content-type: application/json\" -d '" + JSON.stringify({ idea: requirement, domain: domain, choices: {}, steps: [] }) + "'",
+      });
+      tasks.push({
+        id: "T3-report", step: 3, tool: "report_back", do: "回传结果",
+        action: "POST /api/record {plan_id, domain, result} 记录",
+        command: "curl -X POST <base_url>/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: "<本方案 plan_id>", domain: domain, result: "…" }) + "'",
+      });
+    }
+    const planId = "plan-" + Date.now().toString(36);
+    const plan = {
+      _schema: "asset-dashboard/agent-plan@1",
+      plan_id: planId,
+      created_at: new Date().toISOString(),
+      requirement, domain, game: game || null, kind: isArt ? "art" : "feature",
+      category: category ? category.key : null,
+      llm: (() => { const c = llmCfg(); return { online: !!(c.apiBase && c.apiKey), model: c.model }; })(),
+      matched_assets: matched,
+      matched_assets_note: matched.length ? "从 knowledge/asset-tags.json 命中 " + matched.length + " 条，可先复用再决定新增" : "资产库无直接命中，需全新生成",
+      local_game_dirs: local,
+      execution: { tasks, tools: { source: tools.tools_source, assumed: tools.assumed, paths: { t2i_tool: tools.t2i_tool, t2i_retry: tools.t2i_retry, chroma_tool: tools.chroma_tool, art_repo: tools.art_repo, batch_dir: tools.batch_dir, raw_dir: tools.raw_dir } } },
+      report_back: { record: "POST /api/record {plan_id:\"" + planId + "\", ...}", parse: "POST /api/tags/parse {text, domain, source}" },
+    };
+    const dir = path.join(__dirname, "records");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, planId + ".json"), JSON.stringify({ plan }, null, 2));
+    fs.appendFileSync(path.join(dir, "agent-plans.jsonl"), JSON.stringify({ ts: plan.created_at, plan_id: planId, requirement, domain, kind: plan.kind, game: game || null }) + "\n");
+    res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
+    return res.end(JSON.stringify({ ok: true, plan }));
   },
 };
 

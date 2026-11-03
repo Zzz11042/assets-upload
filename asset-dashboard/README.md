@@ -28,6 +28,7 @@ node server.mjs            # → http://127.0.0.1:7800
 | **本地扫描** | `/api/local-scan` | **一键整理本机所有项目与资产目录，列出可分析项（含 project.json/state.json/index.html 入口或资产文件 ≥10），勾选导出给 agent** |
 | **去重分析** | `/api/dedup` | **图片去重（report-only）：字节级完全重复（SHA-1，含可回收 MB）+ 同名跨根跨格式嫌疑；可保存默认扫描根（`/api/scan-roots`）** |
 | **设置** | `/api/settings` | **配置 LLM API（Base/Key/模型），写入 `settings.json`；可测试连通** |
+| **Agent 接入** | `/api/agent/manifest` `/api/agent/plan` | **需求 → 机读可执行方案：manifest 能力发现 + plan 生成/取回（资产命中、本机目录、有序任务、本机工具路径）** |
 
 ## API 端点
 
@@ -45,6 +46,9 @@ GET /api/local-scan[?roots=<逗号分隔绝对路径>&depth=2|3|4]   # 一键扫
 GET /api/dedup[?roots=<逗号分隔绝对路径>&depth=4|6|8&includeHidden=1]  # 资产去重分析（report-only）
 GET /api/scan-roots          # 已保存的默认扫描根（scan-roots.json）
 POST /api/scan-roots         # 保存默认扫描根 {"roots":["/abs/a","/abs/b"]}（绝对路径；设 SCAN_ROOTS_ALLOWED 时受限）
+GET /api/agent/manifest      # Agent 能力发现（端点注册表 + 资产库 + 数据源 + 本机工具 + 四步闭环）
+POST /api/agent/plan        # 需求 → 机读方案 {"requirement","domain?","game?","context?"}
+GET /api/agent/plan?plan_id=  # 取回方案（缺省=最近一次）
 GET /api/sources             # 数据源可用性 {ws, game_forge, tomato, missing[]}
 ```
 
@@ -82,7 +86,9 @@ GET /api/sources             # 数据源可用性 {ws, game_forge, tomato, missi
 ## 与 DSH / Codex 直调
 
 - **DSH**：把本 server 的 API 包成 MCP 工具（见 `../game-forge` 的 forge 引擎），或 `dsh-dify` 插件接 Dify 知识库。
-- **Codex**：OpenAI 兼容方式直接 fetch 上述 `/api/*`；方案生成配 `AGNES_API_BASE`+`AGNES_API_KEY` 后走在线 LLM。
+- **Codex**：优先走 Agent 接入层——`GET /api/agent/manifest`（能力发现）→ `POST /api/agent/plan`（需求 → 机读方案）→ 本地执行 `plan.execution.tasks`（T2I 生图 / chroma key / 素材仓）→ `POST /api/record` + `POST /api/tags/parse` 回传与登记；完整手册见仓库根 `AGENTS.md`。其余端点 OpenAI 兼容方式直接 fetch；方案生成配 `AGNES_API_BASE`+`AGNES_API_KEY` 后走在线 LLM。
+- **鉴权**：设 `AGENT_TOKEN`（env 或 `settings.json.agentToken`）后，`/api/agent/*` 需请求头 `x-agent-token`；未设则开放（仅限本机部署）。
+- **agent-local.json**（.gitignore 排除）：按部署机覆盖本机工具路径（`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir`）；缺失时 manifest / plan 带 `assumed:true`。
 
 ## 数据来源（只读，不改原库）
 

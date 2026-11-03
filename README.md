@@ -17,6 +17,7 @@
 | **本地扫描** | **一键整理本机所有项目与资产，列出可分析项，勾选导出给 agent** |
 | **去重分析** | **图片资产去重（report-only）：字节级完全重复（SHA-1）+ 同名跨根跨格式嫌疑，量化可回收空间** |
 | **扫描根持久化** | **保存默认扫描根（scan-roots.json），/api/local-scan 与 /api/dedup 不带参数时复用；/api/sources 显式暴露缺失数据源** |
+| **Agent 接入** | **`/api/agent/*`：manifest 能力发现 + 需求 → 机读可执行方案（plan），供 Codex / DSH 本地执行并回传（详见仓库根 `AGENTS.md`）** |
 
 ## 数据来源（只读，不改原库）
 
@@ -61,6 +62,22 @@ LLM 在线方案生成（可选）：
 `/api/dedup` 与 `/api/scan-roots` 同样受 `SCAN_ROOTS_ALLOWED` 约束：
 保存扫描根（POST /api/scan-roots）时白名单外的根会被拒绝；`/api/dedup` 的 `roots` 参数与已保存根都会被过滤到白名单内。
 
+## Agent 接入（Codex / DSH）
+
+服务自带 Agent 接入层，供 Codex / DSH 等 agent 直接接入：
+
+```
+GET  /api/agent/manifest          # 能力发现：端点注册表 + 资产库 + 数据源 + 本机工具 + 四步闭环
+POST /api/agent/plan             # 需求 → 机读方案 {"requirement","domain?","game?","context?"}
+GET  /api/agent/plan?plan_id=    # 取回方案（缺省=最近一次）
+```
+
+- 方案（`_schema: asset-dashboard/agent-plan@1`）含 `matched_assets`（资产知识库命中，先复用再生成）、`local_game_dirs`（本机游戏目录）、`execution.tasks`（有序任务，美术类 = T2I 生图 → chroma key 抠图 → 同步素材仓 → 集成进游戏 → 回传）与 `execution.tools.paths`（本机工具实际路径）。
+- 结果回传：`POST /api/record {plan_id, result, status}`；新素材登记知识库 `POST /api/tags/parse {text, domain, source}`。
+- 认证：设 `AGENT_TOKEN`（env 或 `settings.json.agentToken`）后所有 `/api/agent/*` 需请求头 `x-agent-token`；未设则开放（仅限本机部署）。
+- 每台部署机可自备 `asset-dashboard/agent-local.json`（.gitignore 排除）覆盖本机工具路径；缺失时方案中带 `assumed:true` 提示 agent 先核对。
+- 完整端点、schema 与执行约定见仓库根 `AGENTS.md`。
+
 ## 目录结构
 
 ```
@@ -73,6 +90,7 @@ asset-dashboard/
 ├─ scan-roots.json     # 已保存的默认扫描根（运行时生成，.gitignore 排除）
 └─ README.md
 仓库根（仅本目录，本地材料已删除）：
+├─ AGENTS.md           # AI agent（Codex / DSH）接入手册
 ├─ README.md           # 本文件
 ├─ DEPLOY.md           # 一键部署文档（Linux + Windows）
 └─ scripts/            # 一键部署脚本（deploy-linux.sh / deploy-windows.bat）
