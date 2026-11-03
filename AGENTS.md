@@ -36,7 +36,9 @@ GET  /api/agent/plan?plan_id=<id>        # 取回方案（缺 plan_id = 最近�
 - `requirement` 必填，其余可选；`domain` 缺省自动从需求文本推断；`context` 会与 requirement 拼起来做资产匹配。
 - 响应 `_schema: asset-dashboard/agent-plan@1`，关键字段：
   - `plan_id`：`plan-<base36>`，持久化在 `records/<plan_id>.json` + `records/agent-plans.jsonl`（均 .gitignore 排除）；
-  - `kind`：`art`（美术需求）或 `feature`（功能需求，按 domain 生成 /api/generate + /api/export 步骤）；
+  - `kind`：`art`（美术需求）/ `video`（短视频需求：V1 脚本 → V2 T2V 分镜 → V3 合成 → V4 发布 → V5 回传）或 `feature`（功能需求，按 domain 生成 /api/generate + /api/export 步骤）；
+  - `base`：服务 base_url（步骤命令中的取步/回传端点拼它）；`batch_file`：art 类真实批次 spec 路径（`records/<plan_id>-batch.json`，已按需求写好 N 条素材）；
+  - `next_step`：下一步合成指令（`GET /api/agent/step?plan_id=…`）；
   - `category`：art 类命中的 ART_CATEGORIES（monster/effect/ui/scene/prop → monsters/effects/ui/scenes/props 目录）；
   - `matched_assets`：从 `knowledge/asset-tags.json` 按关键词命中的既有资产（先复用再生成）；
   - `local_game_dirs`：`{game, art_dir, dirs_found}`——asset 仓内该游戏的类别目录 + 已保存扫描根下同名目录；
@@ -53,9 +55,33 @@ GET  /api/agent/plan?plan_id=<id>        # 取回方案（缺 plan_id = 最近�
 - 抠图：`python <paths.chroma_tool> <绿幕png> <透明png>`（阈值版 chroma key）；绿幕母版存 `paths.raw_dir`；
 - 素材仓：`paths.art_repo`（git），按 `类别/游戏/` 二级目录存放，命名小写中划线；**只增新文件，不覆盖既有美术**，改完 commit；
 - 批次 spec（batch.json / agnes_batch.json / 日志）放 `paths.batch_dir`；
-- 功能类任务（feature）：走 `/api/generate`（方案打分/LLM）→ `/api/export`（agent 实现包）→ `/api/record`（记录）。
+- 功能类任务（feature）：走 `/api/generate`（方案打分/LLM）→ `/api/export`（agent 实现包）→ `/api/record`（记录）；
+- 短视频类任务（video）：`python <paths.t2v_tool> create "<prompt>" [--aspect 16:9] [--seconds 5] [--out <plan_id>_shotN.mp4]`（默认 out `out/agnes/agv_<id>.mp4`，超时后 `poll <id>` 续跑）→ ffmpeg concat 合成（`paths.video_compose`）→ `biliup` 上传 / `publish-agnes.ps1` 发布（`paths.biliup_tool` / `paths.video_publish`）→ `/api/record` 回传。
 
-### 4. 结果回传
+### 4. 分步合成（/api/agent/step）
+
+方案落盘后按「取一步 → 执行 → 标记完成」循环推进，每步都是自包含的（command / inputs / outputs / verify + 标记完成指令）：
+
+```
+GET  /api/agent/step?plan_id=<id>[&step=<task_id>]   # 缺省=最近方案的下一个未完成步
+POST /api/agent/step/done  {"plan_id":"…","step":"<task_id>","result":"…?"}  # 标记完成，返回 next 与 all_done
+```
+
+- 响应 `_schema` 之外的关键返回：`step`（`id/step/total/tool/do/command/inputs/outputs/verify/status/mark_done`）、`done_count/total/all_done`；
+  缺 plan 时 404（`no saved plan yet` / `plan not found`）；全部完成时 `step:null` + `all_done:true`。
+- 标记完成会写 `records/<plan_id>.json` 的 `progress.done` 并 append `records/agent-plans.jsonl`（`event: step_done`）。
+- 本机零依赖 CLI（Node ≥ 18，全局 fetch）：
+
+```
+node asset-dashboard/agent-cli.mjs manifest
+node asset-dashboard/agent-cli.mjs plan "给 tap-samurai 生成 3 个怪物" --game tap-samurai --domain game
+node asset-dashboard/agent-cli.mjs step [plan_id] [step|n]     # 取下一步（缺省=最近方案）
+node asset-dashboard/agent-cli.mjs done [plan_id] <step|n> [--result "..."]
+```
+
+  选项 `--base <url>`（默认 `http://127.0.0.1:7800`）；鉴权读 env `AGENT_TOKEN` 自动带 `x-agent-token` 头。
+
+### 5. 结果回传
 
 ```
 POST /api/record      {"plan_id":"plan-…","result":"…","status":"complete|failed","files":["…"]}
@@ -73,7 +99,7 @@ POST /api/tags/parse  {"text":"…","domain":"game","source":"…"}   # 新素�
 ## agent-local.json（部署机覆盖）
 
 `asset-dashboard/agent-local.json`（gitignore 排除，每台部署机自备）可覆盖内置默认的本机工具路径
-（`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir`）。
+（`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir / t2v_tool / video_compose / biliup_tool / video_out_dir / video_publish`）。
 文件缺失时 manifest 与 plan 中的 `agent_local.assumed=true`（内置默认值仅为参考）；
 agent 执行前应检查 `execution.tools.assumed` 与 `paths` 是否真实存在，缺失则先向用户确认再执行。
 

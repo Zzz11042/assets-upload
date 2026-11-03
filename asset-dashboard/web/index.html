@@ -334,6 +334,17 @@ li{margin:3px 0}
       <div class="section-title">最近方案</div>
       <div id="ag-plans"></div>
     </div>
+    <div class="card" style="margin-top:12px">
+      <div class="section-title">分步合成（/api/agent/step）</div>
+      <div class="row" style="margin-bottom:10px">
+        <label style="font-size:12px;color:var(--dim)">方案</label>
+        <select id="ag-step-plan" style="background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 8px"></select>
+        <button class="btn" style="background:var(--panel);color:var(--acc);border:1px solid var(--line)" id="ag-step-next">▶ 取下一步</button>
+        <button class="btn" style="background:var(--panel);color:var(--txt);border:1px solid var(--line)" id="ag-step-done" disabled>✔ 标记当前步完成</button>
+        <div class="sub" style="color:var(--dim);font-size:12px;flex:1" id="ag-steps-msg"></div>
+      </div>
+      <div id="ag-steps"></div>
+    </div>
   </section>
 </main>
 <script>
@@ -986,6 +997,8 @@ async function loadAgent(){
   }catch(e){
     $("#ag-plans").innerHTML="<div class='sub' style='color:var(--dim);font-size:12px'>（暂无已保存方案）</div>";
   }
+  fillAgentStepPlans();
+  loadAgentSteps();
 }
 function renderAgentPlan(p,label){
   LAST_PLAN=p;
@@ -1007,6 +1020,9 @@ async function agentGenerate(){
     const j=await r.json();
     if(!r.ok)throw new Error("HTTP "+r.status+(j.error?" "+j.error:""));
     renderAgentPlan(j.plan,"刚生成");
+    const sel2=$("#ag-step-plan");
+    if(j.plan.plan_id&&![...sel2.options].some(o=>o.value===j.plan.plan_id))sel2.insertAdjacentHTML("beforeend","<option value='"+esc(j.plan.plan_id)+"'>"+esc(j.plan.plan_id)+"</option>");
+    sel2.value=j.plan.plan_id||"";
     $("#ag-msg").textContent="方案 "+j.plan.plan_id+" 已生成（kind="+j.plan.kind+"，任务 "+j.plan.execution.tasks.length+" 个）。复制方案 JSON 或执行说明交给 Codex 即可。";
   }catch(e){
     $("#ag-msg").textContent="生成失败："+String(e);
@@ -1023,16 +1039,101 @@ async function copyAgentRunbook(){
   const txt=[
     "# 给 Codex 执行（asset-dashboard agent plan "+p.plan_id+"）",
     "1. 取回方案：GET /api/agent/plan?plan_id="+p.plan_id,
-    "2. 依次执行 plan.execution.tasks（命令见 JSON；本机工具路径见 execution.tools.paths）",
+    "2. 分步合成（推荐）：GET /api/agent/step?plan_id="+p.plan_id+" 取下一步 → 执行 step.command → POST /api/agent/step/done {plan_id:\""+p.plan_id+"\", step:\"<task.id>\"} 标记完成，循环直到 all_done（本机可 `node asset-dashboard/agent-cli.mjs step "+p.plan_id+"` / `... done "+p.plan_id+" <id>`）",
+    "   或直接依次执行 plan.execution.tasks（命令见 JSON；本机工具路径见 execution.tools.paths）",
     "3. 结果回传：POST /api/record {plan_id:\""+p.plan_id+"\", result:...}",
     "4. 新增素材登记知识库：POST /api/tags/parse {text, domain, source}",
   ].join("\n");
   try{await navigator.clipboard.writeText(txt);alert("Agent 执行说明已复制。");}catch(e){alert("复制失败："+String(e));}
 }
+/* ===== 分步合成（step-by-step）===== */
+let AG_STEP_CUR=null; // {plan_id, step_id}
+async function fillAgentStepPlans(){
+  const sel=$("#ag-step-plan");
+  const prev=sel.value||"";
+  let ids=[];
+  try{
+    const r=await api("/api/agent/plan");
+    if(r.ok&&r.plan&&r.plan.plan_id)ids.push(r.plan.plan_id);
+  }catch(e){}
+  const existing=[...sel.options].map(o=>o.value).filter(v=>v!=="");
+  const all=Array.from(new Set([...existing,...ids]));
+  sel.innerHTML="<option value=''>（最近方案 / 手动）</option>"+all.map(id=>"<option value='"+esc(id)+"'>"+esc(id)+"</option>").join("");
+  if(prev===""||all.includes(prev))sel.value=prev;
+}
+async function loadAgentSteps(){
+  const box=$("#ag-steps");
+  const msg=$("#ag-steps-msg");
+  const plan=$("#ag-step-plan").value;
+  const base="/api/agent/step"+(plan?"?plan_id="+encodeURIComponent(plan):"");
+  msg.textContent="加载中…";
+  try{
+    const d=await api(base);
+    if(d.step){
+      AG_STEP_CUR={plan_id:d.plan_id,step_id:d.step.id};
+      let planObj=null,progress=null;
+      try{const rec=await api("/api/agent/plan?plan_id="+encodeURIComponent(d.plan_id));planObj=rec.plan;progress=rec.progress;}catch(e){}
+      renderAgentStepView(d,planObj,progress);
+      msg.textContent="";
+    }
+    else{AG_STEP_CUR=null;$("#ag-step-done").disabled=true;
+      box.innerHTML="<div class='tile'><div class='sub' style='color:var(--dim);font-size:12px'>"+(d.all_done?"✅ 全部步骤已完成（"+d.done_count+"/"+d.total+"）":"无待办步骤")+"（方案 "+esc(d.plan_id)+"）</div></div>";
+      msg.textContent="";
+    }
+  }catch(e){
+    AG_STEP_CUR=null;$("#ag-step-done").disabled=true;
+    box.innerHTML="";msg.textContent="读取失败："+String(e);
+  }
+}
+function renderAgentStepView(d,plan,progress){
+  const s=d.step;
+  const tasks=(plan&&plan.execution)?plan.execution.tasks:[];
+  const doneSet=new Set(progress&&Array.isArray(progress.done)?progress.done:[]);
+  const box=$("#ag-steps");
+  let html="";
+  if(tasks.length){
+    html+="<div class='sub' style='color:var(--dim);font-size:12px;margin-bottom:8px'>任务清单（"+doneSet.size+"/"+tasks.length+" 完成）</div><div style='margin-bottom:12px'>";
+    html+=tasks.map(t=>{
+      const dn=doneSet.has(t.id);
+      return "<div class='row' style='margin-bottom:6px'><div class='sub' style='font-size:12px;width:220px;flex-shrink:0'>"+(dn?"✅":"⬜")+" "+esc(t.id)+"</div><div class='sub' style='font-size:12px;color:var(--dim);word-break:break-word'>"+esc(t.tool||"")+(t.do?" · "+esc(t.do):"")+"</div></div>";
+    }).join("");
+    html+="</div>";
+  }
+  html+="<div class='tile' style='border-left:3px solid var(--acc)'><div class='sub' style='color:var(--dim);font-size:11px;margin-bottom:4px'>下一步（"+s.step+"/"+s.total+"，"+esc(s.id)+"）"+(s.status==="done"?"（已标记完成）":"")+"</div>";
+  html+="<div style='font-size:12px;margin-bottom:6px'>工具："+esc(s.tool||"-")+"　指令："+esc(s.do||"-")+"</div>";
+  if(s.command)html+="<pre style='background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;font-size:12px;overflow:auto;max-height:240px;white-space:pre-wrap;word-break:break-all;margin-bottom:8px'>"+esc(s.command)+"</pre>";
+  if(s.verify)html+="<div class='sub' style='color:var(--dim);font-size:12px;margin-bottom:6px'>验收："+esc(s.verify)+"</div>";
+  if(s.mark_done)html+="<div class='sub' style='color:var(--dim);font-size:11px;word-break:break-all'>CLI："+esc(s.mark_done.cli)+"<br>HTTP："+esc(s.mark_done.http)+"</div>";
+  html+="</div>";
+  box.innerHTML=html;
+  $("#ag-step-done").disabled=false;
+}
+async function agentStepNext(){
+  await loadAgentSteps();
+}
+async function agentStepDone(){
+  if(!AG_STEP_CUR){alert("请先取下一步");return;}
+  const body={plan_id:AG_STEP_CUR.plan_id,step:AG_STEP_CUR.step_id};
+  try{
+    const r=await fetch("/api/agent/step/done",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!r.ok)throw new Error("HTTP "+r.status+(j.error?" "+j.error:""));
+    const sel=$("#ag-step-plan");
+    if(![...sel.options].some(o=>o.value===j.plan_id))sel.insertAdjacentHTML("beforeend","<option value='"+esc(j.plan_id)+"'>"+esc(j.plan_id)+"</option>");
+    sel.value=j.plan_id;
+    $("#ag-steps-msg").textContent="已标记 "+j.done+" 完成（"+j.done_count+"/"+j.total+(j.all_done?"，全部完成 ✓":"")+"）";
+    await loadAgentSteps();
+  }catch(e){
+    $("#ag-steps-msg").textContent="标记失败："+String(e);
+  }
+}
 document.addEventListener("DOMContentLoaded",()=>{
   $("#ag-go").onclick=agentGenerate;
   $("#ag-copy-json").onclick=copyAgentJson;
   $("#ag-copy-curl").onclick=copyAgentRunbook;
+  $("#ag-step-next").onclick=agentStepNext;
+  $("#ag-step-done").onclick=agentStepDone;
+  $("#ag-step-plan").onchange=loadAgentSteps;
 });
 
 loadOverview();loadAssets();loadNovel();loadDrama();loadSettings();

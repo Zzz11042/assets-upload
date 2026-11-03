@@ -28,7 +28,7 @@ node server.mjs            # → http://127.0.0.1:7800
 | **本地扫描** | `/api/local-scan` | **一键整理本机所有项目与资产目录，列出可分析项（含 project.json/state.json/index.html 入口或资产文件 ≥10），勾选导出给 agent** |
 | **去重分析** | `/api/dedup` | **图片去重（report-only）：字节级完全重复（SHA-1，含可回收 MB）+ 同名跨根跨格式嫌疑；可保存默认扫描根（`/api/scan-roots`）** |
 | **设置** | `/api/settings` | **配置 LLM API（Base/Key/模型），写入 `settings.json`；可测试连通** |
-| **Agent 接入** | `/api/agent/manifest` `/api/agent/plan` | **需求 → 机读可执行方案：manifest 能力发现 + plan 生成/取回（资产命中、本机目录、有序任务、本机工具路径）** |
+| **Agent 接入** | `/api/agent/manifest` `/api/agent/plan` `/api/agent/step` `/api/agent/step/done` | **需求 → 机读可执行方案 + 分步合成：manifest 能力发现、plan 生成/取回（资产命中、本机目录、有序任务、本机工具路径）、step 逐步取任务并标记完成（art / video / feature 三类方案）** |
 
 ## API 端点
 
@@ -46,9 +46,11 @@ GET /api/local-scan[?roots=<逗号分隔绝对路径>&depth=2|3|4]   # 一键扫
 GET /api/dedup[?roots=<逗号分隔绝对路径>&depth=4|6|8&includeHidden=1]  # 资产去重分析（report-only）
 GET /api/scan-roots          # 已保存的默认扫描根（scan-roots.json）
 POST /api/scan-roots         # 保存默认扫描根 {"roots":["/abs/a","/abs/b"]}（绝对路径；设 SCAN_ROOTS_ALLOWED 时受限）
-GET /api/agent/manifest      # Agent 能力发现（端点注册表 + 资产库 + 数据源 + 本机工具 + 四步闭环）
-POST /api/agent/plan        # 需求 → 机读方案 {"requirement","domain?","game?","context?"}
-GET /api/agent/plan?plan_id=  # 取回方案（缺省=最近一次）
+GET /api/agent/manifest      # Agent 能力发现（端点注册表 + 资产库 + 数据源 + 本机工具 + 分步合成闭环）
+POST /api/agent/plan        # 需求 → 机读方案 {"requirement","domain?","game?","context?"}（kind: art|video|feature）
+GET /api/agent/plan?plan_id=  # 取回方案 + 进度（缺省=最近一次）
+GET /api/agent/step?plan_id=&step=  # 分步合成：取下一个未完成步骤（缺省=最近方案；含 command/verify/标记完成指令）
+POST /api/agent/step/done   # 分步合成：标记步骤完成 {"plan_id","step","result?"} → 返回 next 与 all_done
 GET /api/sources             # 数据源可用性 {ws, game_forge, tomato, missing[]}
 ```
 
@@ -86,9 +88,9 @@ GET /api/sources             # 数据源可用性 {ws, game_forge, tomato, missi
 ## 与 DSH / Codex 直调
 
 - **DSH**：把本 server 的 API 包成 MCP 工具（见 `../game-forge` 的 forge 引擎），或 `dsh-dify` 插件接 Dify 知识库。
-- **Codex**：优先走 Agent 接入层——`GET /api/agent/manifest`（能力发现）→ `POST /api/agent/plan`（需求 → 机读方案）→ 本地执行 `plan.execution.tasks`（T2I 生图 / chroma key / 素材仓）→ `POST /api/record` + `POST /api/tags/parse` 回传与登记；完整手册见仓库根 `AGENTS.md`。其余端点 OpenAI 兼容方式直接 fetch；方案生成配 `AGNES_API_BASE`+`AGNES_API_KEY` 后走在线 LLM。
+- **Codex**：优先走 Agent 接入层——`GET /api/agent/manifest`（能力发现）→ `POST /api/agent/plan`（需求 → 机读方案，kind: art / video / feature）→ 分步合成循环：`GET /api/agent/step?plan_id=…` 取下一步 → 本地执行 `step.command`（T2I 生图 / chroma key / 素材仓 / T2V 短视频）→ `POST /api/agent/step/done` 标记完成直到 `all_done` → `POST /api/record` + `POST /api/tags/parse` 回传与登记；本机零依赖 CLI：`node asset-dashboard/agent-cli.mjs manifest|plan|latest|step|done`（`--base` 默认 `http://127.0.0.1:7800`，鉴权读 env `AGENT_TOKEN`）；完整手册见仓库根 `AGENTS.md`。其余端点 OpenAI 兼容方式直接 fetch；方案生成配 `AGNES_API_BASE`+`AGNES_API_KEY` 后走在线 LLM。
 - **鉴权**：设 `AGENT_TOKEN`（env 或 `settings.json.agentToken`）后，`/api/agent/*` 需请求头 `x-agent-token`；未设则开放（仅限本机部署）。
-- **agent-local.json**（.gitignore 排除）：按部署机覆盖本机工具路径（`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir`）；缺失时 manifest / plan 带 `assumed:true`。
+- **agent-local.json**（.gitignore 排除）：按部署机覆盖本机工具路径（`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir / t2v_tool / video_compose / biliup_tool / video_out_dir / video_publish`）；缺失时 manifest / plan 带 `assumed:true`。
 
 ## 数据来源（只读，不改原库）
 

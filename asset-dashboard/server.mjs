@@ -158,6 +158,12 @@ function agentLocalTools() {
     art_repo: "E:/codex/art-assets",
     batch_dir: "E:/agent-work/game-art/_gen",
     raw_dir: "E:/agent-work/game-art/_gen/raw",
+      // 短视频域（T2V / 合成 / 发布）本机工具，缺失时 plan 带 assumed 标注
+      t2v_tool: "E:/agent-work/creator/tools/agnes_video.py",
+      video_compose: "C:/Users/ASUS/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1.2-full_build/bin/ffmpeg.exe",
+      biliup_tool: "E:/agent-work/creator/tools/biliup.exe",
+      video_out_dir: "E:/agent-work/creator/out/agnes",
+      video_publish: "E:/agent-work/creator/publish-agnes.ps1",
   };
   const local = readJson(path.join(__dirname, "agent-local.json"), null);
   if (!local || typeof local !== "object") return { ...defaults, tools_source: "default", assumed: true, note: "agent-local.json 缺失：使用内置默认本机路径（assumed），在部署机创建该文件可覆盖" };
@@ -223,6 +229,76 @@ function artPromptTemplates(game, category, reqText) {
     ],
   };
 }
+
+  // ===== 分步合成（step-by-step synthesis）支持函数 =====
+  // 需求文本解析素材数量：「5 个怪物」→5；支持阿拉伯数字与中文数字，无则默认 3（上限 60）
+  function cnToInt(s) {
+    const d = { 零:0, 一:1, 二:2, 两:2, 三:3, 四:4, 五:5, 六:6, 七:7, 八:8, 九:9 };
+    const s10 = String(s).indexOf("十");
+    if (s10 >= 0) {
+      const tens = s10 === 0 ? 1 : (d[String(s)[0]] || 0);
+      const ones = s10 + 1 < String(s).length ? (d[String(s)[s10 + 1]] || 0) : 0;
+      return tens * 10 + ones;
+    }
+    let n = 0, seen = false;
+    for (const ch of String(s)) if (d[ch] !== undefined) { n = d[ch]; seen = true; }
+    return seen ? n : 0;
+  }
+  function parseAgentQuantity(text) {
+    const t = String(text || "");
+    const m = t.match(/(\d{1,3})\s*个/);
+    if (m) return Math.max(1, Math.min(60, parseInt(m[1], 10)));
+    const cn = t.match(/([零一二两三四五六七八九十]{1,3})\s*个/);
+    if (cn) { const n = cnToInt(cn[1]); if (n >= 1) return Math.max(1, Math.min(60, n)); }
+    return 3;
+  }
+  function agentRecordsDir() { return path.join(__dirname, "records"); }
+  function loadAgentRecord(planId) {
+    const p = path.join(agentRecordsDir(), planId + ".json");
+    if (!fs.existsSync(p)) return null;
+    const j = readJson(p, null);
+    if (!j || !j.plan) return null;
+    j.progress = (j.progress && Array.isArray(j.progress.done)) ? j.progress : { done: [], current: null, updated_at: null };
+    return j;
+  }
+  function saveAgentRecord(plan, progress) {
+    const dir = agentRecordsDir();
+    fs.mkdirSync(dir, { recursive: true });
+    progress = progress || { done: [], current: null, updated_at: null };
+    progress.updated_at = new Date().toISOString();
+    fs.writeFileSync(path.join(dir, plan.plan_id + ".json"), JSON.stringify({ plan, progress }, null, 2));
+  }
+  function nextUndoneStep(plan, progress) {
+    const tasks = (plan.execution && plan.execution.tasks) || [];
+    const done = (progress && Array.isArray(progress.done)) ? progress.done : [];
+    for (const t of tasks) if (!done.includes(t.id)) return t;
+    return null;
+  }
+  // 单步视图：把任务的 command/inputs/outputs/verify + 标记完成指令组装成「分步合成」单元
+  function agentStepView(plan, task, progress, base, cliRel) {
+    const tasks = (plan.execution && plan.execution.tasks) || [];
+    const idx = tasks.findIndex(t => t.id === task.id);
+    const total = tasks.length;
+    const stepNo = task.step != null ? task.step : (idx + 1);
+    const done = (progress && Array.isArray(progress.done)) ? progress.done : [];
+    const cli = cliRel ? ("node " + cliRel) : ("node asset-dashboard/agent-cli.mjs");
+    return {
+      id: task.id,
+      step: stepNo,
+      total,
+      tool: task.tool,
+      do: task.do,
+      command: task.command,
+      inputs: task.inputs || null,
+      outputs: task.outputs || null,
+      verify: task.verify || null,
+      status: done.includes(task.id) ? "done" : "pending",
+      mark_done: {
+        cli: (cli + " done " + plan.plan_id + " " + task.id + (base ? " --base " + base : "")).trim(),
+        http: "POST " + (base ? base : "http://127.0.0.1:7800") + "/api/agent/step/done " + JSON.stringify({ plan_id: plan.plan_id, step: task.id }),
+      },
+    };
+  }
 
 const API = {
   // 健康检查（部署监控 / uptime 探针）
@@ -1023,6 +1099,8 @@ const API = {
       { tool: "asset_preview", method: "GET", endpoint: "/api/asset-preview", params: "path/root", desc: "图片二进制实时预览" },
       { tool: "asset_text", method: "GET", endpoint: "/api/asset-text", params: "path/root", desc: "文档文本读取（≤20KB）" },
       { tool: "asset_browser", method: "GET", endpoint: "/api/assets", params: "path/root", desc: "目录浏览" },
+      { tool: "agent_step", method: "GET", endpoint: "/api/agent/step", params: "plan_id?/step?", desc: "分步合成：取方案中下一个未完成步骤（缺省=最近 plan 的待做步，含 command/verify/标记完成指令）" },
+      { tool: "agent_step_done", method: "POST", endpoint: "/api/agent/step/done", params: "plan_id/step/result?", desc: "分步合成：标记某步完成，返回下一步与 all_done 状态" },
     ];
     return {
       _schema: "asset-dashboard/agent-manifest@1",
@@ -1042,7 +1120,7 @@ const API = {
       loop: [
         "1. GET /api/agent/manifest（能力发现）",
         "2. POST /api/agent/plan {requirement, domain?, game?, context?} → 机读方案",
-        "3. 本地执行 plan.execution.tasks（T2I 生图 / 去重 / 功能实现）",
+        "3. 分步合成：GET /api/agent/step?plan_id=… 取下一步 → 本地执行 task.command → POST /api/agent/step/done {plan_id, step} 标记完成，循环直到 all_done",
         "4. POST /api/record {plan_id, result} 回传结果；新素材 POST /api/tags/parse 登记知识库",
       ],
       tools,
@@ -1062,7 +1140,10 @@ const API = {
         const p = path.join(dir, f);
         if (!fs.existsSync(p)) continue;
         const j = readJson(p, null);
-        if (j && j.plan) return { ok: true, plan: j.plan, file: f };
+        if (j && j.plan) {
+          j.progress = (j.progress && Array.isArray(j.progress.done)) ? j.progress : { done: [], current: null, updated_at: null };
+          return { ok: true, plan: j.plan, progress: j.progress, file: f };
+        }
       }
       res.writeHead(404, { "content-type": "application/json" });
       return res.end(JSON.stringify({ ok: false, error: want ? "plan not found: " + want : "no saved plan yet" }));
@@ -1091,86 +1172,241 @@ const API = {
       .sort((a, b) => b._score - a._score)
       .slice(0, 8)
       .map(({ _score, ...e }) => e);
-    // 执行任务
-    const tasks = [];
-    const tools = agentLocalTools();
-    const local = localGameDirs(game);
-    if (isArt) {
-      const cat = category || categorizeArt(fullText);
-      const green = cat.key !== "ui";
-      tasks.push({
-        id: "T1-gen", step: 1, tool: "agnes_t2i", do: "生成美术素材（T2I）",
-        action: "按 artPromptTemplates 生成 " + cat.label + "（" + game + "）",
-        command: "python " + tools.t2i_tool + " batch <batch.json>",
-        green_chroma: green,
-        out_dir: "E:/codex/art-assets/" + cat.dir + "/" + game + "/",
-        fallback: "Agnes 不可用时回退 Pollinations flux：https://image.pollinations.ai/prompt/<prompt>?width=1024&height=1024&model=flux&nologo=true&seed=N",
-        assumed: tools.assumed,
-      });
-      if (green) tasks.push({
-        id: "T2-chroma", step: 2, tool: "chroma_key", do: "绿幕母版 → 透明 PNG",
-        command: "python " + tools.chroma_tool + " <src.png> <dst.png>",
-        raw_dir: tools.raw_dir,
-        note: "chroma=true 素材渲染 #00B140 绿底，驱动跑 chroma.py 得透明 PNG；绿底母版存 raw/",
-        assumed: tools.assumed,
-      });
-      tasks.push({
-        id: "T3-sync", step: 3, tool: "git_art_repo", do: "同步进私有 art-assets 仓并提交",
-        command: "git -C " + tools.art_repo + " add -A && git -C " + tools.art_repo + " commit -m \"art(" + game + "): " + requirement.slice(0, 40) + "\"",
-        only_add: "只增新文件，不覆盖既有美术",
-        assumed: tools.assumed,
-      });
-      tasks.push({
-        id: "T4-integrate", step: 4, tool: "game_ingest", do: "游戏项目 img/ 接入 + 冒烟",
-        action: "把新素材拷入 " + game + " 的 img/ 目录（只增不覆盖），node --check 验证无语法错",
-        command: "robocopy " + tools.art_repo + "\\" + cat.dir + "\\" + game + " <" + game + " 项目 img\\ 目录（见 local_dirs）> /E /XO  （/XO=不覆盖较旧文件，只增新素材）",
-        local_dirs: local.dirs_found,
-        local_assumed: !local.art_dir,
-      });
-      tasks.push({
-        id: "T5-report", step: 5, tool: "report_back", do: "回传结果 + 登记知识库",
-        action: "POST /api/record {plan_id, result} 记录执行；新素材 POST /api/tags/parse {text, domain:\"" + domain + "\", source:\"" + game + "\"} 登记",
-        command: "curl -X POST <base_url>/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: "<本方案 plan_id>", result: "…" }) + "'；新素材再 POST <base_url>/api/tags/parse '" + JSON.stringify({ text: "…", domain: domain, source: game }) + "'",
-      });
+      // 分步合成：每步 command 具体可跑（带 inputs/outputs/verify），无 <占位符>
+      const planId = "plan-" + Date.now().toString(36);
+      const base = (req.headers["x-forwarded-proto"] ? req.headers["x-forwarded-proto"] + "://" : (req.socket.secure ? "https://" : "http://")) + (req.headers.host || "127.0.0.1:7800");
+      const kind = isArt ? "art" : (domain === "video" ? "video" : "feature");
+      const tasks = [];
+      const tools = agentLocalTools();
+      const local = localGameDirs(game);
+      const recordsDir = path.join(__dirname, "records");
+      let batchFile = null;
+      if (isArt) {
+        const cat = category || categorizeArt(fullText);
+        const green = cat.key !== "ui";
+        const N = parseAgentQuantity(requirement + " " + ctx);
+        const artDir = path.join(tools.art_repo, cat.dir, game);
+        const raw = tools.raw_dir;
+        const firstTag = game + "_" + cat.key + "_01";
+        // 具体批次 spec：N 张；绿幕母版落 raw/，透明 PNG 落 art 仓（仅新增）
+        const spec = [];
+        for (let i = 1; i <= N; i++) {
+          const tag = game + "_" + cat.key + "_" + String(i).padStart(2, "0");
+          const prompt = "game asset: " + requirement.trim().slice(0, 120) + (i > 1 ? " (variation " + i + ")" : "") + ". style: dark sumi ink cel anime, high contrast. " + (green ? "isolated on a solid #00B140 green screen background, no character, no text, no watermark" : "flat vector card, clean lines, dark panel, no watermark");
+          spec.push({ tag, prompt, ratio: "1:1", size: "1K", out: (green ? raw : artDir) + "/" + tag + ".png", retries: 3 });
+        }
+        fs.mkdirSync(recordsDir, { recursive: true });
+        batchFile = path.join(recordsDir, planId + "-batch.json");
+        fs.writeFileSync(batchFile, JSON.stringify(spec, null, 2));
+        tasks.push({
+          id: "T1-gen", step: 1, tool: "agnes_t2i", do: "生成 " + N + " 张美术素材（T2I 批量）",
+          action: "按批次 spec 生成 " + cat.label + "（" + game + "，共 " + N + " 张）",
+          command: "python " + tools.t2i_tool + " batch " + batchFile,
+          green_chroma: green,
+          out_dir: artDir + "/",
+          inputs: { batch_file: batchFile, tag_pattern: game + "_" + cat.key + "_01.._" + String(N).padStart(2, "0"), count: N, out_root: (green ? raw : artDir) },
+          outputs: (green ? raw : artDir) + "/" + game + "_" + cat.key + "_*.png（共 " + N + " 张" + (green ? "，绿幕母版" : "，直接成品") + "）",
+          verify: "统计输出目录中 " + game + "_" + cat.key + "_*.png 数量 === " + N + "（exit 0 / BATCH DONE all ok）",
+          fallback: "Agnes 429 用 t2i_retry 退避重试；彻底不可用时回退 Pollinations flux（https://image.pollinations.ai/prompt/ 后接 URL 编码的 prompt，加 ?model=flux&nologo=true）",
+          assumed: tools.assumed,
+        });
+        if (green) tasks.push({
+          id: "T2-chroma", step: 2, tool: "chroma_key", do: "绿幕母版 → 透明 PNG（" + N + " 张）",
+          command: "python " + tools.chroma_tool + " " + raw + "/" + firstTag + ".png " + artDir + "/" + firstTag + ".png",
+          batch_cmd: "powershell -NoProfile -Command \"Get-ChildItem -LiteralPath '" + raw + "' -Filter '" + game + "_" + cat.key + "_*.png' | ForEach-Object { & python '" + tools.chroma_tool + "' $_.FullName ('" + artDir + "/' + $_.Name) }\"",
+          inputs: raw + " 下 " + N + " 张 #00B140 绿幕母版",
+          outputs: artDir + "/" + game + "_" + cat.key + "_*.png（透明 RGBA，共 " + N + " 张）",
+          verify: "node 读 PNG IHDR 确认带 alpha；绿覆盖率接近 0",
+          note: "对每个 tag 重复（把 01 换成 02…）；或跑 batch_cmd 一次处理全部",
+          assumed: tools.assumed,
+        });
+        tasks.push({
+          id: "T3-sync", step: 3, tool: "git_art_repo", do: "同步进 art-assets 仓并提交",
+          command: "git -C " + tools.art_repo + " add -A && git -C " + tools.art_repo + " commit -m \"art(" + game + "): " + requirement.slice(0, 40) + " (x" + N + ")\"",
+          only_add: "只增新文件，不覆盖既有美术",
+          inputs: artDir + " 下新增的成品 PNG（" + N + " 张）",
+          outputs: "art-assets 仓新增 1 个 commit",
+          verify: "git -C " + tools.art_repo + " log -1 --oneline 出现该 commit 且 git status 干净",
+          assumed: tools.assumed,
+        });
+        const stageDir = local.art_dir || (tools.batch_dir + "/integrate/" + game + "/img");
+        tasks.push({
+          id: "T4-integrate", step: 4, tool: "game_ingest", do: "游戏项目 img/ 接入 + 冒烟",
+          action: "把新素材拷入 " + game + " 的 img/ 目录（只增不覆盖，/XO），node --check 验证无语法错",
+          command: "robocopy " + artDir + " " + stageDir + " /E /XO",
+          inputs: artDir + "（源）",
+          outputs: stageDir + "（并入 " + N + " 张）",
+          verify: "node --check 该游戏主文件无语法错；对比前后文件数",
+          local_dirs: local.dirs_found,
+          local_assumed: !local.art_dir,
+          note: local.art_dir ? "已定位本机项目目录：" + local.art_dir : "未找到 " + game + " 的 img/ 目录，先落 staging：" + stageDir + "，请手动拷入游戏项目",
+        });
+        tasks.push({
+          id: "T5-report", step: 5, tool: "report_back", do: "回传结果 + 登记知识库",
+          action: "POST /api/record {plan_id:" + planId + "} 记录；新素材 POST /api/tags/parse 登记",
+          command: "curl -X POST " + base + "/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: planId, result: "", status: "complete" }) + "'；再 POST " + base + "/api/tags/parse -d '" + JSON.stringify({ text: requirement, domain: domain, source: game }) + "'",
+          inputs: "本 plan 的执行结果 + 新素材清单",
+          outputs: "records/agent-plans 记录 1 条 + 知识库新标签",
+          verify: "GET " + base + "/api/records 中可查到 plan_id=" + planId,
+        });
+      } else if (domain === "video") {
+        const N = parseAgentQuantity(requirement + " " + ctx);
+        const outDir = tools.video_out_dir;
+        const s1 = outDir + "/" + planId + "_shot1.mp4";
+        const s2 = outDir + "/" + planId + "_shot2.mp4";
+        const finalMp4 = outDir + "/" + planId + "_final.mp4";
+        tasks.push({
+          id: "V1-script", step: 1, tool: "domain_plan", do: "生成脚本 + 分镜（" + N + " 镜）",
+          command: "curl \"" + base + "/api/generate?idea=" + encodeURIComponent(requirement) + "\"",
+          inputs: requirement,
+          outputs: "台词 + 分镜结构 + 每镜 T2V prompt（可再 POST " + base + "/api/export 出完整脚本包）",
+          verify: "拿到 N 段分镜 prompt；LLM 在线走模型，离线回退本地方案池",
+        });
+        tasks.push({
+          id: "V2-t2v", step: 2, tool: "agnes_t2v", do: "逐镜 T2V 生成（16:9，5s/镜）",
+          command: "python " + tools.t2v_tool + " create \" " + requirement.trim() + " \" --aspect 16:9 --seconds 5 --out " + s1,
+          batch_hint: "对第 2..N 镜重复：--out " + outDir + "/" + planId + "_shot{N}.mp4（N 取 2..总镜数）；429/queue_full 用 --max-wait 增大或 poll 续跑",
+          inputs: "V1 的每镜 prompt",
+          outputs: outDir + "/" + planId + "_shot1..N.mp4（共 " + N + " 段）",
+          verify: "ffprobe 各 shot 段可解码、时长约 5s",
+          assumed: tools.assumed,
+        });
+        tasks.push({
+          id: "V3-compose", step: 3, tool: "ffmpeg_compose", do: "合成 + BGM + 字幕 + 合规角标",
+          command: "& " + tools.video_compose + " -i " + s1 + " -i " + s2 + " -filter_complex \"[0:v][1:v]concat=n=2:v=1\" -c:v libx264 -c:a aac " + finalMp4,
+          batch_hint: "N>2 时 concat=n=N 且依次列出各 -i；BGM 用 tools/bgm.py、ASS 字幕、合规角标",
+          inputs: "V2 的 N 段 mp4 + BGM/字幕",
+          outputs: finalMp4,
+          verify: "ffprobe 成片时长 = N×5s、可播放",
+          assumed: tools.assumed,
+        });
+        tasks.push({
+          id: "V4-publish", step: 4, tool: "biliup", do: "发布到 B 站",
+          command: "pwsh -NoProfile -File " + tools.video_publish + " " + finalMp4,
+          inputs: finalMp4,
+          outputs: "B 站投稿（biliup code:0 = 成功）",
+          verify: "biliup 输出 code:0；视频已入库",
+          assumed: tools.assumed,
+        });
+        tasks.push({
+          id: "V5-report", step: 5, tool: "report_back", do: "回传结果 + 登记知识库",
+          command: "curl -X POST " + base + "/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: planId, domain: "video", result: "", status: "complete" }) + "'；再 POST " + base + "/api/tags/parse -d '" + JSON.stringify({ text: requirement, domain: "video", source: "creator" }) + "'",
+          inputs: "成片路径 + 发布结果",
+          outputs: "records/agent-plans 记录 + 知识库登记",
+          verify: "GET " + base + "/api/records 中可查到 plan_id=" + planId,
+        });
+      } else {
+        // 功能类需求（game/novel/cross，非美术非视频）→ 领域方案 + 实现包 + 回传
+        tasks.push({
+          id: "T1-plan", step: 1, tool: "domain_plan", do: "生成领域方案",
+          action: "POST /api/generate?idea=（LLM 在线时走模型，离线回退本地方案池）",
+          command: "curl \"" + base + "/api/generate?idea=" + encodeURIComponent(requirement) + "\"",
+          domain,
+          inputs: requirement,
+          outputs: "领域方案（数值/大纲/脚本候选）",
+          verify: "HTTP 200 且返回方案候选",
+        });
+        tasks.push({
+          id: "T2-implement", step: 2, tool: "export_pack", do: "导出 agent 实现包并本地实现",
+          action: "POST /api/export 拿 markdown 实现包，按其中 agent 指令本地实现",
+          command: "curl -X POST " + base + "/api/export -H \"content-type: application/json\" -d '" + JSON.stringify({ idea: requirement, domain: domain, choices: {}, steps: [] }) + "'",
+          inputs: "T1 的方案（choices/steps 可带上）",
+          outputs: "markdown 实现包 + 本地落地代码",
+          verify: "本地实现后 node --check 通过；产物落到目标工程",
+        });
+        tasks.push({
+          id: "T3-report", step: 3, tool: "report_back", do: "回传结果",
+          action: "POST /api/record {plan_id:" + planId + ", domain, result} 记录",
+          command: "curl -X POST " + base + "/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: planId, domain: domain, result: "", status: "complete" }) + "'",
+          inputs: "执行结果",
+          outputs: "records/agent-plans 记录 1 条",
+          verify: "GET " + base + "/api/records 中可查到 plan_id=" + planId,
+        });
+      }
+      const plan = {
+        _schema: "asset-dashboard/agent-plan@1",
+        plan_id: planId,
+        created_at: new Date().toISOString(),
+        requirement, domain, game: game || null, kind,
+        category: category ? category.key : null,
+        base,
+        batch_file: batchFile,
+        llm: (() => { const c = llmCfg(); return { online: !!(c.apiBase && c.apiKey), model: c.model }; })(),
+        matched_assets: matched,
+        matched_assets_note: matched.length ? "从 knowledge/asset-tags.json 命中 " + matched.length + " 条，可先复用再决定新增" : "资产库无直接命中，需全新生成",
+        local_game_dirs: local,
+        execution: { tasks, tools: { source: tools.tools_source, assumed: tools.assumed, paths: { t2i_tool: tools.t2i_tool, t2i_retry: tools.t2i_retry, chroma_tool: tools.chroma_tool, art_repo: tools.art_repo, batch_dir: tools.batch_dir, raw_dir: tools.raw_dir, t2v_tool: tools.t2v_tool, video_compose: tools.video_compose, biliup_tool: tools.biliup_tool, video_out_dir: tools.video_out_dir, video_publish: tools.video_publish } } },
+        report_back: { record: "POST " + base + "/api/record {plan_id:\"" + planId + "\", result:\"…\"}", parse: "POST " + base + "/api/tags/parse {text, domain, source}" },
+        next_step: "GET " + base + "/api/agent/step?plan_id=" + planId,
+      };
+      fs.mkdirSync(recordsDir, { recursive: true });
+      saveAgentRecord(plan, { done: [], current: null, updated_at: null });
+      fs.appendFileSync(path.join(recordsDir, "agent-plans.jsonl"), JSON.stringify({ ts: plan.created_at, plan_id: planId, requirement, domain, kind, game: game || null }) + "\n");
+      res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify({ ok: true, plan }));
+  },
+  // 分步合成：取方案中下一个未完成步骤（缺省=最近 plan 的下一个待做步）
+  "/api/agent/step": (q, req, res) => {
+    if (!agentAuthOk(req, res)) return null;
+    const base = (req.headers["x-forwarded-proto"] ? req.headers["x-forwarded-proto"] + "://" : (req.socket.secure ? "https://" : "http://")) + (req.headers.host || "127.0.0.1:7800");
+    const cliRel = path.join("asset-dashboard", "agent-cli.mjs");
+    const want = q.get("plan_id") || "";
+    let rec;
+    if (want) {
+      rec = loadAgentRecord(want);
+      if (!rec) { res.writeHead(404, { "content-type": "application/json" }); return res.end(JSON.stringify({ ok: false, error: "plan not found: " + want })); }
     } else {
-      // 非美术需求 → 领域方案（复用 plans/games/styles 知识库 + LLM 增强）
-      tasks.push({
-        id: "T1-plan", step: 1, tool: "domain_plan", do: "生成领域方案",
-        action: "POST /api/generate?idea=" + encodeURIComponent(requirement) + "（LLM 在线时走模型，离线回退本地方案池）",
-        command: "curl \"<base_url>/api/generate?idea=" + encodeURIComponent(requirement) + "\"",
-        domain,
-      });
-      tasks.push({
-        id: "T2-implement", step: 2, tool: "export_pack", do: "导出 agent 实现包并本地实现",
-        action: "POST /api/export {idea:\"" + requirement + "\", domain:\"" + domain + "\", choices:{}, steps:[]} → 拿 markdown 实现包，按其中 agent 指令本地实现",
-        command: "curl -X POST <base_url>/api/export -H \"content-type: application/json\" -d '" + JSON.stringify({ idea: requirement, domain: domain, choices: {}, steps: [] }) + "'",
-      });
-      tasks.push({
-        id: "T3-report", step: 3, tool: "report_back", do: "回传结果",
-        action: "POST /api/record {plan_id, domain, result} 记录",
-        command: "curl -X POST <base_url>/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: "<本方案 plan_id>", domain: domain, result: "…" }) + "'",
-      });
+      const dir = agentRecordsDir();
+      const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.startsWith("plan-") && f.endsWith(".json")).sort().reverse() : [];
+      for (const f of files) { rec = loadAgentRecord(f.replace(/\.json$/, "")); if (rec) break; }
+      if (!rec) { res.writeHead(404, { "content-type": "application/json" }); return res.end(JSON.stringify({ ok: false, error: "no saved plan yet" })); }
     }
-    const planId = "plan-" + Date.now().toString(36);
-    const plan = {
-      _schema: "asset-dashboard/agent-plan@1",
+    const plan = rec.plan;
+    const progress = rec.progress;
+    const tasks = (plan.execution && plan.execution.tasks) || [];
+    const explicit = q.get("step") || "";
+    let task = explicit ? tasks.find(t => t.id === explicit || String(t.step) === explicit) : null;
+    if (!task) task = nextUndoneStep(plan, progress);
+    const total = tasks.length;
+    const doneCount = (progress.done || []).length;
+    if (task) {
+      const view = agentStepView(plan, task, progress, base, cliRel);
+      return { ok: true, plan_id: plan.plan_id, all_done: false, done_count: doneCount, total, step: view, next: "/api/agent/step?plan_id=" + plan.plan_id };
+    }
+    return { ok: true, plan_id: plan.plan_id, all_done: doneCount >= total && total > 0, done_count: doneCount, total, step: null, next: null, note: "全部步骤已完成" };
+  },
+  // 分步合成：标记某步完成（写 progress + append agent-plans.jsonl）
+  "/api/agent/step/done": async (q, req, res) => {
+    if (!agentAuthOk(req, res)) return null;
+    if (req.method !== "POST") { res.writeHead(405, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "POST only" })); }
+    const body = await readBody(req);
+    const planId = String(body.plan_id || "").trim();
+    const stepId = String(body.step || "").trim();
+    if (!planId || !stepId) { res.writeHead(400, { "content-type": "application/json" }); return res.end(JSON.stringify({ error: "plan_id 与 step 必填" })); }
+    const rec = loadAgentRecord(planId);
+    if (!rec) { res.writeHead(404, { "content-type": "application/json" }); return res.end(JSON.stringify({ ok: false, error: "plan not found: " + planId })); }
+    const plan = rec.plan;
+    const tasks = (plan.execution && plan.execution.tasks) || [];
+    if (!tasks.some(t => t.id === stepId)) { res.writeHead(404, { "content-type": "application/json" }); return res.end(JSON.stringify({ ok: false, error: "step not found in plan: " + stepId })); }
+    const progress = rec.progress;
+    if (!progress.done.includes(stepId)) progress.done.push(stepId);
+    const result = body.result != null ? String(body.result).slice(0, 4000) : undefined;
+    saveAgentRecord(plan, progress);
+    fs.appendFileSync(path.join(agentRecordsDir(), "agent-plans.jsonl"), JSON.stringify({ ts: new Date().toISOString(), plan_id: planId, event: "step_done", step: stepId, result }) + "\n");
+    const base = (req.headers["x-forwarded-proto"] ? req.headers["x-forwarded-proto"] + "://" : (req.socket.secure ? "https://" : "http://")) + (req.headers.host || "127.0.0.1:7800");
+    const doneCount = progress.done.length;
+    const total = tasks.length;
+    const next = nextUndoneStep(plan, progress);
+    return {
+      ok: true,
       plan_id: planId,
-      created_at: new Date().toISOString(),
-      requirement, domain, game: game || null, kind: isArt ? "art" : "feature",
-      category: category ? category.key : null,
-      llm: (() => { const c = llmCfg(); return { online: !!(c.apiBase && c.apiKey), model: c.model }; })(),
-      matched_assets: matched,
-      matched_assets_note: matched.length ? "从 knowledge/asset-tags.json 命中 " + matched.length + " 条，可先复用再决定新增" : "资产库无直接命中，需全新生成",
-      local_game_dirs: local,
-      execution: { tasks, tools: { source: tools.tools_source, assumed: tools.assumed, paths: { t2i_tool: tools.t2i_tool, t2i_retry: tools.t2i_retry, chroma_tool: tools.chroma_tool, art_repo: tools.art_repo, batch_dir: tools.batch_dir, raw_dir: tools.raw_dir } } },
-      report_back: { record: "POST /api/record {plan_id:\"" + planId + "\", ...}", parse: "POST /api/tags/parse {text, domain, source}" },
+      done: stepId,
+      done_count: doneCount,
+      total,
+      all_done: doneCount >= total && total > 0,
+      next: next ? next.id : null,
+      next_step_url: next ? "/api/agent/step?plan_id=" + planId + "&step=" + next.id : null,
     };
-    const dir = path.join(__dirname, "records");
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, planId + ".json"), JSON.stringify({ plan }, null, 2));
-    fs.appendFileSync(path.join(dir, "agent-plans.jsonl"), JSON.stringify({ ts: plan.created_at, plan_id: planId, requirement, domain, kind: plan.kind, game: game || null }) + "\n");
-    res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
-    return res.end(JSON.stringify({ ok: true, plan }));
   },
 };
 
