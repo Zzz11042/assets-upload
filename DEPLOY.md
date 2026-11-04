@@ -82,7 +82,7 @@ node server.mjs
 
 1. **本机开放模式**（127.0.0.1 监听）：`/api/agent/*` 无需鉴权，Codex 按仓库根 `AGENTS.md` 手册直接调用（manifest 能力发现 → plan 需求转机读方案 → 分步合成：`GET /api/agent/step` 取步 / `POST /api/agent/step/done` 标记完成 → 回传）。
 2. **公开部署鉴权**：设 `AGENT_TOKEN=<随机串>`（或 `settings.json` 写 `{"agentToken":"…"}`，后者优先）→ 所有 `/api/agent/*` 需请求头 `x-agent-token: <token>`；请配合 `SCAN_ROOTS_ALLOWED` / `MAX_BODY_BYTES` 使用（见 README「公开部署」）。
-3. **agent-local.json（每部署机自备）**：`asset-dashboard/agent-local.json`（.gitignore 排除）覆盖内置默认的本机工具路径——`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir / t2v_tool / video_compose / biliup_tool / video_out_dir / video_publish`。文件缺失时 manifest 与 plan 带 `assumed:true`，agent 应据此先核对路径再执行。
+3. **agent-local.json（每部署机自备）**：`asset-dashboard/agent-local.json`（.gitignore 排除）覆盖内置默认的本机工具路径——`t2i_tool / t2i_retry / t2i_key / chroma_tool / art_repo / batch_dir / raw_dir / t2v_tool / video_compose / biliup_tool / video_out_dir / video_publish / novel_out_dir`。文件缺失时 manifest 与 plan 带 `assumed:true`，agent 应据此先核对路径再执行。
 4. 完整端点、方案 schema（`asset-dashboard/agent-plan@1`）与执行/回传/分步合成约定见仓库根 `AGENTS.md`；本机 CLI：`node asset-dashboard/agent-cli.mjs manifest|plan|latest|step|done`（零依赖，`--base` 默认 `http://127.0.0.1:7800`，鉴权读 env `AGENT_TOKEN`）。
 
 本仓库仅保留 `asset-dashboard/` 本身，`game-forge/` 与 `tomato/` 不在仓内。相关端点（vault / books / projects 等）按设计返回空，不会报错；`/api/sources` 与「总览」页会显式列出缺失的数据源，避免误以为数据丢失。

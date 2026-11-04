@@ -164,6 +164,8 @@ function agentLocalTools() {
       biliup_tool: "E:/agent-work/creator/tools/biliup.exe",
       video_out_dir: "E:/agent-work/creator/out/agnes",
       video_publish: "E:/agent-work/creator/publish-agnes.ps1",
+      // 小说域产出根（书目录 {novel_out_dir}/{plan_id}，内 chapters/ + <plan_id>-book.md；不存在时 N3 命令自动创建）
+      novel_out_dir: "E:/agent-work/novels",
   };
   const local = readJson(path.join(__dirname, "agent-local.json"), null);
   if (!local || typeof local !== "object") return { ...defaults, tools_source: "default", assumed: true, note: "agent-local.json 缺失：使用内置默认本机路径（assumed），在部署机创建该文件可覆盖" };
@@ -248,8 +250,12 @@ function artPromptTemplates(game, category, reqText) {
     const t = String(text || "");
     const m = t.match(/(\d{1,3})\s*个/);
     if (m) return Math.max(1, Math.min(60, parseInt(m[1], 10)));
+    const mc = t.match(/(\d{1,3})\s*(?:章|集|回)/);
+    if (mc) return Math.max(1, Math.min(60, parseInt(mc[1], 10)));
     const cn = t.match(/([零一二两三四五六七八九十]{1,3})\s*个/);
     if (cn) { const n = cnToInt(cn[1]); if (n >= 1) return Math.max(1, Math.min(60, n)); }
+    const cnc = t.match(/([零一二两三四五六七八九十]{1,3})\s*(?:章|集|回)/);
+    if (cnc) { const n = cnToInt(cnc[1]); if (n >= 1) return Math.max(1, Math.min(60, n)); }
     return 3;
   }
   function agentRecordsDir() { return path.join(__dirname, "records"); }
@@ -406,6 +412,7 @@ const API = {
   // 方案生成：优先 LLM，未配置/失败回退本地
   "/api/generate": async (q) => {
     const kw = (q.get("idea") || "").trim();
+    const dom = String(q.get("domain") || "").trim().toLowerCase();
     const plans = readJson(path.join(FORGE, "knowledge/plans.json"), []);
     const pool = Array.isArray(plans) ? plans : Object.values(plans);
     const kwLow = kw.toLowerCase();
@@ -415,23 +422,30 @@ const API = {
       const hit = tokens.reduce((n, t) => n + (hay.includes(t) ? 1 : 0), 0) + (kw && hay.includes(kwLow) ? 2 : 0);
       return { plan: p, hit };
     }).sort((a, b) => b.hit - a.hit).slice(0, 3).map(x => x.plan);
+    // 小说域内置回退方案池：LLM 离线且本地方案池为空时保证 domain=novel 仍有候选（零依赖）
+    const novelPool = [
+      { name: "996 猝死的程序员：重生 2019", genre: "都市重生", one_liner: "程序员周然猝死后重生回 2019 年裁员前 3 个月，别人慌绩效，他提前「末位淘汰」身边人。", protagonist: "周然：嘴上怂心里精，职场管理流，口癖「编制」「末位淘汰」。", selling_points: "职场梗回旋镖 + 第一天反杀 + 老板自曝黑料。", conflict: "公司末位裁员倒计时 vs 主角提前布局与上辈子未竟局。", outline: "第 1 章 300 字入冲突 → 第 2 章反杀小爽 → 第 5 章全员工会公开反杀 → 第 10 章埋下卷二伏笔。" },
+      { name: "忠义的重生账本", genre: "都市异能", one_liner: "军警出身的忠义重生带着「账本」金手指，前世欠的、欠他的，一笔一笔在新生活结清。", protagonist: "忠义/皮特：先算账再动手，吐槽锚点=上辈子后勤处长。", selling_points: "账本式伏笔兑现 + 慢热悬疑 + 职场幽默。", conflict: "账本最大一笔债 vs 主角想提前退休。", outline: "第 1 章金手指亮相 + 第一笔账 → 第 3 章首次兑现 → 第 7 章债主上门小高潮 → 长线：账本最后一笔。" },
+      { name: "普通人末世最后一班岗", genre: "末世求生", one_liner: "末世爆发，最不起眼的打工人用 10 年「不起眼」保命：没人注意，就是最大金手指。", protagonist: "无名小卒：十年职场透明人，观察力满点。", selling_points: "「不起眼」优势 + 职场逻辑移植生存 + 每章 1 爽点。", conflict: "秩序崩塌 vs 个人生存策略。", outline: "第 1 章末世降临 + 金手指「不被注意」 → 第 2 章首次资源抢夺 → 第 5 章基地内讧高潮。" },
+    ];
+    const cands = local.length ? local : (dom === "novel" ? novelPool : local);
 
     const c = llmCfg();
     if (c.apiBase && c.apiKey && kw) {
       try {
         const msgs = [
-          { role: "system", content: "你是游戏/短剧/小说创意策划。给一句话思路，输出 3 个差异化方案。每个方案含 name/genre/one_liner/core_loop/mechanics(2-3条)/monetization/mvp_scope。每个字段 1 句话，简洁。只输出 JSON 数组。" },
+          { role: "system", content: dom === "novel" ? "你是网文主编。给一句话思路，输出 3 个差异化小说方案。每个方案含 name/genre(都市/年代/历史/科幻/玄幻等)/one_liner(黄金第一句)/protagonist(角色与成长弧)/selling_points(2-3个爽点钩子)/conflict(主线矛盾)/outline(按章关键节点)。每个字段 1 句话，简洁。只输出 JSON 数组。" : "你是游戏/短剧/小说创意策划。给一句话思路，输出 3 个差异化方案。每个方案含 name/genre/one_liner/core_loop/mechanics(2-3条)/monetization/mvp_scope。每个字段 1 句话，简洁。只输出 JSON 数组。" },
           { role: "user", content: "思路：" + kw + "\n参考已有方案池：" + JSON.stringify(local.map(p => p.name || p.id)) },
         ];
         const txt = await llmChat(msgs, 800);
         const m = txt.match(/\[[\s\S]*\]/);
         const arr = m ? JSON.parse(m[0]) : JSON.parse(txt);
-        return { mode: "llm", idea: kw, model: c.model, candidates: Array.isArray(arr) ? arr.slice(0, 3) : [arr] };
+        return { mode: "llm", idea: kw, domain: dom || "general", model: c.model, candidates: Array.isArray(arr) ? arr.slice(0, 3) : [arr] };
       } catch (e) {
-        return { mode: "local-fallback", idea: kw, llmError: String(e.message || e), candidates: local };
+        return { mode: "local-fallback", idea: kw, domain: dom || "general", llmError: String(e.message || e), candidates: cands };
       }
     }
-    return { mode: "local-fallback", idea: kw, candidates: local };
+    return { mode: "local-fallback", idea: kw, domain: dom || "general", candidates: cands };
   },
   // 分步向导：某要素的本地 3 候选（LLM 不可用时的回退）+ LLM 在线时按领域生成候选（附 1 句解释）
   "/api/steps": async (q) => {
@@ -1096,6 +1110,7 @@ const API = {
       { tool: "tags_parse", method: "POST", endpoint: "/api/tags/parse", params: "text/domain/source", desc: "新资产 → LLM 提取标签 → 写入知识库" },
       { tool: "tags_refresh", method: "POST", endpoint: "/api/tags/refresh", desc: "重新解析本地库（跑 gen-asset-tags.mjs --force）" },
       { tool: "export", method: "POST", endpoint: "/api/export", desc: "导出 agent 实现包（markdown + JSON spec）" },
+      { tool: "generate", method: "GET", endpoint: "/api/generate", params: "idea/domain?", desc: "创意方案池：LLM 在线出 3 个差异化方案（domain=novel 走网文主编模板：世界观/爽点/章纲），离线回退本地方案池" },
       { tool: "asset_preview", method: "GET", endpoint: "/api/asset-preview", params: "path/root", desc: "图片二进制实时预览" },
       { tool: "asset_text", method: "GET", endpoint: "/api/asset-text", params: "path/root", desc: "文档文本读取（≤20KB）" },
       { tool: "asset_browser", method: "GET", endpoint: "/api/assets", params: "path/root", desc: "目录浏览" },
@@ -1119,7 +1134,7 @@ const API = {
       agent_local: agentLocalTools(),
       loop: [
         "1. GET /api/agent/manifest（能力发现）",
-        "2. POST /api/agent/plan {requirement, domain?, game?, context?} → 机读方案",
+        "2. POST /api/agent/plan {requirement, domain?, game?, context?} → 机读方案（kind: art|video|novel|feature，分步合成任务序列）",
         "3. 分步合成：GET /api/agent/step?plan_id=… 取下一步 → 本地执行 task.command → POST /api/agent/step/done {plan_id, step} 标记完成，循环直到 all_done",
         "4. POST /api/record {plan_id, result} 回传结果；新素材 POST /api/tags/parse 登记知识库",
       ],
@@ -1175,12 +1190,13 @@ const API = {
       // 分步合成：每步 command 具体可跑（带 inputs/outputs/verify），无 <占位符>
       const planId = "plan-" + Date.now().toString(36);
       const base = (req.headers["x-forwarded-proto"] ? req.headers["x-forwarded-proto"] + "://" : (req.socket.secure ? "https://" : "http://")) + (req.headers.host || "127.0.0.1:7800");
-      const kind = isArt ? "art" : (domain === "video" ? "video" : "feature");
+      const kind = isArt ? "art" : (domain === "video" ? "video" : (domain === "novel" ? "novel" : "feature"));
       const tasks = [];
       const tools = agentLocalTools();
       const local = localGameDirs(game);
       const recordsDir = path.join(__dirname, "records");
       let batchFile = null;
+      let chSpecFile = null;
       if (isArt) {
         const cat = category || categorizeArt(fullText);
         const green = cat.key !== "ui";
@@ -1295,8 +1311,63 @@ const API = {
           outputs: "records/agent-plans 记录 + 知识库登记",
           verify: "GET " + base + "/api/records 中可查到 plan_id=" + planId,
         });
+      } else if (domain === "novel") {
+        const N = parseAgentQuantity(requirement + " " + ctx);
+        const bookDir = tools.novel_out_dir + "/" + planId;
+        const chDir = bookDir + "/chapters";
+        const bookFile = bookDir + "/" + planId + "-book.md";
+        chSpecFile = path.join(recordsDir, planId + "-chapters.json");
+        // 章节表 spec（机读 N 章）：黄金开局 + 推进 + 阶段高潮；每章 800-1500 字，章末必须留钩子
+        const chs = [];
+        for (let i = 1; i <= N; i++) {
+          let title, beat, hook;
+          if (i === 1) { title = "开局钩子"; beat = "主角处境 + 核心设定亮出 + 第一个冲突爆发"; hook = "抛出主线悬念"; }
+          else if (i === 2) { title = "第一个爽点"; beat = "主角反击/反转小爽，立住人设"; hook = "更大麻烦逼近"; }
+          else if (i === N && N > 3) { title = "阶段高潮"; beat = "主线矛盾阶段性爆发，主角破局"; hook = "埋下下一阶段伏笔"; }
+          else if (i === N) { title = "小高潮"; beat = "前情矛盾收束一次，给出阶段性结果"; hook = "下一卷伏笔"; }
+          else { title = "推进"; beat = "主线推进：新人物/新信息入场，矛盾升级"; hook = "反转或危机升级"; }
+          chs.push({ ch: i, title, beat, words_min: 800, words_max: 1500, hook, file: chDir + "/" + String(i).padStart(3, "0") + ".md" });
+        }
+        fs.mkdirSync(recordsDir, { recursive: true });
+        fs.writeFileSync(chSpecFile, JSON.stringify({ plan_id: planId, requirement, n: N, book_dir: bookDir, chapters: chs }, null, 2));
+        tasks.push({
+          id: "N1-outline", step: 1, tool: "domain_plan", do: "生成小说域方案（3 选 1：世界观/爽点/章纲）",
+          command: "curl \"" + base + "/api/generate?idea=" + encodeURIComponent(requirement) + "&domain=novel\"",
+          inputs: requirement,
+          outputs: "3 个差异化小说方案（name/genre/one_liner/protagonist/selling_points/conflict/outline）；LLM 在线走模型，离线回退本地方案池",
+          verify: "HTTP 200 且 candidates 非空；选定 1 个方案作为章节表蓝本",
+        });
+        tasks.push({
+          id: "N2-chapters", step: 2, tool: "chapter_spec", do: "读/细化章节表（" + N + " 章）",
+          command: "node -e \"const fs=require('fs');const j=JSON.parse(fs.readFileSync('" + chSpecFile + "','utf8'));j.chapters.forEach(c=>console.log(c.ch+'. '+c.title+' ['+c.words_min+'-'+c.words_max+'字] '+c.beat+' → 钩子:'+c.hook+' → '+c.file))\"",
+          inputs: chSpecFile + "（server 已写好的机读章节表：标题/节拍/字数/钩子/落盘文件）",
+          outputs: "章节表按 N1 选定方案调整（直接编辑 " + chSpecFile + " 的 title/beat/hook）",
+          verify: "node -e 打印 " + N + " 章无报错；章节表与 N1 方案一致",
+        });
+        tasks.push({
+          id: "N3-draft", step: 3, tool: "chapter_scaffold", do: "章节骨架落盘 + 逐章写作",
+          command: "node -e \"const fs=require('fs');const j=JSON.parse(fs.readFileSync('" + chSpecFile + "','utf8'));j.chapters.forEach(c=>{fs.mkdirSync(require('path').dirname(c.file),{recursive:true});if(!fs.existsSync(c.file)){fs.writeFileSync(c.file,'# 第'+c.ch+'章 '+c.title+'\\n\\n【节拍】'+c.beat+'\\n\\n');}});console.log('scaffolded '+j.chapters.length+' chapters')\"",
+          action: "骨架落盘后，agent 按 N1 选定方案 + 章节表逐章写正文（每章 800-1500 字，章末必须留钩子），补写各 .md 正文段（保留标题与节拍行）",
+          inputs: chSpecFile + " 的 file 列 + N1 选定方案",
+          outputs: chDir + "/001..NNN.md（" + N + " 章正文）",
+          verify: "N 个 .md 全部存在且正文字数在 800-1500 区间（±30% 容忍），章末含钩子",
+        });
+        tasks.push({
+          id: "N4-compose", step: 4, tool: "book_compose", do: "合成整书 + 字数统计",
+          command: "node -e \"const fs=require('fs');const dir='" + chDir + "';const files=fs.readdirSync(dir).filter(f=>f.endsWith('.md')).sort();const out=files.map(f=>fs.readFileSync(dir+'/'+f,'utf8')).join('\\n\\n---\\n\\n');fs.writeFileSync('" + bookFile + "',out);console.log('composed '+files.length+' chapters, '+out.length+' chars')\"",
+          inputs: chDir + " 下 " + N + " 章 .md",
+          outputs: bookFile + "（单文件整书，章节间 --- 分隔）",
+          verify: "整书存在且总字数 ≥ " + (N * 800) + "（容忍已完成章数比例）",
+        });
+        tasks.push({
+          id: "N5-report", step: 5, tool: "report_back", do: "回传结果 + 登记知识库",
+          command: "curl -X POST " + base + "/api/record -H \"content-type: application/json\" -d '" + JSON.stringify({ plan_id: planId, domain: "novel", result: "", status: "complete" }) + "'；再 POST " + base + "/api/tags/parse -d '" + JSON.stringify({ text: requirement, domain: "novel", source: bookDir }) + "'",
+          inputs: "整书路径 " + bookFile + " + 章节表 " + chSpecFile,
+          outputs: "records/agent-plans 记录 1 条 + 知识库小说域新标签",
+          verify: "GET " + base + "/api/records 中可查到 plan_id=" + planId,
+        });
       } else {
-        // 功能类需求（game/novel/cross，非美术非视频）→ 领域方案 + 实现包 + 回传
+        // 功能类需求（game/cross，非美术非视频非小说）→ 领域方案 + 实现包 + 回传
         tasks.push({
           id: "T1-plan", step: 1, tool: "domain_plan", do: "生成领域方案",
           action: "POST /api/generate?idea=（LLM 在线时走模型，离线回退本地方案池）",
@@ -1331,11 +1402,12 @@ const API = {
         category: category ? category.key : null,
         base,
         batch_file: batchFile,
+        chapters_file: chSpecFile,
         llm: (() => { const c = llmCfg(); return { online: !!(c.apiBase && c.apiKey), model: c.model }; })(),
         matched_assets: matched,
         matched_assets_note: matched.length ? "从 knowledge/asset-tags.json 命中 " + matched.length + " 条，可先复用再决定新增" : "资产库无直接命中，需全新生成",
         local_game_dirs: local,
-        execution: { tasks, tools: { source: tools.tools_source, assumed: tools.assumed, paths: { t2i_tool: tools.t2i_tool, t2i_retry: tools.t2i_retry, chroma_tool: tools.chroma_tool, art_repo: tools.art_repo, batch_dir: tools.batch_dir, raw_dir: tools.raw_dir, t2v_tool: tools.t2v_tool, video_compose: tools.video_compose, biliup_tool: tools.biliup_tool, video_out_dir: tools.video_out_dir, video_publish: tools.video_publish } } },
+        execution: { tasks, tools: { source: tools.tools_source, assumed: tools.assumed, paths: { t2i_tool: tools.t2i_tool, t2i_retry: tools.t2i_retry, chroma_tool: tools.chroma_tool, art_repo: tools.art_repo, batch_dir: tools.batch_dir, raw_dir: tools.raw_dir, t2v_tool: tools.t2v_tool, video_compose: tools.video_compose, biliup_tool: tools.biliup_tool, video_out_dir: tools.video_out_dir, video_publish: tools.video_publish, novel_out_dir: tools.novel_out_dir } } },
         report_back: { record: "POST " + base + "/api/record {plan_id:\"" + planId + "\", result:\"…\"}", parse: "POST " + base + "/api/tags/parse {text, domain, source}" },
         next_step: "GET " + base + "/api/agent/step?plan_id=" + planId,
       };
